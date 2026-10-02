@@ -142,6 +142,10 @@ python tools/v4_pack_agent.py --agent agents/fiber_kimi --out submissions/v4/fib
 以及原有时间和次数预算。完整开发工作区中的记录为
 `reports/v4-migration/kimi-v4-validation.json`。
 
+该修订已完成一次官方本地 L3 整场测试：5331.53 分，294 秒，必选遗漏 1 个，
+6 次模型请求全部得到有效回复；天气理解、行动选择各成功 3 次。此轮没有真实超时，
+次夜恢复的触发路径由上述模拟故障测试验证。四卡全量成绩仍采用下面单独标明的历史记录。
+
 下面的四卡表属于已冻结的修订 v3，其源码保留在 `baselines/v4_kimi_v3/`，
 提交包保留为 `submissions/v4/fiber-kimi-v3-agent.zip`。不能把它作为本修订的四卡成绩。
 
