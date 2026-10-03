@@ -162,14 +162,15 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
                         reward += required
                     if uniformity and factor >= uniformity_threshold:
                         reward += uniformity
+                    science = weight * factor
+                    match_gain = max(0.0, science * scoring.program_multipliers.get(band, 1.0) - previous) + reward
+                    other_gain = max(0.0, science * mismatch - previous) + reward
                     if memo is not None:
-                        memo[duration] = (factor, band, reward)
+                        memo[duration] = (factor, band, match_gain, other_gain)
                 else:
-                    factor, band, reward = values
-                science = weight * factor
+                    factor, band, match_gain, other_gain = values
                 for k in positions:
-                    multiplier = multipliers[k] if programs[k] == band else mismatch
-                    gain = (max(0.0, science * multiplier - previous) + reward) * confidence
+                    gain = (match_gain if programs[k] == band else other_gain) * confidence
                     if gain > local_gains[k]:
                         local_gains[k], local_items[k], local_factors[k] = gain, item, factor
             for k in positions:

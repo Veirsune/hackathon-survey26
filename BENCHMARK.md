@@ -36,3 +36,7 @@ Both branches now permit at most one report beyond the free allowance per survey
 - Synthetic no-fault stress: weather filtering avoided the previous 150-point false report; all 1,096 non-report actions were unchanged.
 
 The stress tests used the preceding numerical baseline and are diagnostic experiments, not leaderboard scores or an estimated false-positive rate. No new model API run was performed for this diagnostic extension. The agent never reads the evaluator's hidden data.
+
+## Reused exposure gains
+
+The numerical optimizer now reuses matched/mismatched gains across overlapping pointings while applying each pointing's confidence separately. An algorithm-only L4 run retained all 1,079 reference actions and 6809.415585 points, taking 395.141 seconds versus 428.859 seconds for the reference (33.718 seconds saved). These are single timing measurements; no additional model API timing was measured. Weather-aware diagnostic behavior is unchanged.
