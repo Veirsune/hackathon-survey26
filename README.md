@@ -26,7 +26,7 @@ python -u agent.py
 
 Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
 
-Best tested local L4 result: **6778.03**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
+Best tested local L4 result: **6809.42**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
 
 ```sh
 python -m unittest discover -s tests -v

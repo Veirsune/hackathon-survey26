@@ -55,6 +55,35 @@ def marginal_gain(item: dict, duration: int, program: str, scoring) -> float:
     return gain * item.get("confidence", 1.0)
 
 
+def band_boundaries(item, scoring):
+    """Integral seconds on either side of a quadratic average-quality crossing."""
+    memo = item.get("_band_boundary_times")
+    if memo is not None:
+        return memo
+    a, b, c = item["quality_coefficients"]
+    scale = item["band_scale"]
+    quadratic, linear = scale * c / 3., scale * b / 2.
+    times = set()
+    for threshold in scoring.program_bands.values():
+        constant = scale * a - threshold
+        if abs(quadratic) < 1e-15:
+            roots = [-constant / linear] if abs(linear) >= 1e-15 else []
+        else:
+            discriminant = linear * linear - 4. * quadratic * constant
+            if discriminant < 0:
+                roots = []
+            else:
+                # Stable quadratic formula, including a repeated zero root.
+                q = -.5 * (linear + math.copysign(math.sqrt(discriminant), linear))
+                roots = [q / quadratic, constant / q] if q else [-linear / (2. * quadratic)]
+        for value in roots:
+            if math.isfinite(value) and 0 <= value <= item["max_duration"] + 1:
+                floor, ceil = math.floor(value), math.ceil(value)
+                times.update((floor - 1, floor, ceil, ceil + 1))
+    item["_band_boundary_times"] = tuple(sorted(times))
+    return item["_band_boundary_times"]
+
+
 def candidate_durations(cells: dict, scoring, low: int, high: int) -> list[int]:
     """Include exact threshold/saturation boundaries and a coarse safety grid."""
     times = {high}
@@ -67,6 +96,7 @@ def candidate_durations(cells: dict, scoring, low: int, high: int) -> list[int]:
             if maximum < low:
                 continue
             times.add(maximum)
+            times.update(t for t in band_boundaries(item, scoring) if low <= t <= maximum)
             thresholds = [1.0]
             if item["required_missing"]:
                 thresholds.append(scoring.required_threshold)
