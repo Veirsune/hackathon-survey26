@@ -111,8 +111,12 @@ class Planner(RuntimeAdvisor, SearchPlanner):
             return report
 
         started = perf_counter()
+        model_before = self.llm.seconds_spent
         action = self.plan(now, night_end, night_index, hours)
-        elapsed = perf_counter() - started
+        # Model selection waits occur inside plan(), but do not recur on every
+        # search. Charge them to real wall time, not the search-cost estimate.
+        model_wait = max(0., self.llm.seconds_spent - model_before)
+        elapsed = max(0., perf_counter() - started - model_wait)
         tier = state.fast_level
         previous = self._plan_costs[tier]
         self._plan_costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
