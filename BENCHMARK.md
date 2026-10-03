@@ -1,20 +1,26 @@
-# Local L4 benchmark
+# Local L4 comparison
 
-Frozen strategy: `request_calibrated`. Official local runner, 900-second budget, 8,800 targets including 440 required targets.
+Both branches now use the same calibrated numerical base (`request_calibrated`). The Kimi branch adds persistent expert review (`expert_calibrated`); the offline branch disables model transport unconditionally.
 
-| Component | Points |
+Official local runner, 900-second budget, 8,800 targets including 440 required targets.
+
+| Run | Total score | Wall time (s) | Model calls |
+| --- | ---: | ---: | ---: |
+| no-llm | 6724.877546 | 414.859 | 0 |
+| Kimi | 6724.877546 | 529.671 | 6 |
+
+All executable actions matched. Kimi accepted the balanced plan at all six reviews; all responses were valid, with 88.750 seconds of model waiting. This run shows no score benefit from model review and about 115 seconds of additional runtime, including preview computation and model waiting. It does not establish equivalence on other cards or future model responses.
+
+| Score component | Both runs |
 | --- | ---: |
 | Best target scores | 6425.377041 |
 | Required-target penalty | 0 |
 | Fault-report settlement | 100 |
 | Uniformity penalty | -0.499495 |
 | Observation-request reward | 200 |
-| **Total** | **6724.877546** |
 
-Wall time: 414.859 seconds. Model calls: 0. Both requests completed; 977 exposures, 8,294 targets observed, no reduced-search fallback.
+Both runs completed both requests and all required targets, observed 8,294 targets in 977 exposures, and used no reduced-search fallback. Public-feedback pointing calibration achieved a 99.74% fiber hit rate (12860/12893).
 
-Against the same fixed-request strategy without pointing calibration, score rose from 6560.712756 to 6724.877546. Fiber hit rate rose from 94.56% (12578/13301) to 99.74% (12860/12893). The trajectories differ, so this is an aggregate run comparison, not a matched-exposure causal estimate.
+Model settings: `kimi-for-coding`, 30 seconds per call, 120 seconds total, at most 6 calls, reasoning effort `low`. Its provider-side effect is unverified. Explicit environment settings override defaults. Neither branch includes credentials.
 
-This branch preserves the measured numerical code and replaces the disabled API client with an unconditional offline stub. No credentials are required or read. This is one local L4 run, not an official alpha leaderboard result or a generalization claim.
-
-The earlier Kimi release on main scored 6560.712756 without this calibration feature. That comparison mixes algorithm and model changes. A calibrated Kimi comparison is being evaluated separately; only matching numerical bases isolate the effect of Kimi.
+These are single local L4 measurements, not official alpha leaderboard scores. Numerical calibration improved the earlier 6560.712756 result; that improvement must not be attributed to Kimi.
