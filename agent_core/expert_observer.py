@@ -43,11 +43,11 @@ expires before such distant required deadlines.
 The balanced policy ALREADY includes the full required-target penalty; a large
 backlog alone is not a reason to double it.
 Choose a meaningful night-level policy: balanced preserves the calibrated
-executor; required doubles required-target priority; requests doubles request
-reward priority. good_sky favours targets that would be difficult to complete
+executor, including its existing 2x request priority; required doubles required-target priority; requests doubles request
+reward priority again to 4x relative to the official reward. good_sky favours targets that would be difficult to complete
 in poorer conditions, and should be used only if predicted science tradeoffs
 and weather/opportunity evidence justify reserving easier targets for later.
-These are planning weights, not changes to official scoring.
+These are planning weights, not changes to official scoring. A request completion_reward is paid ONCE for the whole request, not per target.
 Prefer balanced unless deadline inventory supports the opportunity cost. An
 exposure margin above 1 requests longer exposures; below 1 accepts more risk.
 Do not confuse a bad exposure with a fault. Throughput estimates can be biased
@@ -274,6 +274,13 @@ class ExpertObserver(RuntimeAdvisor):
                 "request_completions_change": leader["predicted_request_target_completions"] - baseline["predicted_request_target_completions"]})
         return {"now_utc": payload["now_utc"], "night_index": self.night_index_seen,
                 "nights_total": len(state.nights), "trigger": trigger,
+                "pointing_calibration": {
+                    "offset_alt_deg": round(self.mount.offset[0], 4),
+                    "offset_az_deg": round(self.mount.offset[1], 4),
+                    "accepted_fits": self.mount.fits,
+                    "ambiguous_fits_deferred": self.mount.ambiguous_fits,
+                    "source": "Own commands and public hit membership; uncertain estimate, not instrument telemetry.",
+                    "executor": "Compensates pointing automatically; extra exposure cannot repair a geometric miss."},
                 "current_plan": {"policy": self._observer_policy,
                                  "exposure_margin": self.exposure_margin,
                                  "review_due_night": self._observer_next_night,
@@ -401,7 +408,7 @@ class ExpertObserver(RuntimeAdvisor):
 
     def _request_values(self, now):
         requests, caps = super()._request_values(now)
-        multiplier = self.request_priority
+        multiplier = 2.0 * self.request_priority
         if multiplier == 1.0:
             return requests, caps
         return ({i: [(threshold, deadline, value * multiplier, key)

@@ -2,7 +2,7 @@
 
 A Python agent for the [GOSIM 2026 Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26).
 
-Kimi reviews observation history, weather, deadlines, and short planning previews to choose a persistent observing policy. A numerical scheduler selects pointings, fiber assignments, and exposure times. Accepted plans survive failed model calls and can be revised on later nights.
+Kimi reviews observation history, weather, deadlines, and short planning previews to choose a persistent observing policy. A numerical scheduler selects pointings, fiber assignments, and exposure times, with pointing calibration learned from public hit feedback. Accepted plans survive failed model calls and can be revised on later nights.
 
 ## Run
 
@@ -26,7 +26,7 @@ python -u agent.py
 
 Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
 
-Best tested local L4 result: **6560.71**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
+Best tested local L4 result: **6724.88**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
 
 ```sh
 python -m unittest discover -s tests -v
