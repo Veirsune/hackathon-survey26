@@ -64,7 +64,7 @@ class KimiClientTests(unittest.TestCase):
         self.assertNotIn("temperature", body)
         self.assertNotIn("reasoning_effort", body)
         self.assertEqual(json.loads(body["messages"][1]["content"]), {"天气": "晴"})
-        self.assertLessEqual(self.urlopen.call_args.kwargs["timeout"], 20)
+        self.assertLessEqual(self.urlopen.call_args.kwargs["timeout"], 30)
         self.assertNotIn(FAKE_ENV["OPENAI_API_KEY"], " ".join(logs))
 
     def test_primary_environment_overrides_fallbacks(self):
@@ -108,14 +108,14 @@ class KimiClientTests(unittest.TestCase):
         os.environ.update({"AGENT_LLM_TOTAL_SECONDS": "900", "AGENT_LLM_CALL_SECONDS": "99",
                            "AGENT_LLM_MAX_CALLS": "99", "AGENT_LLM_REASONING_EFFORT": "low"})
         client = kimi.LLMClient()
-        self.assertEqual((client.total_budget_seconds, client.call_timeout_seconds, client.max_calls), (120, 20, 8))
+        self.assertEqual((client.total_budget_seconds, client.call_timeout_seconds, client.max_calls), (120, 30, 8))
         client.ask_json("test", {}, 900)
         body = json.loads(self.urlopen.call_args.args[0].data)
         self.assertEqual(body["reasoning_effort"], "low")
         for name in ("AGENT_LLM_TOTAL_SECONDS", "AGENT_LLM_CALL_SECONDS", "AGENT_LLM_MAX_CALLS"):
             os.environ[name] = "nan"
         fallback = kimi.LLMClient()
-        self.assertEqual((fallback.total_budget_seconds, fallback.call_timeout_seconds, fallback.max_calls), (120, 20, 8))
+        self.assertEqual((fallback.total_budget_seconds, fallback.call_timeout_seconds, fallback.max_calls), (120, 30, 6))
 
     def test_call_count_and_total_budget_stop_future_attempts(self):
         client = kimi.LLMClient(max_calls=1)

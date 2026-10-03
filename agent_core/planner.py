@@ -13,7 +13,7 @@ from .geometry import format_utc, parse_utc, wrap180
 from .llm_client import LLMClient
 from .memory import TraceLog
 from .search import SearchPlanner
-from .runtime_advisor import RuntimeAdvisor
+from .expert_observer import ExpertObserver as RuntimeAdvisor
 from .report_budget import budgeted_report
 
 BLOCKING_KINDS = {"terrain_obstruction", "rocket_launch"}
@@ -77,6 +77,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
                 self._last_forecast_notices = message.get("notices", [])
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
         state.on_result(payload.get("last_result"), hours)
+        self._expert_after_result(payload, hours)
         self.active_requests = payload.get("active_requests") or []
         last_result = payload.get("last_result")
         if last_result and last_result.get("action") == "observe":
@@ -148,31 +149,21 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return int(max(60, min(3600, slot - into if into else slot)))
 
     def _pace(self, payload: dict, now) -> None:
-        """Do less work per decision when the wall clock is short for the nights still to come."""
-        state = self.state
-        remaining_wall = float((payload.get("wallclock") or {}).get("remaining_seconds", 1e9))
-        night_seconds = sum(max(0.0, (end - max(start, now)).total_seconds()) for start, end in state.nights if end > now)
-        # Predict the number of decisions from the agent's actual exposure
-        # choices; short observations otherwise exhaust the wall-clock budget.
-        decisions_left = max(1.0, night_seconds / max(180.0, min(1800.0, self.mean_exposure_seconds)))
-        per_decision = remaining_wall / decisions_left
-        level = 0 if per_decision > 0.45 else 1 if per_decision > 0.16 else 2
-        if self._plan_counts[0] >= 5:
-            # Reserve a tenth of the remaining budget for transport, bookkeeping
-            # and model work. Measured search costs include a 50% safety margin.
-            available = max(0., remaining_wall - max(10., min(90., .1 * remaining_wall)))
-            allocation = available / decisions_left
-            full_cost = self._plan_costs[0]
-            medium_cost = self._plan_costs[1] if self._plan_costs[1] is not None else .4 * full_cost
-            level = 0 if allocation >= 1.5 * full_cost else 1 if allocation >= 1.5 * medium_cost else 2
-        if level != state.fast_level:
-            self.log(f"planner: pace level {level} ({per_decision * 1000:.0f} ms per decision left)")
-            state.fast_level = level
+        """Use full search until the actual runtime reserve requires fallback."""
+        remaining = float((payload.get("wallclock") or {}).get("remaining_seconds", 1e9))
+        level = 0 if remaining > 180. else 2
+        if level != self.state.fast_level:
+            self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining)")
+            self.state.fast_level = level
 
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----
 
     def _maybe_report(self, hours: float, payload: dict):
-        return budgeted_report(self, hours, payload)
+        fallback = budgeted_report(self, hours, payload)
+        if fallback is not None:
+            return fallback
+        self._expert_review(hours, payload)
+        return self._expert_report(hours, payload)
 
     def _baseline_report(self, hours: float, payload: dict):
         state = self.state

@@ -14,6 +14,16 @@ from .pointing_refinement import refine
 
 
 class SearchPlanner:
+    def _science_preference(self, flux, quality):
+        if not getattr(self, "science_scarcity_enabled", False):
+            return 1.0
+        scoring = self.state.scoring
+        poorer_quality = scoring.program_bands["BRIGHT"] * .95
+        if quality <= poorer_quality or poorer_quality <= 0:
+            return 1.0
+        poorer_completion = min(1., max(0., flux * self.state.max_exposure * poorer_quality / scoring.f0t0))
+        return 1. + 2. * (1. - poorer_quality / quality) * (1. - poorer_completion)
+
     def _request_values(self, now):
         """Use request-window progress, never season-long target completion."""
         state = self.state
@@ -82,6 +92,7 @@ class SearchPlanner:
             best_score = state.best_score[i]
             missing = state.required[i] and state.factor[i] < scoring.required_threshold
             science = max(0.0, state.weight[i] * top_multiplier - best_score)
+            science *= self._science_preference(state.flux[i], state.scale)
             request_value = sum(row[2] for row in requests.get(i, ()))
             value = science + (scoring.required_penalty if missing else 0.0) + request_value
             if value <= 0.01:
@@ -95,7 +106,7 @@ class SearchPlanner:
                 continue
             visible.add(i)
             nights_left = max(1, state.last_night[i] - night_index + 1)
-            urgency = 1.0 + (2.0 / nights_left if missing else 0.0)
+            urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
             # Public flux is a cheap initial estimate of completion speed.
             preliminary.append((value * math.sqrt(max(0.001, state.flux[i])) * urgency, i))
         if not preliminary:
@@ -142,7 +153,7 @@ class SearchPlanner:
             b = (qe - q0 - c * maximum * maximum) / maximum
             missing = state.required[i] and state.factor[i] < scoring.required_threshold
             nights_left = max(1, state.last_night[i] - night_index + 1)
-            urgency = 1.0 + (2.0 / nights_left if missing else 0.0)
+            urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
             # Soft deadlines increase priority only moderately: the actual
             # 50-point penalty is already much larger than any science target.
             if missing and ha > 0 and up < 3600:
@@ -159,7 +170,12 @@ class SearchPlanner:
                 "uniformity_gain": uniformity.get(int(state.ra[i] // scoring.uniformity_band_width_deg), 0.0)
                     if state.factor[i] < scoring.uniformity_threshold else 0.0,
                 "confidence": 1.0,
+                "_exposure_cache": {},  # per target, recreated each decision
             }
+            science_preference = self._science_preference(state.flux[i],
+                max(0., (q0 + 4 * qm + qe) / 6. * state.scale))
+            item["weight"] *= science_preference
+            item["best_score"] *= science_preference
             a_rad, z_rad = math.radians(alt), math.radians(az)
             item["vector"] = (math.cos(a_rad) * math.cos(z_rad),
                               math.cos(a_rad) * math.sin(z_rad), math.sin(a_rad))

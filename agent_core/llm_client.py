@@ -76,11 +76,11 @@ class LLMClient:
             valid_url = False
         self.configured = bool(self.enabled and self._api_key and valid_url and self.model != "unconfigured")
         self.call_timeout_seconds = _number(
-            os.environ.get("AGENT_LLM_CALL_SECONDS", 20) if call_timeout_seconds is None else call_timeout_seconds, 20.0, 20.0)
+            os.environ.get("AGENT_LLM_CALL_SECONDS", 30) if call_timeout_seconds is None else call_timeout_seconds, 30.0, 30.0)
         self.total_budget_seconds = _number(
             os.environ.get("AGENT_LLM_TOTAL_SECONDS", 120) if total_budget_seconds is None else total_budget_seconds, 120.0, 120.0)
         self.max_calls = int(_number(
-            os.environ.get("AGENT_LLM_MAX_CALLS", 8) if max_calls is None else max_calls, 8, 8))
+            os.environ.get("AGENT_LLM_MAX_CALLS", 6) if max_calls is None else max_calls, 6, 8))
         self.max_tokens = max(64, int(_number(os.environ.get("AGENT_LLM_MAX_TOKENS", 2000), 2000, 4096)))
         effort = os.environ.get("AGENT_LLM_REASONING_EFFORT", "").strip().lower()
         self.reasoning_effort = effort if effort in {"low", "medium", "high"} else None

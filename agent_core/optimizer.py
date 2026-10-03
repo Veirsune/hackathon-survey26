@@ -116,16 +116,26 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
             for item, a, b, c, maximum, scale, band_scale, weight, previous, confidence, required, uniformity, requests in options:
                 if duration > maximum:
                     continue
-                model = max(0.0, a + b * duration / 2.0 + c * duration * duration / 3.0)
-                factor = min(1.0, max(0.0, scale * duration * model))
-                band_quality = model * band_scale
-                band = "DARK" if band_quality >= dark else "BRIGHT" if band_quality >= bright else "BACKUP"
-                reward = sum(share for threshold, deadline, share, _ in requests
-                             if duration <= deadline and factor >= threshold)
-                if required and factor >= required_threshold:
-                    reward += required
-                if uniformity and factor >= uniformity_threshold:
-                    reward += uniformity
+                # Search creates one cache per target per decision. Geometry
+                # copies share it; pointing confidence is applied below and
+                # deliberately excluded from the cached values.
+                memo = item.get("_exposure_cache")
+                values = memo.get(duration) if memo is not None else None
+                if values is None:
+                    model = max(0.0, a + b * duration / 2.0 + c * duration * duration / 3.0)
+                    factor = min(1.0, max(0.0, scale * duration * model))
+                    band_quality = model * band_scale
+                    band = "DARK" if band_quality >= dark else "BRIGHT" if band_quality >= bright else "BACKUP"
+                    reward = sum(share for threshold, deadline, share, _ in requests
+                                 if duration <= deadline and factor >= threshold)
+                    if required and factor >= required_threshold:
+                        reward += required
+                    if uniformity and factor >= uniformity_threshold:
+                        reward += uniformity
+                    if memo is not None:
+                        memo[duration] = (factor, band, reward)
+                else:
+                    factor, band, reward = values
                 science = weight * factor
                 for k in positions:
                     multiplier = multipliers[k] if programs[k] == band else mismatch
