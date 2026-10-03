@@ -85,70 +85,74 @@ def candidate_durations(cells: dict, scoring, low: int, high: int) -> list[int]:
 
 
 def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None):
-    """Jointly select exposure duration, program and at most one target per cell.
-
-    A small scheduling reserve in the denominator avoids splitting an otherwise
-    equal-yield exposure into repeated tiny shots; this is a planning heuristic,
-    not a claimed simulator overhead.
-    """
-    best = None
+    """Same joint objective with target constants cached outside duration loops."""
     programs = (force_program,) if force_program else ("DARK", "BRIGHT", "BACKUP")
+    multipliers = [scoring.program_multipliers.get(p, 1.0) for p in programs]
+    mismatch = scoring.mismatch_multiplier
+    dark, bright = scoring.program_bands["DARK"], scoring.program_bands["BRIGHT"]
+    required_threshold = scoring.required_threshold
+    uniformity_threshold = scoring.uniformity_threshold
+    positions = range(len(programs))
+    cached = []
+    for fiber, options in cells.items():
+        rows = []
+        for item in options:
+            rows.append((item, *item["quality_coefficients"], item["max_duration"],
+                         item["factor_scale"], item["band_scale"], item["weight"],
+                         item["best_score"], item.get("confidence", 1.0),
+                         scoring.required_penalty * item["urgency"] if item["required_missing"] else 0.0,
+                         item.get("uniformity_gain", 0.0), item.get("requests", ())))
+        cached.append((fiber, rows))
+    best = None
     for duration in candidate_durations(cells, scoring, low, high):
-        # A target's completion, required reward and request reward are shared
-        # by all three program declarations. Compute them only once.
-        evaluated = {}
-        for fiber, options in cells.items():
-            rows = []
-            for item in options:
-                if duration > item["max_duration"]:
+        totals = [0.0] * len(programs)
+        chosen = [{} for _ in programs]
+        contributions = [{} for _ in programs]
+        caps = [{} for _ in programs]
+        for fiber, options in cached:
+            local_gains = [0.0] * len(programs)
+            local_items = [None] * len(programs)
+            local_factors = [0.0] * len(programs)
+            for item, a, b, c, maximum, scale, band_scale, weight, previous, confidence, required, uniformity, requests in options:
+                if duration > maximum:
                     continue
-                a, b, c = item["quality_coefficients"]
                 model = max(0.0, a + b * duration / 2.0 + c * duration * duration / 3.0)
-                factor = min(1.0, max(0.0, item["factor_scale"] * duration * model))
-                band = scoring.program_band(model * item["band_scale"])
-                reward = request_gain(item, factor, duration)
-                if item["required_missing"] and factor >= scoring.required_threshold:
-                    reward += scoring.required_penalty * item["urgency"]
-                if item.get("uniformity_gain", 0.0) and factor >= scoring.uniformity_threshold:
-                    reward += item["uniformity_gain"]
-                science = item["weight"] * factor
-                gains = {
-                    program: (max(0.0, science * scoring.program_multiplier(program, band) - item["best_score"])
-                              + reward) * item.get("confidence", 1.0)
-                    for program in programs
-                }
-                rows.append((item, factor, gains))
-            evaluated[fiber] = rows
-        for program in programs:
-            chosen = {}
-            gain = 0.0
-            request_contributions = {}
-            request_caps = {}
-            for fiber, options in evaluated.items():
-                selected = None
-                selected_gain = 0.0
-                selected_factor = 0.0
-                for item, factor, gains in options:
-                    value = gains[program]
-                    if value > selected_gain:
-                        selected, selected_gain = item, value
-                        selected_factor = factor
-                if selected is not None:
-                    chosen[fiber] = selected
-                    gain += selected_gain
-                    for threshold, deadline, value, request_id in selected.get("requests", ()):
-                        if duration <= deadline and selected_factor >= threshold:
-                            contribution = value * selected.get("confidence", 1.0)
-                            request_contributions[request_id] = request_contributions.get(request_id, 0.0) + contribution
-                            request_caps[request_id] = selected["request_caps"][request_id]
-            # Do not count more than the remaining reward when several chosen
-            # fibres serve the same request and fewer completions are needed.
-            for request_id, value in request_contributions.items():
-                gain -= max(0.0, value - request_caps[request_id])
-            if not chosen:
+                factor = min(1.0, max(0.0, scale * duration * model))
+                band_quality = model * band_scale
+                band = "DARK" if band_quality >= dark else "BRIGHT" if band_quality >= bright else "BACKUP"
+                reward = sum(share for threshold, deadline, share, _ in requests
+                             if duration <= deadline and factor >= threshold)
+                if required and factor >= required_threshold:
+                    reward += required
+                if uniformity and factor >= uniformity_threshold:
+                    reward += uniformity
+                science = weight * factor
+                for k in positions:
+                    multiplier = multipliers[k] if programs[k] == band else mismatch
+                    gain = (max(0.0, science * multiplier - previous) + reward) * confidence
+                    if gain > local_gains[k]:
+                        local_gains[k], local_items[k], local_factors[k] = gain, item, factor
+            for k in positions:
+                selected = local_items[k]
+                if selected is None:
+                    continue
+                chosen[k][fiber] = selected
+                totals[k] += local_gains[k]
+                for threshold, deadline, share, request_id in selected.get("requests", ()):
+                    if duration <= deadline and local_factors[k] >= threshold:
+                        value = share * selected.get("confidence", 1.0)
+                        contributions[k][request_id] = contributions[k].get(request_id, 0.0) + value
+                        caps[k][request_id] = selected["request_caps"][request_id]
+        for k in positions:
+            if not chosen[k]:
                 continue
+            gain = totals[k]
+            for request_id, value in contributions[k].items():
+                gain -= max(0.0, value - caps[k][request_id])
             rate = gain / (duration + 40.0)
-            candidate = (rate, duration, program, chosen)
+            candidate = (rate, duration, programs[k], chosen[k])
             if best is None or (rate, duration) > (best[0], best[1]):
                 best = candidate
     return best
+
+

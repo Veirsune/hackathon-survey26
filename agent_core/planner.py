@@ -7,12 +7,14 @@ optimizer.py. RuntimeAdvisor integrates a bounded, configurable Kimi-compatible 
 from __future__ import annotations
 
 from datetime import timedelta
+from time import perf_counter
 
 from .geometry import format_utc, parse_utc, wrap180
 from .llm_client import LLMClient
 from .memory import TraceLog
 from .search import SearchPlanner
 from .runtime_advisor import RuntimeAdvisor
+from .report_budget import budgeted_report
 
 BLOCKING_KINDS = {"terrain_obstruction", "rocket_launch"}
 DIRECTION_AZ = {"N": 0.0, "NE": 45.0, "E": 90.0, "SE": 135.0, "S": 180.0,
@@ -55,6 +57,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.total_assigned = 0
         self.total_hit = 0
         self.mean_exposure_seconds = 900.0
+        self._plan_costs = [None, None, None]
+        self._plan_counts = [0, 0, 0]
         self._init_advisor()
 
         log(f"planner: {len(state.ids)} targets ({sum(state.required)} required), "
@@ -106,7 +110,13 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         if report is not None:
             return report
 
+        started = perf_counter()
         action = self.plan(now, night_end, night_index, hours)
+        elapsed = perf_counter() - started
+        tier = state.fast_level
+        previous = self._plan_costs[tier]
+        self._plan_costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
+        self._plan_counts[tier] += 1
         if action is None:
             return {"action": "wait", "duration_seconds": self._to_next_slot(now, night_start),
                     "reason": "nothing useful is up"}
@@ -143,6 +153,14 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         decisions_left = max(1.0, night_seconds / max(180.0, min(1800.0, self.mean_exposure_seconds)))
         per_decision = remaining_wall / decisions_left
         level = 0 if per_decision > 0.45 else 1 if per_decision > 0.16 else 2
+        if self._plan_counts[0] >= 5:
+            # Reserve a tenth of the remaining budget for transport, bookkeeping
+            # and model work. Measured search costs include a 50% safety margin.
+            available = max(0., remaining_wall - max(10., min(90., .1 * remaining_wall)))
+            allocation = available / decisions_left
+            full_cost = self._plan_costs[0]
+            medium_cost = self._plan_costs[1] if self._plan_costs[1] is not None else .4 * full_cost
+            level = 0 if allocation >= 1.5 * full_cost else 1 if allocation >= 1.5 * medium_cost else 2
         if level != state.fast_level:
             self.log(f"planner: pace level {level} ({per_decision * 1000:.0f} ms per decision left)")
             state.fast_level = level
@@ -150,6 +168,9 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----
 
     def _maybe_report(self, hours: float, payload: dict):
+        return budgeted_report(self, hours, payload)
+
+    def _baseline_report(self, hours: float, payload: dict):
         state = self.state
         state.force_program = None
         if self.reports >= MAX_REPORTS or hours - self.last_report_hours < 24.0:

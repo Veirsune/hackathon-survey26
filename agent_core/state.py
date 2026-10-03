@@ -17,6 +17,7 @@ from typing import NamedTuple, Optional
 
 from .geometry import FiberGrid, max_hour_angle_deg, parse_utc, wrap180
 from .scoring import ScoringModel
+from .report_budget import track_notice, collect_exposure
 
 ALT_MARGIN_DEG = 0.6
 SKY_MEMORY_HOURS = 2.0
@@ -209,6 +210,7 @@ class SurveyState:
             elif message.get("record_type") == "state_resync":
                 self._resync(message.get("observed_target_ids", []), message.get("best_scores", []))
         notices = (latest_bulletin or {}).get("notices", [])
+        track_notice(self, latest_bulletin)
         self.notices = {f"{n.get('event_kind')}|{n.get('direction')}" for n in notices
                         if n.get("event_kind") != "terrain_obstruction"}
 
@@ -287,6 +289,7 @@ class SurveyState:
                 self._all_ratios.append(ratio)
                 if prediction.clean:
                     self.clean_history.append((hours, self.pending_night, ratio))
+        collect_exposure(self, hours)
         self.pending.clear()
         self.update_scale(hours)
 
