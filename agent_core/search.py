@@ -10,6 +10,7 @@ from .geometry import (Moon, SIDEREAL_DEG_PER_SECOND, local_sidereal_deg,
                        tangent_offsets, wrap180)
 from .optimizer import completion, duration_to_factor, marginal_gain, optimise_field
 from .state import PendingPrediction
+from .pointing_refinement import refine
 
 
 class SearchPlanner:
@@ -262,6 +263,7 @@ class SearchPlanner:
                     best = candidate
         if best is None:
             return None
+        best = refine(self, candidates, best, information, visible, lst, seconds_left)
         # An optional adviser may select one of the already optimised actions.
         # Keep the original strict-greater tie rule and build predictions only
         # after selection, so the no-adviser path is exactly deterministic.
