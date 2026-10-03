@@ -17,7 +17,7 @@ from typing import NamedTuple, Optional
 
 from .geometry import FiberGrid, max_hour_angle_deg, parse_utc, wrap180
 from .scoring import ScoringModel
-from .report_budget import track_notice, collect_exposure
+from .report_budget import track_notice, collect_exposure, all_sky_weather
 
 ALT_MARGIN_DEG = 0.6
 SKY_MEMORY_HOURS = 2.0
@@ -203,6 +203,9 @@ class SurveyState:
 
     def on_messages(self, messages: list[dict], latest_bulletin: Optional[dict]) -> None:
         for message in messages:
+            if (self.pending and message.get("record_type") == "bulletin"
+                    and all_sky_weather(message.get("notices", ()))):
+                self._pending_sky_weather = True
             if message.get("record_type") == "bulletin" and message.get("initial"):
                 for notice in message.get("notices", []):
                     if notice.get("event_kind") == "terrain_obstruction":

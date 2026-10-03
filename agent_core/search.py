@@ -10,6 +10,7 @@ from .geometry import (Moon, SIDEREAL_DEG_PER_SECOND, local_sidereal_deg,
                        tangent_offsets, wrap180)
 from .optimizer import completion, duration_to_factor, marginal_gain, optimise_field
 from .state import PendingPrediction
+from .report_budget import all_sky_weather
 from .pointing_refinement import refine
 
 
@@ -297,6 +298,7 @@ class SearchPlanner:
                 best = selected
         _rate, duration, program, chosen, ca, cz = best
         state.pending.clear()
+        state._pending_sky_weather = all_sky_weather(state.notices)
         clean = not state.all_sky_notice()
         for item in chosen.values():
             a, b, c = item["quality_coefficients"]
