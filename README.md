@@ -1,35 +1,20 @@
-# Agent Observer
+# Agent Observer - No LLM
 
-A Python agent for the [GOSIM 2026 Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26).
+Offline numerical agent for the [GOSIM 2026 Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26).
 
-Kimi reviews observation history, weather, deadlines, and short planning previews to choose a persistent observing policy. A numerical scheduler selects pointings, fiber assignments, and exposure times. Accepted plans survive failed model calls and can be revised on later nights.
+This branch uses joint pointing, fiber assignment and exposure optimization, fixed request priority, fault diagnosis, and pointing calibration learned from public hit feedback. The model client is replaced with a disabled stub: API keys and model-enable environment variables cannot activate model calls.
 
-## Run
-
-Python 3.9+; no third-party dependencies. Set these environment variables:
-
-```dotenv
-OPENAI_BASE_URL=https://api.kimi.com/coding/v1
-OPENAI_MODEL=kimi-for-coding
-OPENAI_API_KEY=your-api-key
-AGENT_LLM_CALL_SECONDS=30
-AGENT_LLM_TOTAL_SECONDS=120
-AGENT_LLM_MAX_CALLS=6
-AGENT_LLM_REASONING_EFFORT=low
-```
-
-See `.env.example`. Keep credentials local; direct execution reads environment variables, while the competition platform supplies them at runtime.
+Python 3.9+; no third-party dependencies or API configuration.
 
 ```sh
 python -u agent.py
-```
-
-Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
-
-Best tested local L4 result: **6560.71**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
-
-```sh
 python -m unittest discover -s tests -v
 ```
+
+Input/output: JSONL, `participant-agent-protocol-v4`. Logs go to stderr.
+
+Best tested local L4 score: **6724.88**, with zero required targets missing. See [benchmark details](BENCHMARK.md).
+
+Use [`main`](https://github.com/Veirsune/hackathon-survey26/tree/main) for the Kimi agent, or this `no-llm` branch for the offline agent. Upload the complete project ZIP for either version.
 
 Based on the official Python example. See [LICENSE.md](LICENSE.md).

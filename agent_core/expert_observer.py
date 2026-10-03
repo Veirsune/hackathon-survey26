@@ -70,13 +70,6 @@ exposure_margin must be 0.95-1.10, review_after_nights integer 1-7. Every
 non-baseline policy or report must cite relevant evidence. Do not invent future
 events or infer a fault merely because this is a benchmark. You have a bounded
 review budget; an event can trigger review before the planned review night.
-review_after_nights is the earliest requested review, NOT a policy expiry.
-Quota or API failures may delay review: your accepted policy and exposure margin
-remain active until another valid review replaces them. Choose balanced with
-margin 1.0 to cancel an earlier plan. The numerical executor re-evaluates current
-weather estimates and unfinished targets on every action; good_sky only changes
-weights when conditions exceed its reference quality. Reports are one-shot
-proposals and are never repeated merely because a plan remains active.
 """
 
 
@@ -127,9 +120,11 @@ class ExpertObserver(RuntimeAdvisor):
 
     def _night_advice(self, night_start, payload):
         self.llm.begin_night(self.night_index_seen)
-        # A review date requests reconsideration; it does not cancel a plan.
-        # Keep accepted controls through quota gaps or API failures. Each action
-        # still re-evaluates current geometry, quality, and unfinished requests.
+        # Expired plans return to the calibrated baseline even after an API error.
+        if self.night_index_seen >= self._observer_next_night:
+            self.required_priority = self.request_priority = self.exposure_margin = 1.0
+            self._observer_policy = "balanced"
+            self.science_scarcity_enabled = False
 
     def _select_candidate(self, candidates, best, now, night_end, night_index):
         if getattr(self, "_policy_preview", False):
@@ -274,10 +269,6 @@ class ExpertObserver(RuntimeAdvisor):
                 "request_completions_change": leader["predicted_request_target_completions"] - baseline["predicted_request_target_completions"]})
         return {"now_utc": payload["now_utc"], "night_index": self.night_index_seen,
                 "nights_total": len(state.nights), "trigger": trigger,
-                "current_plan": {"policy": self._observer_policy,
-                                 "exposure_margin": self.exposure_margin,
-                                 "review_due_night": self._observer_next_night,
-                                 "persists_until_replaced": True},
                 "policy_previews": previews, "policy_comparison": comparison,
                 "history": {"recent_nights": compact,
                             "older_night_median": median(older) if older else None,
@@ -316,7 +307,7 @@ class ExpertObserver(RuntimeAdvisor):
         due = self.night_index_seen >= self._observer_next_night
         # Spread reviews over the entire public calendar; a material event can
         # borrow one future call. Repeated early weather changes cannot exhaust
-        # the full season's budget. Accepted plans persist until replaced.
+        # the full season's budget. Expired plans still revert to baseline.
         if not event and not due:
             return
         quota = min(self.llm.max_calls, max(1, ceil(self.llm.max_calls *
@@ -401,7 +392,7 @@ class ExpertObserver(RuntimeAdvisor):
 
     def _request_values(self, now):
         requests, caps = super()._request_values(now)
-        multiplier = self.request_priority
+        multiplier = 2.0  # Static control, independent of review dates.
         if multiplier == 1.0:
             return requests, caps
         return ({i: [(threshold, deadline, value * multiplier, key)

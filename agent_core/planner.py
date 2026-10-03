@@ -15,6 +15,7 @@ from .memory import TraceLog
 from .search import SearchPlanner
 from .expert_observer import ExpertObserver as RuntimeAdvisor
 from .report_budget import budgeted_report
+from .pointing_calibration import PointingCalibration
 
 BLOCKING_KINDS = {"terrain_obstruction", "rocket_launch"}
 DIRECTION_AZ = {"N": 0.0, "NE": 45.0, "E": 90.0, "SE": 135.0, "S": 180.0,
@@ -44,6 +45,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.state = state
         self.log = log
         self.grid = state.fiber_grid
+        self.mount = PointingCalibration(state, log)
         self.llm = LLMClient(log=log)
         self.trace = TraceLog(log=log)
 
@@ -75,6 +77,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         for message in payload.get("new_messages", []):
             if message.get("record_type") == "forecast":
                 self._last_forecast_notices = message.get("notices", [])
+        self.mount.consume(payload.get("last_result"))
+        self.mount.notice(payload.get("latest_bulletin"))
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
@@ -125,6 +129,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         if action is None:
             return {"action": "wait", "duration_seconds": self._to_next_slot(now, night_start),
                     "reason": "nothing useful is up"}
+        action = self.mount.correct(action)
         self.observe_count += 1
         self.mean_exposure_seconds = 0.95 * self.mean_exposure_seconds + 0.05 * action["duration_seconds"]
         action["reason"] = f"{len(action['assignments'])} fibres, program {action['program']}"
@@ -142,6 +147,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         """Called by agent.py right after an action is validated, so the consecutive-report
         counter (enforced by validation.py) stays correct even when a fallback replaced it."""
         self.consecutive_reports = self.consecutive_reports + 1 if action.get("action") == "report" else 0
+        self.mount.remember(action, self._current_payload.get("now_utc"))
 
     def _to_next_slot(self, now, night_start) -> int:
         slot = self.state.slot_seconds
