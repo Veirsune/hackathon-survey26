@@ -32,4 +32,6 @@ Best tested local L4 result: **6560.71**, with all required targets completed. S
 python -m unittest discover -s tests -v
 ```
 
+The offline agent is on the [`no-llm` branch](https://github.com/Veirsune/hackathon-survey26/tree/no-llm). Import the repository in the competition platform and select the desired branch.
+
 Based on the official Python example. See [LICENSE.md](LICENSE.md).
