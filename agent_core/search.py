@@ -15,8 +15,7 @@ from .pointing_refinement import refine
 
 class SearchPlanner:
     def _science_preference(self, flux, quality):
-        if not getattr(self, "science_scarcity_enabled", False):
-            return 1.0
+        # Static control: apply the public-quality opportunity rule every night.
         scoring = self.state.scoring
         poorer_quality = scoring.program_bands["BRIGHT"] * .95
         if quality <= poorer_quality or poorer_quality <= 0:
