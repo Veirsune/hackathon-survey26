@@ -11,6 +11,8 @@ python -u agent.py
 python -m unittest discover -s tests -v
 ```
 
+Fault diagnosis uses public weather warnings and allows at most one report beyond the free allowance per survey.
+
 Input/output: JSONL, `participant-agent-protocol-v4`. Logs go to stderr.
 
 Best tested local L4 score: **6809.42**, with zero required targets missing. See [benchmark details](BENCHMARK.md).

@@ -1,7 +1,20 @@
 """Spend public free-report allowance on sustained, unexplained throughput loss."""
 from statistics import median
+from datetime import timedelta
 
 from .geometry import parse_utc
+
+
+def all_sky_weather(notices):
+    """Quakes have their own geometry/cooldown gate; sky attenuation is different."""
+    for notice in notices:
+        if isinstance(notice, str):
+            kind, _, direction = notice.partition("|")
+        else:
+            kind, direction = notice.get("event_kind"), notice.get("direction")
+        if direction == "ALL" and kind not in ("earthquake", "terrain_obstruction"):
+            return True
+    return False
 
 
 def track_notice(state, bulletin):
@@ -20,6 +33,11 @@ def collect_exposure(state, hours):
     rows = getattr(state, "_diagnostic_exposures", [])
     rows.append((hours, state.pending_night, median(ratios)))
     state._diagnostic_exposures = [r for r in rows[-128:] if hours - r[0] <= 96.]
+    paid_rows = getattr(state, "_weather_clear_diagnostic_exposures", [])
+    if (not getattr(state, "_pending_sky_weather", True)
+            and not all_sky_weather(getattr(state, "notices", ()))):
+        paid_rows.append((hours, state.pending_night, median(ratios)))
+    state._weather_clear_diagnostic_exposures = [r for r in paid_rows[-128:] if hours - r[0] <= 96.]
 
 
 def budgeted_report(planner, hours, payload):
@@ -33,6 +51,7 @@ def budgeted_report(planner, hours, payload):
             planner._last_false_hours = float("-inf")
             planner._last_false_ratio = 1.
             state._diagnostic_exposures = []
+            state._weather_clear_diagnostic_exposures = []
             state.forget_quality_history()
         else:
             planner._false_since_correct = getattr(planner, "_false_since_correct", 0) + 1
@@ -42,10 +61,21 @@ def budgeted_report(planner, hours, payload):
     if getattr(planner, "_await_report_result", False):
         return None
     used = getattr(planner, "_false_since_correct", 0)
-    if used >= state.false_report_free_allowance:
-        return None
-    # Preserve the established strong-evidence path while it is still free.
-    original = planner._baseline_report(hours, payload)
+    paid = used >= state.false_report_free_allowance
+    if paid:
+        if all_sky_weather(getattr(state, "notices", ())):
+            return None
+        if getattr(planner, "_paid_diagnostic_attempts", 0) >= 1:
+            return None
+        if hours - getattr(planner, "_last_false_hours", float("-inf")) < 7 * 24:
+            return None
+        now = state.survey_start + timedelta(hours=hours)
+        remaining_hours = sum(max(0., (end - max(start, now)).total_seconds()) / 3600
+                              for start, end in state.nights)
+        if remaining_hours < 24.:
+            return None
+    # The original free path remains identical. Paid actions use stricter gates.
+    original = None if paid else planner._baseline_report(hours, payload)
     if original is not None:
         planner._await_report_result = True
         planner._pending_report_ratio = .6
@@ -59,7 +89,8 @@ def budgeted_report(planner, hours, payload):
     if len(older) < 32:
         return None
     reference = median(older)
-    rows = [r for r in getattr(state, "_diagnostic_exposures", ())
+    history_key = "_weather_clear_diagnostic_exposures" if paid else "_diagnostic_exposures"
+    rows = [r for r in getattr(state, history_key, ())
             if hours - r[0] <= 48. and r[0] - quake >= 7 * 24]
     nights = {}
     for when, night, ratio in rows:
@@ -73,16 +104,18 @@ def budgeted_report(planner, hours, payload):
     if min(map(len, groups)) < 3 or hours - max(t for t, _ in groups[-1]) > 2.:
         return None
     ratio = max(median(v for _, v in group) for group in groups) / max(reference, 1e-9)
-    if ratio >= .70:
+    if ratio >= (.55 if paid else .70):
         return None
     since_false = hours - getattr(planner, "_last_false_hours", float("-inf"))
-    if since_false < 7 * 24 and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):
+    if (paid or since_false < 7 * 24) and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):
         return None
+    if paid:
+        planner._paid_diagnostic_attempts = getattr(planner, "_paid_diagnostic_attempts", 0) + 1
     planner.reports += 1
     planner.last_report_hours = hours
     planner._await_report_result = True
     planner._pending_report_ratio = ratio
     planner.suspicion_hours = []
-    planner.log(f"planner: free diagnostic report at {payload.get('now_utc')} ratio={ratio:.3f} allowance_left={state.false_report_free_allowance-used}")
-    return {"action": "report", "reason": "Sustained throughput loss; diagnostic report within remaining free allowance",
+    planner.log(f"planner: {'bounded paid' if paid else 'free'} diagnostic report at {payload.get('now_utc')} ratio={ratio:.3f} allowance_left={state.false_report_free_allowance-used}")
+    return {"action": "report", "reason": "Further persistent throughput loss; one bounded paid diagnostic" if paid else "Sustained throughput loss; diagnostic report within remaining free allowance",
             "decision_source": "rule"}
