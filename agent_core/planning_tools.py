@@ -4,11 +4,15 @@ from datetime import timedelta
 
 from .geometry import parse_utc
 from .optimizer import completion
+from .latent_band import band_scale
 
 
 def project_exposure(probe, chosen, duration, program, finish):
     """Update a disposable ledger; repeats never accumulate completion."""
     state = probe.state
+    start = finish - timedelta(seconds=duration)
+    hours = (start - state.survey_start).total_seconds() / 3600.
+    projected_band_scale = band_scale(state, hours)
     science = reward = 0.
     required = request_targets = 0
     factors = {}
@@ -17,14 +21,13 @@ def project_exposure(probe, chosen, duration, program, finish):
         factor = completion(item, duration)
         a, b, c = item["quality_coefficients"]
         quality = max(0., a + b * duration / 2. + c * duration * duration / 3.)
-        band = state.scoring.program_band(quality * item["band_scale"])
+        band = state.scoring.program_band(quality * projected_band_scale)
         score = state.weight[i] * factor * state.scoring.program_multiplier(program, band)
         science += max(0., score - state.best_score[i]) * item.get("confidence", 1.)
         required += int(state.required[i] and state.factor[i] < state.scoring.required_threshold <= factor)
         state.best_score[i] = max(state.best_score[i], score)
         state.factor[i] = max(state.factor[i], factor)
         factors[state.ids[i]] = factor
-    start = finish - timedelta(seconds=duration)
     for request in probe.active_requests:
         remaining = int(request.get("remaining_count", 0))
         if remaining <= 0 or start < parse_utc(request["issued_at_utc"]) or finish > parse_utc(request["deadline_utc"]):
@@ -78,7 +81,8 @@ def evaluate_policies(planner, payload):
             action = probe.plan(moment, end, index, (moment - probe.state.survey_start).total_seconds() / 3600.)
             if action is None or probe._preview_best is None:
                 break
-            _, duration, program, chosen, _, _ = probe._preview_best
+            _, duration, _, chosen, _, _ = probe._preview_best
+            program = action["program"]
             moment += timedelta(seconds=duration)
             gain, req, targets, request_reward = project_exposure(probe, chosen, duration, program, moment)
             science += gain
