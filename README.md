@@ -15,7 +15,7 @@ Fault diagnosis uses public weather warnings and allows at most one report beyon
 
 Input/output: JSONL, `participant-agent-protocol-v4`. Logs go to stderr.
 
-Best tested local L4 score: **6809.42**, with zero required targets missing. See [benchmark details](BENCHMARK.md).
+Best tested numerical L4 score: **6882.57**, with zero required targets missing. See [benchmark details](BENCHMARK.md).
 
 Use [`main`](https://github.com/Veirsune/hackathon-survey26/tree/main) for the Kimi agent, or this `no-llm` branch for the offline agent. Import the GitHub repository in the competition platform and select the desired branch.
 
