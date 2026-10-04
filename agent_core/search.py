@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import heapq
+import json
 import math
 from datetime import timedelta
 
 from .geometry import (Moon, SIDEREAL_DEG_PER_SECOND, local_sidereal_deg,
                        lunar_factor, parse_utc, radec_to_altaz, shift_altaz,
                        tangent_offsets, wrap180)
-from .optimizer import completion, duration_to_factor, marginal_gain, optimise_field
+from .optimizer import completion, duration_to_factor, duration_to_required_factor, required_factor_scale, marginal_gain, optimise_field
 from .state import PendingPrediction
 from .report_budget import all_sky_weather
 from .pointing_refinement import refine_multistart as refine
@@ -186,8 +187,12 @@ class SearchPlanner:
             confidence = max(0.45, 0.85 ** state.misses[i])
             item["confidence"] = confidence
             durations = {maximum}
-            for threshold in (1.0, scoring.required_threshold if missing else 1.0):
+            for threshold in (1.0,):
                 point = duration_to_factor(item, threshold, state.min_exposure, maximum)
+                if point is not None:
+                    durations.add(point)
+            if missing:
+                point = duration_to_required_factor(item, scoring, state.min_exposure, maximum)
                 if point is not None:
                     durations.add(point)
             for threshold, deadline, _value, _rid in item["requests"]:
@@ -299,6 +304,22 @@ class SearchPlanner:
                 best = selected
         _rate, duration, program, chosen, ca, cz = best
         program = choose_program(state, chosen, duration, program, hours)
+        # Read-only instrumentation of already-built information, not a scan or
+        # policy intervention. Preview copies never produce executed-run counts.
+        if not getattr(self, "_policy_preview", False):
+            eligible = [item for item in info_cache.values() if item is not None
+                        and required_factor_scale(item, scoring) != item["factor_scale"]]
+            log = getattr(self, "log", None)
+            if eligible and callable(log):
+                eligible_ids = {item["i"] for item in eligible}
+                selected = [{"target_id": state.ids[item["i"]],
+                             "protected_factor": completion(item, duration),
+                             "nominal_factor": min(1.0, completion(item, duration) / .90)}
+                            for item in chosen.values() if item["i"] in eligible_ids]
+                log("required_nominal_rescue: " + json.dumps({
+                    "now_utc": now.isoformat(), "duration_seconds": duration,
+                    "eligible_considered_ids": sorted(state.ids[i] for i in eligible_ids),
+                    "selected": selected}, separators=(",", ":")))
         state._certificate_pending_notices = tuple(state.notices)
         state.pending.clear()
         state._latent_direction_clear = {state.ids[item["i"]] for item in chosen.values()
