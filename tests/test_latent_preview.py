@@ -17,7 +17,7 @@ class ProjectionState:
 
 
 class PreviewPlanner:
-    def __init__(self,state):self.state=state;self.active_requests=[]
+    def __init__(self,state):self.state=state;self.active_requests=[];self.exposure_margin=1.05
     def plan(self,now,end,index,hours):
         item=dict(i=0,quality_coefficients=(1.,0.,0.),factor_scale=.005,band_scale=.5/.95)
         self._preview_best=(1.,100,'BRIGHT',{0:item},60.,90.)
