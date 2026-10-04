@@ -13,11 +13,13 @@ from .state import PendingPrediction
 from .report_budget import all_sky_weather
 from .pointing_refinement import refine_multistart as refine
 from .latent_declaration import choose_program
+from .catalogue_tile import scan_due, append_tile
 
 
 class SearchPlanner:
     def _science_preference(self, flux, quality):
-        # Static control: apply the public-quality opportunity rule every night.
+        if not getattr(self, "science_scarcity_enabled", False):
+            return 1.0
         scoring = self.state.scoring
         poorer_quality = scoring.program_bands["BRIGHT"] * .95
         if quality <= poorer_quality or poorer_quality <= 0:
@@ -79,6 +81,7 @@ class SearchPlanner:
     def plan(self, now, night_end, night_index: int, hours: float):
         state = self.state
         scoring = state.scoring
+        catalogue_scan = scan_due(self)
         state.update_scale(hours)
         seconds_left = int(min(state.max_exposure, (min(night_end, state.survey_end) - now).total_seconds()))
         if seconds_left < state.min_exposure:
@@ -281,6 +284,8 @@ class SearchPlanner:
         if best is None:
             return None
         best = refine(self, candidates, best, information, visible, lst, seconds_left)
+        if catalogue_scan:
+            best = append_tile(self, candidates, best, information, visible, lst, seconds_left)
         # An optional adviser may select one of the already optimised actions.
         # Keep the original strict-greater tie rule and build predictions only
         # after selection, so the no-adviser path is exactly deterministic.

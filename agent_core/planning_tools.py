@@ -52,7 +52,7 @@ def evaluate_policies(planner, payload):
     index, _, end = night
     hours = (now - planner.state.survey_start).total_seconds() / 3600.
     results = []
-    for policy in ("balanced", "required", "requests", "good_sky"):
+    for policy in ("balanced", "required", "requests", "immediate"):
         equivalent = (policy == "requests" and not any(r.get("remaining_count", 0) > 0 for r in planner.active_requests))
         equivalent = equivalent or (policy == "required" and not any(r and f < planner.state.scoring.required_threshold
             for r, f in zip(planner.state.required, planner.state.factor)))
@@ -65,7 +65,7 @@ def evaluate_policies(planner, payload):
         probe._policy_preview = True
         probe.required_priority = 2. if policy == "required" else 1.
         probe.request_priority = 2. if policy == "requests" else 1.
-        probe.science_scarcity_enabled = policy == "good_sky"
+        probe.science_scarcity_enabled = policy != "immediate"
         probe.exposure_margin = 1.
         probe.state.update_scale(hours)
         # Freeze inferred throughput, while plan() advances astronomical geometry.

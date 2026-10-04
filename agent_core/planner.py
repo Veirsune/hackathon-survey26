@@ -50,6 +50,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.trace = TraceLog(log=log)
 
         self.observe_count = 0
+        self._catalogue_plan_calls = 0
         self.reports = 0
         self.last_report_hours = float("-inf")
         self.suspicion_hours: list[float] = []
