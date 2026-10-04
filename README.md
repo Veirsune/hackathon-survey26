@@ -30,7 +30,7 @@ Fault diagnosis uses public weather warnings and allows at most one report beyon
 
 Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
 
-Local L4 with model calls disabled: **6933.41**. Kimi has not been rerun on this revision; see [benchmark details](BENCHMARK.md) for the earlier matched comparison. These are local measurements, not official leaderboard scores.
+Local L4 with model calls disabled: **6942.42**. Kimi has not been rerun on this revision; see [benchmark details](BENCHMARK.md) for the earlier matched comparison. These are local measurements, not official leaderboard scores.
 
 ```sh
 python -m unittest discover -s tests -v

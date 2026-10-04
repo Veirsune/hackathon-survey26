@@ -12,6 +12,7 @@ from .optimizer import completion, duration_to_factor, marginal_gain, optimise_f
 from .state import PendingPrediction
 from .report_budget import all_sky_weather
 from .pointing_refinement import refine_multistart as refine
+from .latent_declaration import choose_program
 
 
 class SearchPlanner:
@@ -297,7 +298,10 @@ class SearchPlanner:
             if any(selected is candidate for candidate in approved):
                 best = selected
         _rate, duration, program, chosen, ca, cz = best
+        program = choose_program(state, chosen, duration, program, hours)
         state.pending.clear()
+        state._latent_direction_clear = {state.ids[item["i"]] for item in chosen.values()
+            if self._direction_factor(item["alt"], item["az"]) >= 1.0}
         state._pending_sky_weather = all_sky_weather(state.notices)
         clean = not state.all_sky_notice()
         for item in chosen.values():
