@@ -2,7 +2,24 @@
 
 Official local L4: 8,800 targets, 440 required targets, 900-second budget. These are development measurements, not official alpha leaderboard scores.
 
-## Current results
+## Preserved official alpha best (conditional paid recovery)
+
+This branch is based on numerical-only `d3ffc0d`. The only algorithm change removes the unconditional seven-day wait after an incorrect report when the free allowance is exhausted. It retains the 48-hour spacing, additional 20% throughput-decline test before seven days, weather and earthquake exclusions, two-night evidence, remaining-time check, and one-paid-attempt limit. It does not include catalogue tile search.
+
+| Official card | Fixed 1.05 baseline | This variant | Difference |
+| --- | ---: | ---: | ---: |
+| Alpha | 7130.666267 | **7450.404783** | +319.738516 |
+| Beta | 6692.600743 | 6692.600743 | 0 |
+| Gamma | 6848.184090 | 6848.184090 | 0 |
+| Delta | 6786.172782 | 6786.172782 | 0 |
+
+Official revision `5ff9b769-f43b-425b-967c-7d53ef593082`, batch `62bce89e-5c81-4f40-90fd-e2590e740f22`, used frozen `conditional_paid_recovery` with an unconditional offline client. Alpha repaired the instrument on October 24 rather than October 29, after 805 identical actions. The gain consists of +269.543695 science score, +50 from one fewer required miss, and +0.194820 uniformity. Alpha observed 9,502 targets, missed five required targets, and earned 200 request reward plus 100 report settlement. Beta, gamma and delta reproduced all 1,107 / 1,133 / 1,223 baseline actions respectively.
+
+All runs used zero model calls, with no planner errors or reduced-search fallback. Alpha explicitly finished with only 15 seconds remaining in its final night; the other cards reported `survey_complete`. This is a single official scenario comparison, not a universal safety guarantee: a false paid report would cost 150. A no-fault stress comparison reproduced 1,117 actions with no paid report but did not exercise the newly allowed 48–168-hour interval. Ordinary local L4 remained 7057.062358 with all 1,095 baseline actions unchanged.
+
+The earlier Kimi alpha best was 7302.987962. This branch preserves the independently tested numerical variant; combinations with catalogue tile search or model changes need separate evaluation.
+
+## Earlier local results
 
 | Configuration | Score | Required misses | Observed targets |
 | --- | ---: | ---: | ---: |
