@@ -1,20 +1,19 @@
-# 专家成本分离：正式评测结果
+# Formal evaluation
 
-四卡均分 **29773.733202**，比此前最佳 Kimi ON 高 **175.316197**，比未修正 Calendar 版高 **1115.775072**。这是一次正式批次的结果，不能据此宣称稳定统计优势。
+Mean **30,500.068582**, improving the preceding evaluated version by **726.335381**.
 
-| 卡 | 新得分 | 相对原最佳 ON | CPU 使用 / 剩余 | 必观测缺失 |
-|---|---:|---:|---:|---:|
-| A | 23690.746421 | +761.370000 | 449.252 / 450.748 | 1 |
-| B | 37515.757192 | -1097.505669 | 479.187 / 420.813 | 0 |
-| C | 25393.214557 | +1208.231638 | 492.139 / 407.861 | 0 |
-| D | 32495.214637 | -170.831181 | 253.898 / 646.102 | 2 |
+| Card | Score | Normalized CPU seconds | Missing required targets |
+| --- | ---: | ---: | ---: |
+| A | 23872.226520 | 757.375 | 1 |
+| B | 39609.655497 | 844.005 | 0 |
+| C | 25611.331578 | 826.000 | 0 |
+| D | 32907.060735 | 576.285 | 1 |
 
-四卡均推进到季末；C 在最后黎明前结束。所有官方文件哈希及分数已核对，各卡均有6次真实模型调用。原始结果、两个对照版本和此前负面实验均保留，未设置 final。
+All cards reached the final night without a CPU or real-time cap. B took 1689.98 real seconds against a 1800-second cap. Kimi was called six times per card.
 
-修正消除了专家处理成本对常规成本的直接污染，但尚未解决未选档位的陈旧估计。例如 D 的中档成本从开局0.389秒沿用到7月，恢复采样后到12月降至0.0107秒；高档开局1.271秒的估计直到12月仍未更新。D 因此留下646秒 CPU，A/B/C 也各剩408–451秒。
+Only CPU allocation changed from the previous best: calendar-accrued credit and actual platform expenditure select the next affordable search tier. Scientific utility, report rules, and model-call limits are unchanged. A single batch does not establish repeat-run gains; model answers and hardware calibration also vary.
 
-下一项可检验方案是对长期未采样档位做有限的重新校准；必须记录真实开销、限制额外计算并保留现有紧急预算保护。尚未实现或启动此试验，不同时改目标评分或 Kimi 策略。
+Revision: `bc36a641-ca50-454b-8ae3-1b1fec6bb04b`  
+Batch: `48c45ce7-cb90-4dc1-b4d7-e42769359f6e`
 
-最新榜单快照：本队第4、均分29773.733202；AstroNJU 第1、31188.360246，差1414.627044。其他队伍也在进步，旧的第3名不是当前排名。
-
-批次 `bfe82765-fef3-4b77-aaa9-10911488a0f0`，版本 `584375db-5e7f-4b5e-99b4-ef7b70e14bf2`。数据：`formal-calendar-cost-kimi-summary.json` 与 `online-leaderboard-after-calendar-cost.json`。
+Runtime files match the evaluated upload. The platform normalized the image/protocol manifest during preparation; the repository retains the submitted manifest. Score and result-file hashes were verified. See `formal-result.json` and `source-verification.json`.

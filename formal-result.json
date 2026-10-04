@@ -1,49 +1,49 @@
 {
-  "batch": "bfe82765-fef3-4b77-aaa9-10911488a0f0",
-  "revision": "584375db-5e7f-4b5e-99b4-ef7b70e14bf2",
-  "mean": 29773.733201749998,
+  "batch": "48c45ce7-cb90-4dc1-b4d7-e42769359f6e",
+  "revision": "bc36a641-ca50-454b-8ae3-1b1fec6bb04b",
+  "mean": 30500.068582499996,
   "ON_mean": 29598.41700475,
-  "delta_ON": 175.31619699999646,
+  "delta_ON": 901.6515777499953,
   "runs": [
     {
       "card": "A",
-      "score": 23690.746421,
-      "delta_ON": 761.369999999999,
+      "score": 23872.22652,
+      "delta_ON": 942.8500989999993,
       "components": {
         "observation_request_reward": 600.0,
         "report_settlement": 100.0,
         "required_penalty": -50.0,
-        "sum_best_scores": 23049.627306,
-        "uniformity_penalty": -8.880885
+        "sum_best_scores": 23229.479407,
+        "uniformity_penalty": -7.252887
       },
       "counts": {
-        "decisions": 5667,
+        "decisions": 5728,
         "invalidated_observations": 0,
         "observation_requests_completed": 6,
         "observation_requests_issued": 6,
-        "observations": 45164,
-        "observe_actions": 3622,
+        "observations": 47066,
+        "observe_actions": 3680,
         "required_missing": 1,
-        "targets_observed": 27667
+        "targets_observed": 28085
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 449.252,
+        "charged_seconds": 757.375,
         "cpu_meter": "cpu",
-        "cpu_seconds": 478.142,
+        "cpu_seconds": 804.328,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 721.715,
+        "run_wall_seconds": 1064.113,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 1.0879,
-        "speed_factor_max": 1.0879,
-        "speed_factor_min": 1.0369,
-        "speed_samples": 12,
-        "wait_seconds": 74.629,
-        "window_seconds": 552.771
+        "speed_factor": 1.0968,
+        "speed_factor_max": 1.0968,
+        "speed_factor_min": 1.041,
+        "speed_samples": 18,
+        "wait_seconds": 72.519,
+        "window_seconds": 876.848
       },
-      "remaining_CPU": 450.748,
+      "remaining_CPU": 142.625,
       "termination": {
         "detail": "",
         "reason": "survey_complete"
@@ -53,79 +53,118 @@
       "nights_finished": 123,
       "nights_total": 123,
       "tier_decide_counts": [
-        907,
-        1915,
-        925
+        2477,
+        782,
+        546
       ],
       "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
-        "responses": 5,
-        "seconds": 71.141,
+        "responses": 6,
+        "seconds": 68.872,
         "accepted_by_stage": {
-          "expert_review": 5
+          "expert_review": 6
         },
         "changed_selections": 0
       },
-      "accepted_reviews": 5,
-      "policy_changes": 0,
+      "accepted_reviews": 6,
+      "policy_changes": 5,
       "planner_error_log_matches": 0,
-      "tier_transition_count": 74,
+      "tier_transition_count": 553,
+      "credit_transition_count": 551,
+      "negative_credit_transition_count": 12,
+      "minimum_transition_credit_cpu": -1.0172015653444362,
+      "credit_transition_scope": "Only logged tier changes; not a per-turn debt/time statistic.",
       "first_tier_transitions": [
-        "planner: calendar pace level 1 (892.9s remaining) at 2026-10-02T00:02:11Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 30.09670818786768}",
-        "planner: calendar pace level 2 (892.8s remaining) at 2026-10-02T00:04:02Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 30.09670818786768}",
-        "planner: calendar pace level 1 (872.4s remaining) at 2026-10-04T01:59:38Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3327322.0, 'predicted_search_turns': 6378, 'per_search_budget': 0.1332127609755479, 'costs': [0.5466115797087481, 0.09755107917832093, 0.050727350244493964], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7819080209662252}",
-        "planner: calendar pace level 2 (869.6s remaining) at 2026-10-04T07:49:04Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3306356.0, 'predicted_search_turns': 6174, 'per_search_budget': 0.1371475273387387, 'costs': [0.5466115797087481, 0.16986975710788949, 0.050727350244493964], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7819080209662252}",
-        "planner: calendar pace level 1 (867.6s remaining) at 2026-10-05T03:11:27Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3290613.0, 'predicted_search_turns': 3772, 'per_search_budget': 0.22397324058848472, 'costs': [0.5466115797087481, 0.16986975710788949, 0.06757274147994896], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7009888688498134}",
-        "planner: calendar pace level 2 (865.6s remaining) at 2026-10-05T06:42:36Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3277944.0, 'predicted_search_turns': 4669, 'per_search_budget': 0.1805200029978252, 'costs': [0.5466115797087481, 0.18588853699868096, 0.06757274147994896], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7009888688498134}"
+        "planner: calendar pace level 1 (893.0s remaining) at 2026-10-02T00:02:05Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 28.24768227661597}",
+        "planner: calendar pace level 2 (892.9s remaining) at 2026-10-02T00:03:50Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 28.24768227661597}",
+        "planner: calendar pace level 0 (892.9s remaining) at 2026-10-02T00:04:50Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3399010.0, 'calendar_fraction': 8.531168181680204e-05, 'actual_cpu_spent': 7.147071455323271, 'accrued_cpu': 17.507901366214945, 'credit_cpu': 10.360829910891674, 'costs': [0.5816665199619768, 0.08067953707224372, 0.04089546768060803], 'reserve': 28.24768227661597, 'review_reserve': 23.24768227661597}",
+        "planner: calendar pace level 1 (881.9s remaining) at 2026-10-02T01:00:35Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3395665.0, 'calendar_fraction': 0.0010693378048421964, 'actual_cpu_spent': 18.123490612167302, 'accrued_cpu': 18.348570523015322, 'credit_cpu': 0.22507991084802015, 'costs': [0.38292286835378897, 0.08067953707224372, 0.04089546768060803], 'reserve': 28.24768227661597, 'review_reserve': 23.24768227661597}",
+        "planner: calendar pace level 2 (881.6s remaining) at 2026-10-02T01:03:42Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3395478.0, 'calendar_fraction': 0.0011243491307033615, 'actual_cpu_spent': 18.395201061787134, 'accrued_cpu': 18.39556757303671, 'credit_cpu': 0.0003665112495774281, 'costs': [0.38292286835378897, 0.11007037737642977, 0.04089546768060803], 'reserve': 28.24768227661597, 'review_reserve': 23.24768227661597}",
+        "planner: calendar pace level 1 (864.5s remaining) at 2026-10-04T01:50:24Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3327876.0, 'calendar_fraction': 0.021011384696849378, 'actual_cpu_spent': 35.54709147813696, 'accrued_cpu': 35.68530903410604, 'credit_cpu': 0.13821755596907792, 'costs': [0.38292286835378897, 0.11007037737642977, 0.047600456523046134], 'reserve': 20.858612371102666, 'review_reserve': 15.858612371102664}"
       ],
       "last_tier_transitions": [
-        "planner: calendar pace level 0 (613.9s remaining) at 2026-12-22T06:44:13Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 1087247.0, 'predicted_search_turns': 644, 'per_search_budget': 0.9404346797179262, 'costs': [0.7184679456471393, 0.07101334670616088, 0.05322167463233341], 'reserve': 8.086250668876017, 'review_reserve': 3.0862506688760174, 'overhead_cost': 0.17723899489842554}",
-        "planner: calendar pace level 1 (587.0s remaining) at 2026-12-27T01:53:13Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 976907.0, 'predicted_search_turns': 1679, 'per_search_budget': 0.3465657099189663, 'costs': [0.3687036729617583, 0.07101334670616088, 0.05322167463233341], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.14295689589437882}",
-        "planner: calendar pace level 0 (587.0s remaining) at 2026-12-27T02:30:51Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 974649.0, 'predicted_search_turns': 1088, 'per_search_budget': 0.5347492896660073, 'costs': [0.3687036729617583, 0.07664449286041485, 0.05322167463233341], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.14295689589437882}"
+        "planner: calendar pace level 0 (444.8s remaining) at 2026-11-29T07:01:00Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1689240.0, 'calendar_fraction': 0.5030623951990116, 'actual_cpu_spent': 455.16472667988404, 'accrued_cpu': 455.5982291995408, 'credit_cpu': 0.4335025196567699, 'costs': [0.3886784168074068, 0.0983696049546025, 0.05263409210285938], 'reserve': 11.894870554618343, 'review_reserve': 6.894870554618342}",
+        "planner: calendar pace level 1 (430.9s remaining) at 2026-12-01T07:15:39Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1634361.0, 'calendar_fraction': 0.5192066013591033, 'actual_cpu_spent': 469.13041464461867, 'accrued_cpu': 469.6492042151137, 'credit_cpu': 0.5187895704950165, 'costs': [0.8309226636654155, 0.0983696049546025, 0.05263409210285938], 'reserve': 11.894870554618343, 'review_reserve': 6.894870554618342}",
+        "planner: calendar pace level 0 (430.7s remaining) at 2026-12-01T07:45:57Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1632543.0, 'calendar_fraction': 0.519741417350631, 'actual_cpu_spent': 469.2801960599253, 'accrued_cpu': 470.11467684723715, 'credit_cpu': 0.8344807873118611, 'costs': [0.8309226636654155, 0.08909788256768847, 0.05263409210285938], 'reserve': 11.894870554618343, 'review_reserve': 6.894870554618342}"
       ],
-      "sha256_verified": true
+      "sha256_verified": true,
+      "recalibration_count": 0,
+      "recalibration_cpu": 0,
+      "recalibration_distinct_nights": 0,
+      "recalibrations": [],
+      "renewed_diagnostic_events": [],
+      "report_outcomes": [
+        {
+          "correct": false,
+          "issued_at_utc": "2026-11-04T01:04:46Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2026-11-15T01:03:16Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": true,
+          "issued_at_utc": "2026-12-02T01:37:06Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        }
+      ],
+      "information_probe_events": [],
+      "information_probe_count": 0,
+      "information_probe_exposure_seconds": 0,
+      "information_probe_cpu_logged": 0.0,
+      "information_probe_cpu_scope": "Cumulative attempt CPU at last executed-probe log; later unexecuted attempts may add cost.",
+      "delta_parent": 181.48009900000034,
+      "parent_score": 23690.746421
     },
     {
       "card": "B",
-      "score": 37515.757192,
-      "delta_ON": -1097.5056690000056,
+      "score": 39609.655497,
+      "delta_ON": 996.3926359999969,
       "components": {
         "observation_request_reward": 500.0,
         "report_settlement": 100.0,
         "required_penalty": -0.0,
-        "sum_best_scores": 36920.411632,
-        "uniformity_penalty": -4.65444
+        "sum_best_scores": 39014.736076,
+        "uniformity_penalty": -5.080579
       },
       "counts": {
-        "decisions": 11347,
+        "decisions": 11091,
         "invalidated_observations": 0,
         "observation_requests_completed": 5,
         "observation_requests_issued": 6,
-        "observations": 67207,
-        "observe_actions": 7514,
+        "observations": 72008,
+        "observe_actions": 7267,
         "required_missing": 0,
-        "targets_observed": 44978
+        "targets_observed": 46244
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 479.187,
+        "charged_seconds": 844.005,
         "cpu_meter": "cpu",
-        "cpu_seconds": 564.893,
+        "cpu_seconds": 1061.409,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 1186.187,
+        "run_wall_seconds": 1689.98,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 1.3394,
-        "speed_factor_max": 1.3394,
-        "speed_factor_min": 1.0529,
-        "speed_samples": 20,
-        "wait_seconds": 77.878,
-        "window_seconds": 642.772
+        "speed_factor": 1.4021,
+        "speed_factor_max": 1.4021,
+        "speed_factor_min": 1.2101,
+        "speed_samples": 28,
+        "wait_seconds": 62.177,
+        "window_seconds": 1123.587
       },
-      "remaining_CPU": 420.813,
+      "remaining_CPU": 55.995000000000005,
       "termination": {
         "detail": "",
         "reason": "survey_complete"
@@ -135,161 +174,232 @@
       "nights_finished": 183,
       "nights_total": 183,
       "tier_decide_counts": [
-        554,
-        1750,
-        6446
+        4776,
+        976,
+        2745
       ],
       "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
         "responses": 6,
-        "seconds": 69.38,
+        "seconds": 53.365,
         "accepted_by_stage": {
           "expert_review": 6
         },
         "changed_selections": 0
       },
       "accepted_reviews": 6,
-      "policy_changes": 4,
+      "policy_changes": 2,
       "planner_error_log_matches": 0,
-      "tier_transition_count": 36,
+      "tier_transition_count": 324,
+      "credit_transition_count": 322,
+      "negative_credit_transition_count": 29,
+      "minimum_transition_credit_cpu": -1.4442996915957451,
+      "credit_transition_scope": "Only logged tier changes; not a per-turn debt/time statistic.",
       "first_tier_transitions": [
-        "planner: calendar pace level 1 (886.4s remaining) at 2027-06-01T17:16:19Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 40.981558880235546}",
-        "planner: calendar pace level 2 (886.2s remaining) at 2027-06-01T17:18:32Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 40.981558880235546}",
-        "planner: calendar pace level 1 (696.3s remaining) at 2027-07-21T21:16:01Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4102139.0, 'predicted_search_turns': 2233, 'per_search_budget': 0.3024942425702522, 'costs': [1.0036543289961033, 0.23427132206287452, 0.03249243227922054], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.3958613203350659}",
-        "planner: calendar pace level 2 (695.2s remaining) at 2027-07-22T02:09:07Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4084553.0, 'predicted_search_turns': 4158, 'per_search_budget': 0.1621889530867868, 'costs': [1.0036543289961033, 0.2101104921193878, 0.03249243227922054], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.3958613203350659}",
-        "planner: calendar pace level 1 (680.3s remaining) at 2027-07-31T19:00:04Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3729596.0, 'predicted_search_turns': 2366, 'per_search_budget': 0.27881056262910886, 'costs': [1.0036543289961033, 0.2101104921193878, 0.03987869733807485], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.1759198580403156}",
-        "planner: calendar pace level 2 (678.9s remaining) at 2027-08-01T01:45:49Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3705251.0, 'predicted_search_turns': 3662, 'per_search_budget': 0.17975781746034258, 'costs': [1.0036543289961033, 0.23993761012488762, 0.03987869733807485], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.1759198580403156}"
+        "planner: calendar pace level 1 (887.7s remaining) at 2027-06-01T17:16:19Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 36.951705182481746}",
+        "planner: calendar pace level 2 (887.5s remaining) at 2027-06-01T17:18:32Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 36.951705182481746}",
+        "planner: calendar pace level 0 (887.5s remaining) at 2027-06-01T17:19:32Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 6070228.0, 'calendar_fraction': 4.48068528128287e-05, 'actual_cpu_spent': 12.483144703974062, 'accrued_cpu': 17.298838421565485, 'credit_cpu': 4.815693717591422, 'costs': [0.9120414168694229, 0.1953522919708022, 0.039287564476886555], 'reserve': 36.951705182481746, 'review_reserve': 31.951705182481746}",
+        "planner: calendar pace level 1 (882.8s remaining) at 2027-06-01T17:46:19Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 6068621.0, 'calendar_fraction': 0.0003095296927765334, 'actual_cpu_spent': 17.178499557177588, 'accrued_cpu': 17.522737327620856, 'credit_cpu': 0.344237770443268, 'costs': [0.8106896261151653, 0.1953522919708022, 0.039287564476886555], 'reserve': 36.951705182481746, 'review_reserve': 31.951705182481746}",
+        "planner: calendar pace level 2 (882.3s remaining) at 2027-06-01T18:02:03Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 6067677.0, 'calendar_fraction': 0.00046503582900914164, 'actual_cpu_spent': 17.707058974858114, 'accrued_cpu': 17.654262260611723, 'credit_cpu': -0.052796714246390763, 'costs': [0.8106896261151653, 0.17869115571776312, 0.039287564476886555], 'reserve': 36.951705182481746, 'review_reserve': 31.951705182481746}",
+        "planner: calendar pace level 1 (847.8s remaining) at 2027-06-07T20:28:50Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 5822170.0, 'calendar_fraction': 0.04090766823161185, 'actual_cpu_spent': 52.18215151357367, 'accrued_cpu': 52.48252529657069, 'credit_cpu': 0.30037378299702056, 'costs': [0.8106896261151653, 0.17869115571776312, 0.033143187177502115], 'reserve': 26.59306718507705, 'review_reserve': 21.59306718507705}"
       ],
       "last_tier_transitions": [
-        "planner: calendar pace level 0 (500.5s remaining) at 2027-11-09T20:55:17Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 508783.0, 'predicted_search_turns': 427, 'per_search_budget': 1.159837354804239, 'costs': [0.7876441920267885, 0.05934120098517215, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.22604810251555216}",
-        "planner: calendar pace level 1 (479.1s remaining) at 2027-11-15T01:07:49Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 370331.0, 'predicted_search_turns': 538, 'per_search_budget': 0.8811125447492364, 'costs': [1.1820082592817964, 0.05934120098517215, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.01799280637761841}",
-        "planner: calendar pace level 0 (478.6s remaining) at 2027-11-15T21:27:25Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 360155.0, 'predicted_search_turns': 286, 'per_search_budget': 1.6558978851746127, 'costs': [1.1820082592817964, 0.04997893302764122, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.027932505155108898}"
+        "planner: calendar pace level 2 (515.4s remaining) at 2027-08-06T18:52:34Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3508646.0, 'calendar_fraction': 0.42201696730088134, 'actual_cpu_spent': 384.6478401607375, 'accrued_cpu': 384.5919672738264, 'credit_cpu': -0.05587288691106096, 'costs': [0.8635863108938883, 0.04741270651655838, 0.034044143108674464], 'reserve': 12.976868728021076, 'review_reserve': 7.976868728021076}",
+        "planner: calendar pace level 1 (515.3s remaining) at 2027-08-06T19:29:19Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3506441.0, 'calendar_fraction': 0.4223801993246026, 'actual_cpu_spent': 384.67327992662103, 'accrued_cpu': 384.9077181408737, 'credit_cpu': 0.23443821425269107, 'costs': [0.8635863108938883, 0.04741270651655838, 0.03361787258248299], 'reserve': 12.976868728021076, 'review_reserve': 7.976868728021076}",
+        "planner: calendar pace level 0 (515.2s remaining) at 2027-08-06T21:00:48Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 3500952.0, 'calendar_fraction': 0.4232844082036076, 'actual_cpu_spent': 384.82322010319365, 'accrued_cpu': 385.6937301631971, 'credit_cpu': 0.8705100600034257, 'costs': [0.8635863108938883, 0.04102024983339703, 0.03361787258248299], 'reserve': 12.976868728021076, 'review_reserve': 7.976868728021076}"
       ],
-      "sha256_verified": true
+      "sha256_verified": true,
+      "recalibration_count": 0,
+      "recalibration_cpu": 0,
+      "recalibration_distinct_nights": 0,
+      "recalibrations": [],
+      "renewed_diagnostic_events": [],
+      "report_outcomes": [
+        {
+          "correct": false,
+          "issued_at_utc": "2027-07-05T22:43:37Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2027-07-29T19:40:48Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": true,
+          "issued_at_utc": "2027-08-20T19:42:10Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2027-09-12T21:52:25Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        }
+      ],
+      "information_probe_events": [],
+      "information_probe_count": 0,
+      "information_probe_exposure_seconds": 0,
+      "information_probe_cpu_logged": 0.0,
+      "information_probe_cpu_scope": "Cumulative attempt CPU at last executed-probe log; later unexecuted attempts may add cost.",
+      "delta_parent": 2093.8983050000024,
+      "parent_score": 37515.757192
     },
     {
       "card": "C",
-      "score": 25393.214557,
-      "delta_ON": 1208.231638000001,
+      "score": 25611.331578,
+      "delta_ON": 1426.348659000003,
       "components": {
         "observation_request_reward": 600.0,
         "report_settlement": 100.0,
         "required_penalty": -0.0,
-        "sum_best_scores": 24696.647612,
-        "uniformity_penalty": -3.433055
+        "sum_best_scores": 24914.397285,
+        "uniformity_penalty": -3.065707
       },
       "counts": {
-        "decisions": 7567,
+        "decisions": 7434,
         "invalidated_observations": 0,
         "observation_requests_completed": 6,
         "observation_requests_issued": 6,
-        "observations": 43255,
-        "observe_actions": 5030,
+        "observations": 42492,
+        "observe_actions": 4889,
         "required_missing": 0,
-        "targets_observed": 28537
+        "targets_observed": 28544
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 492.139,
+        "charged_seconds": 826.0,
         "cpu_meter": "cpu",
-        "cpu_seconds": 504.935,
+        "cpu_seconds": 765.865,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 804.672,
+        "run_wall_seconds": 1044.206,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 1.0689,
-        "speed_factor_max": 1.081,
-        "speed_factor_min": 0.952,
-        "speed_samples": 14,
-        "wait_seconds": 71.747,
-        "window_seconds": 576.681
+        "speed_factor": 0.9707,
+        "speed_factor_max": 0.9707,
+        "speed_factor_min": 0.8908,
+        "speed_samples": 18,
+        "wait_seconds": 81.925,
+        "window_seconds": 847.789
       },
-      "remaining_CPU": 407.861,
+      "remaining_CPU": 74.0,
       "termination": {
         "detail": "",
         "reason": "agent_finished"
       },
-      "last_calendar_time": "2027-04-01T14:59:50Z",
+      "last_calendar_time": "2027-04-01T14:59:21Z",
       "nights_started": 121,
       "nights_finished": 120,
       "nights_total": 121,
       "tier_decide_counts": [
-        1187,
-        3145,
-        1602
+        3417,
+        1576,
+        801
       ],
       "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
-        "responses": 6,
-        "seconds": 66.257,
+        "responses": 5,
+        "seconds": 77.141,
         "accepted_by_stage": {
-          "expert_review": 6
+          "expert_review": 4
         },
         "changed_selections": 0
       },
-      "accepted_reviews": 6,
-      "policy_changes": 4,
+      "accepted_reviews": 4,
+      "policy_changes": 3,
       "planner_error_log_matches": 0,
-      "tier_transition_count": 144,
+      "tier_transition_count": 1110,
+      "credit_transition_count": 1108,
+      "negative_credit_transition_count": 6,
+      "minimum_transition_credit_cpu": -1.5655234091552757,
+      "credit_transition_scope": "Only logged tier changes; not a per-turn debt/time statistic.",
       "first_tier_transitions": [
-        "planner: calendar pace level 1 (898.5s remaining) at 2026-12-02T05:15:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 7.463753292920989}",
-        "planner: calendar pace level 2 (898.4s remaining) at 2026-12-02T05:17:56Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 7.463753292920989}",
-        "planner: calendar pace level 0 (898.4s remaining) at 2026-12-02T05:22:41Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4267339.0, 'predicted_search_turns': 6576, 'per_search_budget': 0.1354867691810201, 'costs': [0.08506009144148802, 0.01323269906503675, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
-        "planner: calendar pace level 1 (898.1s remaining) at 2026-12-02T05:35:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4266558.0, 'predicted_search_turns': 7705, 'per_search_budget': 0.11559654994305117, 'costs': [0.16426461728141376, 0.01323269906503675, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
-        "planner: calendar pace level 2 (897.8s remaining) at 2026-12-02T05:59:59Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4265101.0, 'predicted_search_turns': 11828, 'per_search_budget': 0.07527064307116689, 'costs': [0.16426461728141376, 0.08212803657659523, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
-        "planner: calendar pace level 1 (888.6s remaining) at 2026-12-03T05:58:02Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4228318.0, 'predicted_search_turns': 8346, 'per_search_budget': 0.10552992895894305, 'costs': [0.16426461728141376, 0.08212803657659523, 0.03485956757125328], 'reserve': 7.375848856467687, 'review_reserve': 2.375848856467687, 'overhead_cost': 0.4525057844446846}"
+        "planner: calendar pace level 1 (898.8s remaining) at 2026-12-02T05:15:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 7.543024790322578}",
+        "planner: calendar pace level 2 (898.8s remaining) at 2026-12-02T05:18:05Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 7.543024790322578}",
+        "planner: calendar pace level 0 (898.8s remaining) at 2026-12-02T05:23:04Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 4267316.0, 'calendar_fraction': 0.00032422048867342124, 'actual_cpu_spent': 1.2341140602150062, 'accrued_cpu': 18.132678579150387, 'credit_cpu': 16.89856451893538, 'costs': [0.08893499462365617, 0.013878426881720318, 0.011329726881720709], 'reserve': 7.543024790322578, 'review_reserve': 2.5430247903225784}",
+        "planner: calendar pace level 1 (879.0s remaining) at 2026-12-02T09:33:55Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 4252265.0, 'calendar_fraction': 0.003850118302996197, 'actual_cpu_spent': 20.992303003225857, 'accrued_cpu': 21.216451893821535, 'credit_cpu': 0.22414889059567855, 'costs': [0.33449566559139665, 0.013878426881720318, 0.011329726881720709], 'reserve': 7.543024790322578, 'review_reserve': 2.5430247903225784}",
+        "planner: calendar pace level 2 (878.8s remaining) at 2026-12-02T09:39:23Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 4251937.0, 'calendar_fraction': 0.003926956684704996, 'actual_cpu_spent': 21.189178051613, 'accrued_cpu': 21.28365524557313, 'credit_cpu': 0.09447719396013099, 'costs': [0.33449566559139665, 0.09921266989247364, 0.011329726881720709], 'reserve': 7.543024790322578, 'review_reserve': 2.5430247903225784}",
+        "planner: calendar pace level 1 (871.3s remaining) at 2026-12-03T09:35:05Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 4215295.0, 'calendar_fraction': 0.012510834680347638, 'actual_cpu_spent': 28.68179541290317, 'accrued_cpu': 28.792995883371926, 'credit_cpu': 0.1112004704687557, 'costs': [0.33449566559139665, 0.09921266989247364, 0.04861078387096903], 'reserve': 7.4864623655913975, 'review_reserve': 2.4864623655913975}"
       ],
       "last_tier_transitions": [
-        "planner: calendar pace level 2 (677.0s remaining) at 2027-01-27T09:22:29Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 2216251.0, 'predicted_search_turns': 4633, 'per_search_budget': 0.14453836031773062, 'costs': [0.5510387195378279, 0.14486440049561797, 0.041826084587276546], 'reserve': 6.901918469214613, 'review_reserve': 1.9019184692146132, 'overhead_cost': 0.40830463699343833}",
-        "planner: calendar pace level 1 (676.8s remaining) at 2027-01-27T09:52:41Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 2214439.0, 'predicted_search_turns': 3540, 'per_search_budget': 0.18913122430783058, 'costs': [0.5510387195378279, 0.14486440049561797, 0.058972380861604536], 'reserve': 6.901918469214613, 'review_reserve': 1.9019184692146132, 'overhead_cost': 0.40830463699343833}",
-        "planner: calendar pace level 0 (572.3s remaining) at 2027-02-28T14:56:39Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 1068501.0, 'predicted_search_turns': 805, 'per_search_budget': 0.7025873530592132, 'costs': [0.5510387195378279, 0.08316380666050208, 0.058972380861604536], 'reserve': 6.341186760510177, 'review_reserve': 1.3411867605101773, 'overhead_cost': 0.3335836068418015}"
+        "planner: calendar pace level 2 (267.6s remaining) at 2027-02-23T08:03:32Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1267888.0, 'calendar_fraction': 0.7029802984515192, 'actual_cpu_spent': 632.435324482842, 'accrued_cpu': 632.5107786246048, 'credit_cpu': 0.0754541417627479, 'costs': [0.2345462881033929, 0.08967396168492406, 0.03882599198900241], 'reserve': 7.782129774419365, 'review_reserve': 2.782129774419365}",
+        "planner: calendar pace level 1 (267.5s remaining) at 2027-02-23T08:09:35Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1267525.0, 'calendar_fraction': 0.7030653360507884, 'actual_cpu_spent': 632.4734571723002, 'accrued_cpu': 632.5851331394645, 'credit_cpu': 0.11167596716427397, 'costs': [0.2345462881033929, 0.08967396168492406, 0.03784359820594231], 'reserve': 7.782129774419365, 'review_reserve': 2.782129774419365}",
+        "planner: calendar pace level 0 (267.3s remaining) at 2027-02-23T08:35:45Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 1265955.0, 'calendar_fraction': 0.7034331295242111, 'actual_cpu_spent': 632.6580957466016, 'accrued_cpu': 632.906721537067, 'credit_cpu': 0.24862579046543942, 'costs': [0.2345462881033929, 0.09040673581706363, 0.03784359820594231], 'reserve': 7.782129774419365, 'review_reserve': 2.782129774419365}"
       ],
-      "sha256_verified": true
+      "sha256_verified": true,
+      "recalibration_count": 0,
+      "recalibration_cpu": 0,
+      "recalibration_distinct_nights": 0,
+      "recalibrations": [],
+      "renewed_diagnostic_events": [],
+      "report_outcomes": [
+        {
+          "correct": true,
+          "issued_at_utc": "2027-02-03T06:01:59Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        }
+      ],
+      "information_probe_events": [],
+      "information_probe_count": 0,
+      "information_probe_exposure_seconds": 0,
+      "information_probe_cpu_logged": 0.0,
+      "information_probe_cpu_scope": "Cumulative attempt CPU at last executed-probe log; later unexecuted attempts may add cost.",
+      "delta_parent": 218.11702100000184,
+      "parent_score": 25393.214557
     },
     {
       "card": "D",
-      "score": 32495.214637,
-      "delta_ON": -170.83118099999774,
+      "score": 32907.060735,
+      "delta_ON": 241.01491700000042,
       "components": {
         "observation_request_reward": 500.0,
         "report_settlement": 300.0,
-        "required_penalty": -100.0,
-        "sum_best_scores": 31795.222279,
-        "uniformity_penalty": -0.007642
+        "required_penalty": -50.0,
+        "sum_best_scores": 32157.063639,
+        "uniformity_penalty": -0.002904
       },
       "counts": {
-        "decisions": 14379,
-        "invalidated_observations": 1907,
+        "decisions": 13707,
+        "invalidated_observations": 1822,
         "observation_requests_completed": 5,
         "observation_requests_issued": 6,
-        "observations": 72858,
-        "observe_actions": 5468,
-        "required_missing": 2,
+        "observations": 75079,
+        "observe_actions": 5451,
+        "required_missing": 1,
         "targets_observed": 30000
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 253.898,
+        "charged_seconds": 576.285,
         "cpu_meter": "cpu",
-        "cpu_seconds": 182.133,
+        "cpu_seconds": 667.994,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 707.634,
+        "run_wall_seconds": 1368.272,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 0.8673,
-        "speed_factor_max": 0.8673,
-        "speed_factor_min": 0.6284,
-        "speed_samples": 12,
-        "wait_seconds": 80.035,
-        "window_seconds": 262.168
+        "speed_factor": 1.2167,
+        "speed_factor_max": 1.2408,
+        "speed_factor_min": 1.0927,
+        "speed_samples": 23,
+        "wait_seconds": 50.878,
+        "window_seconds": 718.872
       },
-      "remaining_CPU": 646.102,
+      "remaining_CPU": 323.71500000000003,
       "termination": {
         "detail": "",
         "reason": "survey_complete"
@@ -299,38 +409,109 @@
       "nights_finished": 365,
       "nights_total": 365,
       "tier_decide_counts": [
-        238,
-        3364,
-        5140
+        5010,
+        722,
+        2340
       ],
       "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
-        "responses": 5,
-        "seconds": 73.786,
+        "responses": 6,
+        "seconds": 43.367,
         "accepted_by_stage": {
-          "expert_review": 5
+          "expert_review": 6
         },
         "changed_selections": 0
       },
-      "accepted_reviews": 5,
+      "accepted_reviews": 6,
       "policy_changes": 1,
       "planner_error_log_matches": 0,
-      "tier_transition_count": 4,
+      "tier_transition_count": 347,
+      "credit_transition_count": 345,
+      "negative_credit_transition_count": 26,
+      "minimum_transition_credit_cpu": -2.8575030661509118,
+      "credit_transition_scope": "Only logged tier changes; not a per-turn debt/time statistic.",
       "first_tier_transitions": [
-        "planner: calendar pace level 1 (884.2s remaining) at 2027-01-02T07:31:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 54.8055001034373}",
-        "planner: calendar pace level 2 (883.8s remaining) at 2027-01-02T07:32:17Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 54.8055001034373}",
-        "planner: calendar pace level 1 (705.0s remaining) at 2027-07-23T11:18:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4033578.0, 'predicted_search_turns': 1417, 'per_search_budget': 0.4904612209848783, 'costs': [1.2709491804583042, 0.38925836569064254, 0.016432349242990647], 'reserve': 9.643427325357328, 'review_reserve': 4.559630603524111, 'overhead_cost': 0.34571672562383676}",
-        "planner: calendar pace level 0 (653.4s remaining) at 2027-12-02T10:45:00Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 340200.0, 'predicted_search_turns': 408, 'per_search_budget': 1.5890529561349345, 'costs': [1.2709491804583042, 0.010706023852603818, 0.016432349242990647], 'reserve': 5.083796721833217, 'review_reserve': 0.0, 'overhead_cost': 0.013530178687919808}"
+        "planner: calendar pace level 1 (880.1s remaining) at 2027-01-02T07:31:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 62.31125498587185}",
+        "planner: calendar pace level 2 (879.7s remaining) at 2027-01-02T07:32:17Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 62.31125498587185}",
+        "planner: calendar pace level 1 (801.7s remaining) at 2027-02-27T08:41:30Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 9372810.0, 'calendar_fraction': 0.0972405224225612, 'actual_cpu_spent': 98.31835599671865, 'accrued_cpu': 98.80548703764467, 'credit_cpu': 0.4871310409260161, 'costs': [1.437630325403335, 0.46571785616625827, 0.036558506972925], 'reserve': 43.0241327222678, 'review_reserve': 37.27361142065446}",
+        "planner: calendar pace level 2 (800.5s remaining) at 2027-02-27T11:09:43Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 9363917.0, 'calendar_fraction': 0.09809706811527197, 'actual_cpu_spent': 99.4695197347553, 'accrued_cpu': 99.52484411200093, 'credit_cpu': 0.055324377245639766, 'costs': [1.437630325403335, 0.19758742138365004, 0.036558506972925], 'reserve': 43.0241327222678, 'review_reserve': 37.27361142065446}",
+        "planner: calendar pace level 1 (799.9s remaining) at 2027-02-28T07:00:28Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 9353672.0, 'calendar_fraction': 0.09908383418092159, 'actual_cpu_spent': 100.14325276729562, 'accrued_cpu': 100.3535648166878, 'credit_cpu': 0.21031204939217218, 'costs': [1.437630325403335, 0.19758742138365004, 0.03995844230729416], 'reserve': 43.0241327222678, 'review_reserve': 37.27361142065446}",
+        "planner: calendar pace level 2 (798.6s remaining) at 2027-02-28T11:14:53Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 9338407.0, 'calendar_fraction': 0.10055411080289722, 'actual_cpu_spent': 101.4281313882052, 'accrued_cpu': 101.58835462215815, 'credit_cpu': 0.1602232339529479, 'costs': [1.437630325403335, 0.2042121730015463, 0.03995844230729416], 'reserve': 43.0241327222678, 'review_reserve': 37.27361142065446}"
       ],
       "last_tier_transitions": [
-        "planner: calendar pace level 2 (883.8s remaining) at 2027-01-02T07:32:17Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 54.8055001034373}",
-        "planner: calendar pace level 1 (705.0s remaining) at 2027-07-23T11:18:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4033578.0, 'predicted_search_turns': 1417, 'per_search_budget': 0.4904612209848783, 'costs': [1.2709491804583042, 0.38925836569064254, 0.016432349242990647], 'reserve': 9.643427325357328, 'review_reserve': 4.559630603524111, 'overhead_cost': 0.34571672562383676}",
-        "planner: calendar pace level 0 (653.4s remaining) at 2027-12-02T10:45:00Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 340200.0, 'predicted_search_turns': 408, 'per_search_budget': 1.5890529561349345, 'costs': [1.2709491804583042, 0.010706023852603818, 0.016432349242990647], 'reserve': 5.083796721833217, 'review_reserve': 0.0, 'overhead_cost': 0.013530178687919808}"
+        "planner: calendar pace level 0 (489.6s remaining) at 2027-06-14T04:14:35Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 5652025.0, 'calendar_fraction': 0.45561479041454767, 'actual_cpu_spent': 410.3761702408702, 'accrued_cpu': 411.01656171957677, 'credit_cpu': 0.6403914787065901, 'costs': [0.5414531112970321, 0.030180737459317625, 0.028718957672677115], 'reserve': 18.938919821671195, 'review_reserve': 13.938919821671195}",
+        "planner: calendar pace level 1 (486.2s remaining) at 2027-06-14T14:27:48Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 5615232.0, 'calendar_fraction': 0.4591585760517799, 'actual_cpu_spent': 413.78883549693705, 'accrued_cpu': 414.0764027983035, 'credit_cpu': 0.2875673013664368, 'costs': [0.3438992914495179, 0.030180737459317625, 0.028718957672677115], 'reserve': 18.938919821671195, 'review_reserve': 13.938919821671195}",
+        "planner: calendar pace level 0 (486.1s remaining) at 2027-06-15T04:11:57Z forecast={'reason': 'calendar_credit', 'remaining_seconds': 5610783.0, 'calendar_fraction': 0.459587089690245, 'actual_cpu_spent': 413.93726582413376, 'accrued_cpu': 414.44639798649837, 'credit_cpu': 0.5091321623646081, 'costs': [0.3438992914495179, 0.04296119445094515, 0.028718957672677115], 'reserve': 18.938919821671195, 'review_reserve': 13.938919821671195}"
       ],
-      "sha256_verified": true
+      "sha256_verified": true,
+      "recalibration_count": 0,
+      "recalibration_cpu": 0,
+      "recalibration_distinct_nights": 0,
+      "recalibrations": [],
+      "renewed_diagnostic_events": [],
+      "report_outcomes": [
+        {
+          "correct": false,
+          "issued_at_utc": "2027-01-31T07:04:41Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": true,
+          "issued_at_utc": "2027-05-22T09:59:53Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2027-06-10T12:09:47Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": true,
+          "issued_at_utc": "2027-06-27T12:11:39Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2027-07-07T09:24:36Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": false,
+          "issued_at_utc": "2027-07-28T09:49:17Z",
+          "record_type": "report_result",
+          "repaired": false,
+          "score_delta": 0.0
+        },
+        {
+          "correct": true,
+          "issued_at_utc": "2027-09-07T11:21:30Z",
+          "record_type": "report_result",
+          "repaired": true,
+          "score_delta": 100.0
+        }
+      ],
+      "information_probe_events": [],
+      "information_probe_count": 0,
+      "information_probe_exposure_seconds": 0,
+      "information_probe_cpu_logged": 0.0,
+      "information_probe_cpu_scope": "Cumulative attempt CPU at last executed-probe log; later unexecuted attempts may add cost.",
+      "delta_parent": 411.84609799999816,
+      "parent_score": 32495.214637
     }
   ],
-  "comparison_limit": "One official batch; hardware calibration and model responses also vary."
+  "comparison_limit": "One official batch; hardware calibration and model responses also vary.",
+  "parent_mean": 29773.733201749998,
+  "delta_parent": 726.3353807499989
 }

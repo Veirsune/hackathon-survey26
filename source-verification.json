@@ -1,6 +1,6 @@
 {
-  "revision": "584375db-5e7f-4b5e-99b4-ef7b70e14bf2",
-  "batch": "bfe82765-fef3-4b77-aaa9-10911488a0f0",
+  "revision": "bc36a641-ca50-454b-8ae3-1b1fec6bb04b",
+  "batch": "48c45ce7-cb90-4dc1-b4d7-e42769359f6e",
   "source_hashes": {
     ".gitignore": "d739bacd5285b30d8503bec83496c6d46e53b8e49ef664324fd51d2cbff44745",
     "BENCHMARK.md": "a6a41cabec7ce6759eb8766c6162fd446bf50dea04378a7410a93d2fb8b55399",
@@ -8,7 +8,7 @@
     "agent.py": "ddd808f937a2afbd69ebd5266d05e87b1d366392c36c03605c2af7a80cb52fa9",
     "agent_core/__init__.py": "86f2aa3636a25e64fde75376458dbe0fa1efcbee58d18ee5cfc93322ccc45330",
     "agent_core/bonus_certificate.py": "a18c8a334d95335ab3be8549fc7535b7e9ca97833dcda8c8ffee316bfec126b2",
-    "agent_core/calendar_governor.py": "9e4e5dc755521860c7e0302feb810a39bb3966a5910b14c92b55d1293edf4fb7",
+    "agent_core/calendar_governor.py": "cc9944a3e23d192119bbf3b6b7b0b716ef867f44e39adcf6a76e7cf35a19f74a",
     "agent_core/compute_fastpath.py": "f7f860b056715dfde1d8472196001e99421659dc88ce161be3f2277c970db64d",
     "agent_core/expert_observer.py": "6ef847b905deb84a238c2addba8603d92d91ac26d1881b1a1231af14b396f574",
     "agent_core/geometry.py": "b74bf06524123dfda2157f03f2459766d232e811de9328a26e0eedd30627a1fd",
@@ -35,5 +35,16 @@
     "tests/test_llm_client.py": "ebe4ccb090b96bf1d913b67f5bcb01c46679d3efcd7f36b21a8928c69db27b0c",
     "tests/test_reporting.py": "07d10f07673bf83b2ee563d23225f025bbcbf46bff99ad3e2423cba24d55f769"
   },
-  "documentation_note": "README simplified after evaluation; runtime and manifest match the uploaded source."
+  "runtime_identical": true,
+  "README_scope": "Release documentation only; excluded from runtime comparison.",
+  "prepared_manifest_normalizations": {
+    "protocol": [
+      "jsonl-v4",
+      "jsonl-v2"
+    ],
+    "image": [
+      "python:3.12-slim",
+      "python@sha256:02108f5d322dd89f1c9e552442c25acb0543dfdbc455693a5599624f20d9155d"
+    ]
+  }
 }

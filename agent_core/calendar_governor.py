@@ -1,4 +1,4 @@
-"""Public-calendar normalized-CPU allocation; no weather or target rules."""
+"""Calendar-accrued CPU credit with actual platform expenditure feedback."""
 from bisect import bisect_right
 import math
 
@@ -12,6 +12,7 @@ class CalendarGovernor:
         self.overhead=None;self.overhead_count=0;self.advance=None;self.search_count=0
         self.last_forecast=None
         self.review_cost=None;self.last_review_cost=None
+        self.initial_remaining=None;self.initial_calendar_seconds=None
 
     def record(self, cpu, tier, searched, advance=0.):
         if not math.isfinite(cpu) or cpu<0:return
@@ -44,6 +45,9 @@ class CalendarGovernor:
         review_reserve=max(0,reviews_left)*max(self.review_cost or 0.,self.last_review_cost or 0.)
         reserve=finish_reserve+review_reserve
         seconds,n,done=self.calendar(now)
+        if self.initial_remaining is None:
+            self.initial_remaining=max(0.,remaining)
+            self.initial_calendar_seconds=max(1.,seconds)
         if remaining<=reserve:
             self.last_forecast={'reason':'finish_reserve','reserve':reserve};return 2
         if any(v is None for v in costs):
@@ -51,12 +55,17 @@ class CalendarGovernor:
                 self.last_forecast={'reason':'cold_budget_reserve','reserve':reserve};return 2
             tier=next(i for i,v in enumerate(costs) if v is None)
             self.last_forecast={'reason':'cold_calibration','tier':tier,'reserve':reserve};return tier
-        turns=max(1,math.ceil(seconds/max(self.minimum,self.advance or 900.))+n)
-        overhead_turns=max(n,self.overhead_count/max(1,done)*n)
-        overhead_cost=overhead_turns*(self.overhead or 0.)
-        budget=max(0.,(remaining-reserve-overhead_cost)/turns)
-        feasible=[i for i,c in enumerate(costs) if c is not None and c<=budget
-                  and (i>=current or c<=.8*budget)]
+        # Credit is released by public observing time, with a 2% startup
+        # allowance. Actual remaining CPU already includes ALL spent work:
+        # reviews, waits, feedback, search and calibration, at platform speed.
+        fraction=min(1.,max(0.,1.-seconds/self.initial_calendar_seconds))
+        spent=max(0.,self.initial_remaining-remaining)
+        allowance=max(0.,self.initial_remaining-reserve)*(.02+.98*fraction)
+        credit=allowance-spent
+        feasible=[i for i,c in enumerate(costs) if c is not None and c<=credit]
         tier=min(feasible,default=2)
-        self.last_forecast={'reason':'calendar_budget','remaining_seconds':seconds,'predicted_search_turns':turns,'per_search_budget':budget,'costs':costs,'reserve':reserve,'review_reserve':review_reserve,'overhead_cost':overhead_cost}
+        self.last_forecast={'reason':'calendar_credit','remaining_seconds':seconds,
+            'calendar_fraction':fraction,'actual_cpu_spent':spent,
+            'accrued_cpu':allowance,'credit_cpu':credit,'costs':costs,
+            'reserve':reserve,'review_reserve':review_reserve}
         return tier
