@@ -88,6 +88,7 @@ proposals and are never repeated merely because a plan remains active.
 class ExpertObserver(RuntimeAdvisor):
     def _init_advisor(self):
         super()._init_advisor()
+        self.exposure_margin = 1.05
         self._stage_successes = {"expert_review": 0}
         self.required_priority = 1.0
         self.request_priority = 1.0
