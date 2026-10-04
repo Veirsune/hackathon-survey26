@@ -36,6 +36,6 @@ Local L4: **7057.06** with model calls disabled, **7057.06** with Kimi. See [ben
 python -m unittest discover -s tests -v
 ```
 
-The offline agent is on the [`no-llm` branch](https://github.com/Veirsune/hackathon-survey26/tree/no-llm). Import the repository in the competition platform and select the desired branch.
+The offline agent is on the [`no-llm` branch](https://github.com/Veirsune/hackathon-survey26/tree/no-llm). The platform imports only the default branch. Use the repository URL for Kimi, or upload an archive of `no-llm` for the offline version.
 
 Based on the official Python example. See [LICENSE.md](LICENSE.md).
