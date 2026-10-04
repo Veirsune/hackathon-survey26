@@ -62,6 +62,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self._plan_costs = [None, None, None]
         self._plan_counts = [0, 0, 0]
         self._init_advisor()
+        from .calendar_governor import CalendarGovernor
+        self.calendar_governor = CalendarGovernor(state.nights, state.min_exposure)
 
         log(f"planner: {len(state.ids)} targets ({sum(state.required)} required), "
             f"{len(state.nights)} nights, model_configured={self.llm.configured}")
@@ -71,6 +73,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     def decide(self, payload: dict) -> dict:
         """Account all preprocessing, feedback, report and search CPU per turn."""
         started = process_time()
+        self._did_search = False
+        self._review_cpu_this_turn = 0.
         action = self._decide(payload)
         speed = max(1e-9, float((payload.get("wallclock") or {}).get("speed_factor", 1.)))
         elapsed = max(0., process_time() - started) / speed
@@ -81,6 +85,11 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
         counts[tier] += 1
         self._turn_costs, self._turn_counts = costs, counts
+        advance = float(action.get("duration_seconds", 0.))
+        if action.get("until_utc"):
+            advance = max(0., (parse_utc(action["until_utc"]) - parse_utc(payload["now_utc"])).total_seconds())
+        recurring_cpu = max(0., elapsed - self._review_cpu_this_turn)
+        self.calendar_governor.record(recurring_cpu, tier, self._did_search, advance)
         return action
 
     def _decide(self, payload: dict) -> dict:
@@ -133,6 +142,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
             return report
 
         started = process_time()
+        self._did_search = True
         action = self.plan(now, night_end, night_index, hours)
         # Platform charges CPU across threads, normalized by measured speed.
         elapsed = max(0., process_time() - started) / self._decision_speed
@@ -170,11 +180,12 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return int(max(60, min(3600, slot - into if into else slot)))
 
     def _pace(self, payload: dict, now) -> None:
-        """Use full search until the actual runtime reserve requires fallback."""
+        """Allocate compute to remaining public calendar, with measured costs."""
         remaining = self._cpu_left()
-        level = 0 if remaining > 180. else 2
+        reviews_left = max(0, self.llm.max_calls - self.llm.calls_made) if self.llm.retry_available else 0
+        level = self.calendar_governor.choose(now, remaining, self.state.fast_level, reviews_left)
         if level != self.state.fast_level:
-            self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)}")
+            self.log(f"planner: calendar pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)} forecast={self.calendar_governor.last_forecast}")
             self.state.fast_level = level
 
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----
@@ -187,7 +198,13 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         certificate = certificate_report(self, hours, payload)
         if certificate is not None:
             return certificate
+        review_started = process_time()
+        calls_before = self.llm.calls_made
         self._expert_review(hours, payload)
+        review_cpu = max(0., process_time() - review_started) / self._decision_speed
+        self._review_cpu_this_turn += review_cpu
+        if self.llm.calls_made > calls_before:
+            self.calendar_governor.record_review(review_cpu)
         return self._expert_report(hours, payload)
 
     def _baseline_report(self, hours: float, payload: dict):

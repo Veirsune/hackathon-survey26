@@ -1,18 +1,20 @@
-# Formal compute Kimi official result
+# 专家成本分离：正式评测结果
 
-One online batch, 2026-10-05 UTC+8: mean **29598.417005**, +11642.978554 versus frozen OFF baseline17955.438451. Revision `cf6e82c0-a40b-47cd-8fc8-d5c7435b5338`; batch `2f6fbb72-2f70-42c7-a53a-82e056bd7ced`. All downloaded CSV/message hashes verified.
+四卡均分 **29773.733202**，比此前最佳 Kimi ON 高 **175.316197**，比未修正 Calendar 版高 **1115.775072**。这是一次正式批次的结果，不能据此宣称稳定统计优势。
 
-| Card | Score | Delta OFF | Charged CPU | Wall seconds | Required missing | Nights reached | Kimi calls / accepted / policy changes |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| A | 22929.376421 | -22.751298 | 784.188 | 1172.962 | 1 | 123/123 | 6 / 5 / 4 |
-| B | 38613.262861 | +39540.997818 | 818.096 | 1190.670 | 0 | 183/183 | 6 / 4 / 2 |
-| C | 24184.982919 | +6039.676417 | 877.285 | 1168.542 | 0 | 121/121 | 6 / 6 / 6 |
-| D | 32666.045818 | +1013.991279 | 815.900 | 1456.314 | 1 | 365/365 | 6 / 6 / 2 |
+| 卡 | 新得分 | 相对原最佳 ON | CPU 使用 / 剩余 | 必观测缺失 |
+|---|---:|---:|---:|---:|
+| A | 23690.746421 | +761.370000 | 449.252 / 450.748 | 1 |
+| B | 37515.757192 | -1097.505669 | 479.187 / 420.813 | 0 |
+| C | 25393.214557 | +1208.231638 | 492.139 / 407.861 | 0 |
+| D | 32495.214637 | -170.831181 | 253.898 / 646.102 | 2 |
 
-A/B/D finish the season; C finishes24seconds before final dawn with agent_finished (120 whole nights, all121 reached). No CPU/wall cap or planner errors. B gain comprises14009.232science +25000required +400requests +100reports +31.765uniformity; its missing count falls500→0. C science gains5792.608 and D913.950. A falls22.751.
+四卡均推进到季末；C 在最后黎明前结束。所有官方文件哈希及分数已核对，各卡均有6次真实模型调用。原始结果、两个对照版本和此前负面实验均保留，未设置 final。
 
-The result combines exact compute acceleration, fair CPU/wall-clock handling, and genuine Kimi policy controls. It does not isolate Kimi contribution. Six actual model requests per card produced5/4/6/6 accepted reviews and4/2/6/2 policy changes; changed_selections=0 refers to a separate direct-selection counter and does not mean controls had no effect. Formal award eligibility remains organizer-determined.
+修正消除了专家处理成本对常规成本的直接污染，但尚未解决未选档位的陈旧估计。例如 D 的中档成本从开局0.389秒沿用到7月，恢复采样后到12月降至0.0107秒；高档开局1.271秒的估计直到12月仍未更新。D 因此留下646秒 CPU，A/B/C 也各剩408–451秒。
 
-The first upload failed before agent execution because pip user installation targeted read-only /.local; preserved revisionfc053d28. Replacement installs pinnedNumPy2.2.6 into .vendor with PYTHONPATH=.vendor. Runner publiccheck passed and actual logs show fastpath activated; prepared32files match frozen source except platform image/protocol metadata normalization. Warm checkpoint timings are not a standalone season forecast; the local30CPUbenchguard overrun remains documented.
+下一项可检验方案是对长期未采样档位做有限的重新校准；必须记录真实开销、限制额外计算并保留现有紧急预算保护。尚未实现或启动此试验，不同时改目标评分或 Kimi 策略。
 
-Leaderboard snapshot 2026-10-04T17:39:45.822539+00:00: rank3, leaderAstroNJU mean30431.893899, gap833.476894. These are current totals, not the earlier CCB benchmark. No final version selected.
+最新榜单快照：本队第4、均分29773.733202；AstroNJU 第1、31188.360246，差1414.627044。其他队伍也在进步，旧的第3名不是当前排名。
+
+批次 `bfe82765-fef3-4b77-aaa9-10911488a0f0`，版本 `584375db-5e7f-4b5e-99b4-ef7b70e14bf2`。数据：`formal-calendar-cost-kimi-summary.json` 与 `online-leaderboard-after-calendar-cost.json`。

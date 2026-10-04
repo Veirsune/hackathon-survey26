@@ -1,314 +1,336 @@
 {
-  "batch": "2f6fbb72-2f70-42c7-a53a-82e056bd7ced",
-  "revision": "cf6e82c0-a40b-47cd-8fc8-d5c7435b5338",
-  "mean": 29598.41700475,
-  "baseline_mean": 17955.43845075,
-  "mean_delta": 11642.978554000001,
-  "comparison_limit": "Combined compute acceleration + Kimi controls + fair-clock changes; not an isolated Kimi effect. One official batch.",
+  "batch": "bfe82765-fef3-4b77-aaa9-10911488a0f0",
+  "revision": "584375db-5e7f-4b5e-99b4-ef7b70e14bf2",
+  "mean": 29773.733201749998,
+  "ON_mean": 29598.41700475,
+  "delta_ON": 175.31619699999646,
   "runs": [
     {
       "card": "A",
-      "score": 22929.376421,
-      "delta_off": -22.751297999999224,
+      "score": 23690.746421,
+      "delta_ON": 761.369999999999,
       "components": {
         "observation_request_reward": 600.0,
         "report_settlement": 100.0,
         "required_penalty": -50.0,
-        "sum_best_scores": 22285.783465,
-        "uniformity_penalty": -6.407044
-      },
-      "component_delta": {
-        "observation_request_reward": 0.0,
-        "report_settlement": 0.0,
-        "required_penalty": 0.0,
-        "sum_best_scores": -22.843236000000616,
-        "uniformity_penalty": 0.09193899999999999
+        "sum_best_scores": 23049.627306,
+        "uniformity_penalty": -8.880885
       },
       "counts": {
-        "decisions": 5631,
+        "decisions": 5667,
         "invalidated_observations": 0,
         "observation_requests_completed": 6,
         "observation_requests_issued": 6,
-        "observations": 44396,
-        "observe_actions": 3584,
+        "observations": 45164,
+        "observe_actions": 3622,
         "required_missing": 1,
-        "targets_observed": 27506
-      },
-      "termination": {
-        "detail": "",
-        "reason": "survey_complete"
+        "targets_observed": 27667
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 784.188,
+        "charged_seconds": 449.252,
         "cpu_meter": "cpu",
-        "cpu_seconds": 870.829,
+        "cpu_seconds": 478.142,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 1172.962,
+        "run_wall_seconds": 721.715,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 1.1346,
-        "speed_factor_max": 1.15,
-        "speed_factor_min": 1.0815,
-        "speed_samples": 19,
-        "wait_seconds": 121.533,
-        "window_seconds": 992.362
+        "speed_factor": 1.0879,
+        "speed_factor_max": 1.0879,
+        "speed_factor_min": 1.0369,
+        "speed_samples": 12,
+        "wait_seconds": 74.629,
+        "window_seconds": 552.771
+      },
+      "remaining_CPU": 450.748,
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
       },
       "last_calendar_time": "2027-02-01T08:45:00Z",
       "nights_started": 123,
       "nights_finished": 123,
       "nights_total": 123,
+      "tier_decide_counts": [
+        907,
+        1915,
+        925
+      ],
+      "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
         "responses": 5,
-        "seconds": 117.796,
+        "seconds": 71.141,
         "accepted_by_stage": {
           "expert_review": 5
         },
         "changed_selections": 0
       },
       "accepted_reviews": 5,
-      "policy_changes": 4,
-      "planner_errors": 0,
-      "sha256_verified": true,
-      "runtime_summaries": [
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "planner: steady pace level 2 (179.9s remaining) at 2026-11-20T08:02:31Z",
-        "compute_turn_summary: normalized_cpu_ema=[0.3359664031574551, None, 0.027833255864399952] counts=[2101, 0, 1608]"
-      ]
+      "policy_changes": 0,
+      "planner_error_log_matches": 0,
+      "tier_transition_count": 74,
+      "first_tier_transitions": [
+        "planner: calendar pace level 1 (892.9s remaining) at 2026-10-02T00:02:11Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 30.09670818786768}",
+        "planner: calendar pace level 2 (892.8s remaining) at 2026-10-02T00:04:02Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 30.09670818786768}",
+        "planner: calendar pace level 1 (872.4s remaining) at 2026-10-04T01:59:38Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3327322.0, 'predicted_search_turns': 6378, 'per_search_budget': 0.1332127609755479, 'costs': [0.5466115797087481, 0.09755107917832093, 0.050727350244493964], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7819080209662252}",
+        "planner: calendar pace level 2 (869.6s remaining) at 2026-10-04T07:49:04Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3306356.0, 'predicted_search_turns': 6174, 'per_search_budget': 0.1371475273387387, 'costs': [0.5466115797087481, 0.16986975710788949, 0.050727350244493964], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7819080209662252}",
+        "planner: calendar pace level 1 (867.6s remaining) at 2026-10-05T03:11:27Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3290613.0, 'predicted_search_turns': 3772, 'per_search_budget': 0.22397324058848472, 'costs': [0.5466115797087481, 0.16986975710788949, 0.06757274147994896], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7009888688498134}",
+        "planner: calendar pace level 2 (865.6s remaining) at 2026-10-05T06:42:36Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3277944.0, 'predicted_search_turns': 4669, 'per_search_budget': 0.1805200029978252, 'costs': [0.5466115797087481, 0.18588853699868096, 0.06757274147994896], 'reserve': 22.03148244498023, 'review_reserve': 17.03148244498023, 'overhead_cost': 0.7009888688498134}"
+      ],
+      "last_tier_transitions": [
+        "planner: calendar pace level 0 (613.9s remaining) at 2026-12-22T06:44:13Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 1087247.0, 'predicted_search_turns': 644, 'per_search_budget': 0.9404346797179262, 'costs': [0.7184679456471393, 0.07101334670616088, 0.05322167463233341], 'reserve': 8.086250668876017, 'review_reserve': 3.0862506688760174, 'overhead_cost': 0.17723899489842554}",
+        "planner: calendar pace level 1 (587.0s remaining) at 2026-12-27T01:53:13Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 976907.0, 'predicted_search_turns': 1679, 'per_search_budget': 0.3465657099189663, 'costs': [0.3687036729617583, 0.07101334670616088, 0.05322167463233341], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.14295689589437882}",
+        "planner: calendar pace level 0 (587.0s remaining) at 2026-12-27T02:30:51Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 974649.0, 'predicted_search_turns': 1088, 'per_search_budget': 0.5347492896660073, 'costs': [0.3687036729617583, 0.07664449286041485, 0.05322167463233341], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.14295689589437882}"
+      ],
+      "sha256_verified": true
     },
     {
       "card": "B",
-      "score": 38613.262861,
-      "delta_off": 39540.997818,
+      "score": 37515.757192,
+      "delta_ON": -1097.5056690000056,
       "components": {
         "observation_request_reward": 500.0,
         "report_settlement": 100.0,
         "required_penalty": -0.0,
-        "sum_best_scores": 38019.25858,
-        "uniformity_penalty": -5.995719
-      },
-      "component_delta": {
-        "observation_request_reward": 400.0,
-        "report_settlement": 100.0,
-        "required_penalty": 25000.0,
-        "sum_best_scores": 14009.231600000003,
-        "uniformity_penalty": 31.766218000000002
+        "sum_best_scores": 36920.411632,
+        "uniformity_penalty": -4.65444
       },
       "counts": {
-        "decisions": 10602,
+        "decisions": 11347,
         "invalidated_observations": 0,
         "observation_requests_completed": 5,
         "observation_requests_issued": 6,
-        "observations": 66735,
-        "observe_actions": 6778,
+        "observations": 67207,
+        "observe_actions": 7514,
         "required_missing": 0,
-        "targets_observed": 44673
-      },
-      "termination": {
-        "detail": "",
-        "reason": "survey_complete"
+        "targets_observed": 44978
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 818.096,
+        "charged_seconds": 479.187,
         "cpu_meter": "cpu",
-        "cpu_seconds": 656.748,
+        "cpu_seconds": 564.893,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 1190.67,
+        "run_wall_seconds": 1186.187,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 0.8419,
-        "speed_factor_max": 0.9679,
-        "speed_factor_min": 0.7175,
+        "speed_factor": 1.3394,
+        "speed_factor_max": 1.3394,
+        "speed_factor_min": 1.0529,
         "speed_samples": 20,
-        "wait_seconds": 126.794,
-        "window_seconds": 783.542
+        "wait_seconds": 77.878,
+        "window_seconds": 642.772
+      },
+      "remaining_CPU": 420.813,
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
       },
       "last_calendar_time": "2027-12-01T01:45:00Z",
       "nights_started": 183,
       "nights_finished": 183,
       "nights_total": 183,
-      "model_summary": {
-        "event": "model_summary",
-        "calls": 6,
-        "responses": 4,
-        "seconds": 120.0,
-        "accepted_by_stage": {
-          "expert_review": 4
-        },
-        "changed_selections": 0
-      },
-      "accepted_reviews": 4,
-      "policy_changes": 2,
-      "planner_errors": 0,
-      "sha256_verified": true,
-      "runtime_summaries": [
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "planner: steady pace level 2 (180.0s remaining) at 2027-08-21T03:36:22Z",
-        "compute_turn_summary: normalized_cpu_ema=[0.10446770796912466, None, 0.037385364937015664] counts=[4953, 0, 3051]"
-      ]
-    },
-    {
-      "card": "C",
-      "score": 24184.982919,
-      "delta_off": 6039.676416999999,
-      "components": {
-        "observation_request_reward": 600.0,
-        "report_settlement": 100.0,
-        "required_penalty": -0.0,
-        "sum_best_scores": 23488.772243,
-        "uniformity_penalty": -3.789325
-      },
-      "component_delta": {
-        "observation_request_reward": 200.0,
-        "report_settlement": 0.0,
-        "required_penalty": 50.0,
-        "sum_best_scores": 5792.607547,
-        "uniformity_penalty": -2.9311309999999997
-      },
-      "counts": {
-        "decisions": 7430,
-        "invalidated_observations": 0,
-        "observation_requests_completed": 6,
-        "observation_requests_issued": 6,
-        "observations": 41267,
-        "observe_actions": 4891,
-        "required_missing": 0,
-        "targets_observed": 27584
-      },
-      "termination": {
-        "detail": "",
-        "reason": "agent_finished"
-      },
-      "clock": {
-        "budget_seconds": 900.0,
-        "charged_seconds": 877.285,
-        "cpu_meter": "cpu",
-        "cpu_seconds": 872.304,
-        "hard_cap_reached": false,
-        "hard_cap_seconds": 1800.0,
-        "mode": "cpu",
-        "run_wall_seconds": 1168.542,
-        "schema_version": "fair-clock-v1",
-        "speed_factor": 1.067,
-        "speed_factor_max": 1.067,
-        "speed_factor_min": 0.951,
-        "speed_samples": 19,
-        "wait_seconds": 81.516,
-        "window_seconds": 953.82
-      },
-      "last_calendar_time": "2027-04-01T14:59:36Z",
-      "nights_started": 121,
-      "nights_finished": 120,
-      "nights_total": 121,
+      "tier_decide_counts": [
+        554,
+        1750,
+        6446
+      ],
+      "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
         "responses": 6,
-        "seconds": 77.06,
+        "seconds": 69.38,
         "accepted_by_stage": {
           "expert_review": 6
         },
         "changed_selections": 0
       },
       "accepted_reviews": 6,
-      "policy_changes": 6,
-      "planner_errors": 0,
-      "sha256_verified": true,
-      "runtime_summaries": [
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "planner: steady pace level 2 (179.7s remaining) at 2027-01-10T10:27:08Z",
-        "compute_turn_summary: normalized_cpu_ema=[0.4524394138231521, None, 0.024266515189584913] counts=[2228, 0, 3565]"
-      ]
+      "policy_changes": 4,
+      "planner_error_log_matches": 0,
+      "tier_transition_count": 36,
+      "first_tier_transitions": [
+        "planner: calendar pace level 1 (886.4s remaining) at 2027-06-01T17:16:19Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 40.981558880235546}",
+        "planner: calendar pace level 2 (886.2s remaining) at 2027-06-01T17:18:32Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 40.981558880235546}",
+        "planner: calendar pace level 1 (696.3s remaining) at 2027-07-21T21:16:01Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4102139.0, 'predicted_search_turns': 2233, 'per_search_budget': 0.3024942425702522, 'costs': [1.0036543289961033, 0.23427132206287452, 0.03249243227922054], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.3958613203350659}",
+        "planner: calendar pace level 2 (695.2s remaining) at 2027-07-22T02:09:07Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4084553.0, 'predicted_search_turns': 4158, 'per_search_budget': 0.1621889530867868, 'costs': [1.0036543289961033, 0.2101104921193878, 0.03249243227922054], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.3958613203350659}",
+        "planner: calendar pace level 1 (680.3s remaining) at 2027-07-31T19:00:04Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3729596.0, 'predicted_search_turns': 2366, 'per_search_budget': 0.27881056262910886, 'costs': [1.0036543289961033, 0.2101104921193878, 0.03987869733807485], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.1759198580403156}",
+        "planner: calendar pace level 2 (678.9s remaining) at 2027-08-01T01:45:49Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 3705251.0, 'predicted_search_turns': 3662, 'per_search_budget': 0.17975781746034258, 'costs': [1.0036543289961033, 0.23993761012488762, 0.03987869733807485], 'reserve': 20.435261880620352, 'review_reserve': 15.43526188062035, 'overhead_cost': 0.1759198580403156}"
+      ],
+      "last_tier_transitions": [
+        "planner: calendar pace level 0 (500.5s remaining) at 2027-11-09T20:55:17Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 508783.0, 'predicted_search_turns': 427, 'per_search_budget': 1.159837354804239, 'costs': [0.7876441920267885, 0.05934120098517215, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.22604810251555216}",
+        "planner: calendar pace level 1 (479.1s remaining) at 2027-11-15T01:07:49Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 370331.0, 'predicted_search_turns': 538, 'per_search_budget': 0.8811125447492364, 'costs': [1.1820082592817964, 0.05934120098517215, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.01799280637761841}",
+        "planner: calendar pace level 0 (478.6s remaining) at 2027-11-15T21:27:25Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 360155.0, 'predicted_search_turns': 286, 'per_search_budget': 1.6558978851746127, 'costs': [1.1820082592817964, 0.04997893302764122, 0.03485234651885821], 'reserve': 5.0, 'review_reserve': 0.0, 'overhead_cost': 0.027932505155108898}"
+      ],
+      "sha256_verified": true
     },
     {
-      "card": "D",
-      "score": 32666.045818,
-      "delta_off": 1013.991278999998,
+      "card": "C",
+      "score": 25393.214557,
+      "delta_ON": 1208.231638000001,
       "components": {
-        "observation_request_reward": 500.0,
-        "report_settlement": 200.0,
-        "required_penalty": -50.0,
-        "sum_best_scores": 32016.048718,
-        "uniformity_penalty": -0.0029
-      },
-      "component_delta": {
-        "observation_request_reward": 300.0,
-        "report_settlement": 0.0,
-        "required_penalty": 50.0,
-        "sum_best_scores": 663.9528569999966,
-        "uniformity_penalty": 0.038422
+        "observation_request_reward": 600.0,
+        "report_settlement": 100.0,
+        "required_penalty": -0.0,
+        "sum_best_scores": 24696.647612,
+        "uniformity_penalty": -3.433055
       },
       "counts": {
-        "decisions": 13796,
-        "invalidated_observations": 2030,
-        "observation_requests_completed": 5,
+        "decisions": 7567,
+        "invalidated_observations": 0,
+        "observation_requests_completed": 6,
         "observation_requests_issued": 6,
-        "observations": 72828,
-        "observe_actions": 5039,
-        "required_missing": 1,
-        "targets_observed": 30000
-      },
-      "termination": {
-        "detail": "",
-        "reason": "survey_complete"
+        "observations": 43255,
+        "observe_actions": 5030,
+        "required_missing": 0,
+        "targets_observed": 28537
       },
       "clock": {
         "budget_seconds": 900.0,
-        "charged_seconds": 815.9,
+        "charged_seconds": 492.139,
         "cpu_meter": "cpu",
-        "cpu_seconds": 796.61,
+        "cpu_seconds": 504.935,
         "hard_cap_reached": false,
         "hard_cap_seconds": 1800.0,
         "mode": "cpu",
-        "run_wall_seconds": 1456.314,
+        "run_wall_seconds": 804.672,
         "schema_version": "fair-clock-v1",
-        "speed_factor": 1.1291,
-        "speed_factor_max": 1.1291,
-        "speed_factor_min": 0.9337,
-        "speed_samples": 24,
-        "wait_seconds": 72.518,
-        "window_seconds": 869.128
+        "speed_factor": 1.0689,
+        "speed_factor_max": 1.081,
+        "speed_factor_min": 0.952,
+        "speed_samples": 14,
+        "wait_seconds": 71.747,
+        "window_seconds": 576.681
+      },
+      "remaining_CPU": 407.861,
+      "termination": {
+        "detail": "",
+        "reason": "agent_finished"
+      },
+      "last_calendar_time": "2027-04-01T14:59:50Z",
+      "nights_started": 121,
+      "nights_finished": 120,
+      "nights_total": 121,
+      "tier_decide_counts": [
+        1187,
+        3145,
+        1602
+      ],
+      "tier_count_scope": "Complete decide invocations, including waits/reports.",
+      "model_summary": {
+        "event": "model_summary",
+        "calls": 6,
+        "responses": 6,
+        "seconds": 66.257,
+        "accepted_by_stage": {
+          "expert_review": 6
+        },
+        "changed_selections": 0
+      },
+      "accepted_reviews": 6,
+      "policy_changes": 4,
+      "planner_error_log_matches": 0,
+      "tier_transition_count": 144,
+      "first_tier_transitions": [
+        "planner: calendar pace level 1 (898.5s remaining) at 2026-12-02T05:15:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 7.463753292920989}",
+        "planner: calendar pace level 2 (898.4s remaining) at 2026-12-02T05:17:56Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 7.463753292920989}",
+        "planner: calendar pace level 0 (898.4s remaining) at 2026-12-02T05:22:41Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4267339.0, 'predicted_search_turns': 6576, 'per_search_budget': 0.1354867691810201, 'costs': [0.08506009144148802, 0.01323269906503675, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
+        "planner: calendar pace level 1 (898.1s remaining) at 2026-12-02T05:35:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4266558.0, 'predicted_search_turns': 7705, 'per_search_budget': 0.11559654994305117, 'costs': [0.16426461728141376, 0.01323269906503675, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
+        "planner: calendar pace level 2 (897.8s remaining) at 2026-12-02T05:59:59Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4265101.0, 'predicted_search_turns': 11828, 'per_search_budget': 0.07527064307116689, 'costs': [0.16426461728141376, 0.08212803657659523, 0.010901453816911195], 'reserve': 7.463753292920989, 'review_reserve': 2.463753292920989, 'overhead_cost': 0.0}",
+        "planner: calendar pace level 1 (888.6s remaining) at 2026-12-03T05:58:02Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4228318.0, 'predicted_search_turns': 8346, 'per_search_budget': 0.10552992895894305, 'costs': [0.16426461728141376, 0.08212803657659523, 0.03485956757125328], 'reserve': 7.375848856467687, 'review_reserve': 2.375848856467687, 'overhead_cost': 0.4525057844446846}"
+      ],
+      "last_tier_transitions": [
+        "planner: calendar pace level 2 (677.0s remaining) at 2027-01-27T09:22:29Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 2216251.0, 'predicted_search_turns': 4633, 'per_search_budget': 0.14453836031773062, 'costs': [0.5510387195378279, 0.14486440049561797, 0.041826084587276546], 'reserve': 6.901918469214613, 'review_reserve': 1.9019184692146132, 'overhead_cost': 0.40830463699343833}",
+        "planner: calendar pace level 1 (676.8s remaining) at 2027-01-27T09:52:41Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 2214439.0, 'predicted_search_turns': 3540, 'per_search_budget': 0.18913122430783058, 'costs': [0.5510387195378279, 0.14486440049561797, 0.058972380861604536], 'reserve': 6.901918469214613, 'review_reserve': 1.9019184692146132, 'overhead_cost': 0.40830463699343833}",
+        "planner: calendar pace level 0 (572.3s remaining) at 2027-02-28T14:56:39Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 1068501.0, 'predicted_search_turns': 805, 'per_search_budget': 0.7025873530592132, 'costs': [0.5510387195378279, 0.08316380666050208, 0.058972380861604536], 'reserve': 6.341186760510177, 'review_reserve': 1.3411867605101773, 'overhead_cost': 0.3335836068418015}"
+      ],
+      "sha256_verified": true
+    },
+    {
+      "card": "D",
+      "score": 32495.214637,
+      "delta_ON": -170.83118099999774,
+      "components": {
+        "observation_request_reward": 500.0,
+        "report_settlement": 300.0,
+        "required_penalty": -100.0,
+        "sum_best_scores": 31795.222279,
+        "uniformity_penalty": -0.007642
+      },
+      "counts": {
+        "decisions": 14379,
+        "invalidated_observations": 1907,
+        "observation_requests_completed": 5,
+        "observation_requests_issued": 6,
+        "observations": 72858,
+        "observe_actions": 5468,
+        "required_missing": 2,
+        "targets_observed": 30000
+      },
+      "clock": {
+        "budget_seconds": 900.0,
+        "charged_seconds": 253.898,
+        "cpu_meter": "cpu",
+        "cpu_seconds": 182.133,
+        "hard_cap_reached": false,
+        "hard_cap_seconds": 1800.0,
+        "mode": "cpu",
+        "run_wall_seconds": 707.634,
+        "schema_version": "fair-clock-v1",
+        "speed_factor": 0.8673,
+        "speed_factor_max": 0.8673,
+        "speed_factor_min": 0.6284,
+        "speed_samples": 12,
+        "wait_seconds": 80.035,
+        "window_seconds": 262.168
+      },
+      "remaining_CPU": 646.102,
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
       },
       "last_calendar_time": "2028-01-01T10:45:00Z",
       "nights_started": 365,
       "nights_finished": 365,
       "nights_total": 365,
+      "tier_decide_counts": [
+        238,
+        3364,
+        5140
+      ],
+      "tier_count_scope": "Complete decide invocations, including waits/reports.",
       "model_summary": {
         "event": "model_summary",
         "calls": 6,
-        "responses": 6,
-        "seconds": 65.333,
+        "responses": 5,
+        "seconds": 73.786,
         "accepted_by_stage": {
-          "expert_review": 6
+          "expert_review": 5
         },
         "changed_selections": 0
       },
-      "accepted_reviews": 6,
-      "policy_changes": 2,
-      "planner_errors": 0,
-      "sha256_verified": true,
-      "runtime_summaries": [
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
-        "planner: steady pace level 2 (180.0s remaining) at 2027-04-09T13:44:43Z",
-        "compute_turn_summary: normalized_cpu_ema=[0.1908407986854408, None, 0.010454700777104057] counts=[2282, 0, 5870]"
-      ]
+      "accepted_reviews": 5,
+      "policy_changes": 1,
+      "planner_error_log_matches": 0,
+      "tier_transition_count": 4,
+      "first_tier_transitions": [
+        "planner: calendar pace level 1 (884.2s remaining) at 2027-01-02T07:31:00Z forecast={'reason': 'cold_calibration', 'tier': 1, 'reserve': 54.8055001034373}",
+        "planner: calendar pace level 2 (883.8s remaining) at 2027-01-02T07:32:17Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 54.8055001034373}",
+        "planner: calendar pace level 1 (705.0s remaining) at 2027-07-23T11:18:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4033578.0, 'predicted_search_turns': 1417, 'per_search_budget': 0.4904612209848783, 'costs': [1.2709491804583042, 0.38925836569064254, 0.016432349242990647], 'reserve': 9.643427325357328, 'review_reserve': 4.559630603524111, 'overhead_cost': 0.34571672562383676}",
+        "planner: calendar pace level 0 (653.4s remaining) at 2027-12-02T10:45:00Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 340200.0, 'predicted_search_turns': 408, 'per_search_budget': 1.5890529561349345, 'costs': [1.2709491804583042, 0.010706023852603818, 0.016432349242990647], 'reserve': 5.083796721833217, 'review_reserve': 0.0, 'overhead_cost': 0.013530178687919808}"
+      ],
+      "last_tier_transitions": [
+        "planner: calendar pace level 2 (883.8s remaining) at 2027-01-02T07:32:17Z forecast={'reason': 'cold_calibration', 'tier': 2, 'reserve': 54.8055001034373}",
+        "planner: calendar pace level 1 (705.0s remaining) at 2027-07-23T11:18:42Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 4033578.0, 'predicted_search_turns': 1417, 'per_search_budget': 0.4904612209848783, 'costs': [1.2709491804583042, 0.38925836569064254, 0.016432349242990647], 'reserve': 9.643427325357328, 'review_reserve': 4.559630603524111, 'overhead_cost': 0.34571672562383676}",
+        "planner: calendar pace level 0 (653.4s remaining) at 2027-12-02T10:45:00Z forecast={'reason': 'calendar_budget', 'remaining_seconds': 340200.0, 'predicted_search_turns': 408, 'per_search_budget': 1.5890529561349345, 'costs': [1.2709491804583042, 0.010706023852603818, 0.016432349242990647], 'reserve': 5.083796721833217, 'review_reserve': 0.0, 'overhead_cost': 0.013530178687919808}"
+      ],
+      "sha256_verified": true
     }
-  ]
+  ],
+  "comparison_limit": "One official batch; hardware calibration and model responses also vary."
 }
