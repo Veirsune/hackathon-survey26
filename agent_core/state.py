@@ -9,6 +9,8 @@ so both examples solve the same problem the same way and can be compared directl
 """
 from __future__ import annotations
 
+from .latent_band import record_exposure, band_scale, feedback_matched
+
 import bisect
 import math
 from collections import deque
@@ -248,6 +250,7 @@ class SurveyState:
             self.pending.clear()
             return
         hits = {h.get("target_id"): float(h.get("score", 0.0)) for h in last_result.get("hits", [])}
+        record_exposure(self, hits, hours)
         any_positive = any(score > 0 for score in hits.values())
         scoring = self.scoring
         multipliers = scoring.program_multipliers
@@ -280,7 +283,8 @@ class SurveyState:
             ratio_match = (factor_if_match * f0t0) / (self.flux[i] * self.pending_duration * prediction.model) \
                 if self.flux[i] > 0 and self.pending_duration > 0 and prediction.model > 0 else 0.0
             band = scoring.program_band(ratio_match * prediction.band_model)
-            matched = band == self.pending_program
+            matched = feedback_matched(self, prediction, hours, score, weight,
+                                       band == self.pending_program, target_id)
             factor = factor_if_match if matched else factor_if_miss
             safe_factor = score / (weight * max(declared_multiplier, mismatch))
             self.factor[i] = max(self.factor[i], min(1.0, safe_factor))
@@ -307,6 +311,7 @@ class SurveyState:
             self.prior_scale = ordered[len(ordered) // 2]
         recent = sorted(ratio for when, ratio in self._samples if when >= hours - SKY_MEMORY_HOURS)
         self.scale = max(0.05, recent[len(recent) // 2]) if len(recent) >= 4 else self.prior_scale
+        self.band_scale = band_scale(self, hours)
 
     # -- fault diagnostics ------------------------------------------------------
 
@@ -367,6 +372,7 @@ class SurveyState:
         )
 
     def forget_quality_history(self) -> None:
+        self._latent_band = None
         self.clean_history = []
         self._band_checks.clear()
         self._samples.clear()

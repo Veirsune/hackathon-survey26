@@ -6,6 +6,14 @@ Official local L4 runner: 8,800 targets, 440 required targets, 900-second budget
 
 ## Current numerical result
 
+L4 model-off score: **6942.418765**, +9.012114 over the previous 6933.406651 control; runtime 541.578 seconds. Required misses: 0, request reward: 200, report settlement: 100. No reduced-search fallback or planner errors. Observed targets: 8,413, 38 fewer than the control; science score still increased by 9.077181. This single development-card improvement is small and does not establish an official alpha result.
+
+A discrete sky/efficiency filter uses public per-target scores to correct the final program declaration and interpret ambiguous feedback from the same exposure. Confirmed bonus scores take precedence; otherwise only strong posterior mass changes the original feedback interpretation. Field selection and exposure search retain the previous objective. The model assumptions and probability thresholds are not calibrated confidence levels.
+
+The same frozen candidate completed the existing synthetic no-fault fixture without paid reports or report penalties. This is one weather trajectory, not an estimate of general false-positive risk. The Kimi-enabled score for this revision has not been measured.
+
+## Previous numerical result
+
 L4 model-off score: **6933.406651**, +21.010488 over the previous 6912.396163 control; runtime 550.797 seconds. Required misses: 0, request reward: 200, report settlement: 100. No reduced-search fallback or planner errors. Observed targets increased from 8,360 to 8,451.
 
 Ordinary science targets now use nominal predicted throughput. Missing required targets and unfinished request targets retain the 0.90 completion discount. Geometry, direction attenuation, confidence, and the expert exposure margin remain in effect. Six search behavior tests and a mixed-obligation prediction check passed. This is one L4 development run, not a held-out result or an official alpha score.
