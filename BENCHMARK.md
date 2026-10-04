@@ -10,7 +10,18 @@ L4 model-off score: **6942.418765**, +9.012114 over the previous 6933.406651 con
 
 A discrete sky/efficiency filter uses public per-target scores to correct the final program declaration and interpret ambiguous feedback from the same exposure. Confirmed bonus scores take precedence; otherwise only strong posterior mass changes the original feedback interpretation. Field selection and exposure search retain the previous objective. The model assumptions and probability thresholds are not calibrated confidence levels. Policy previews use the final corrected program and the same latent sky estimate; the numerical executor is unchanged by this preview consistency fix.
 
-The same frozen candidate completed the existing synthetic no-fault fixture without paid reports or report penalties. This is one weather trajectory, not an estimate of general false-positive risk. The Kimi-enabled score for this revision has not been measured.
+The same frozen numerical candidate completed the existing synthetic no-fault fixture without paid reports or report penalties. This is one weather trajectory, not an estimate of general false-positive risk.
+
+## Current matched model comparison
+
+| Corrected-preview L4 run | Score | Wall time (s) | Required misses |
+| --- | ---: | ---: | ---: |
+| Model disabled | 6942.418765 | 541.578 | 0 |
+| Kimi enabled | 6967.144527 | 670.203 | 0 |
+
+Kimi gained **24.725762** in this single run. All 6 calls succeeded and were accepted, using 77.937 seconds of model wait. Its 2 accepted policy changes selected requests priority and later returned to balanced; exposure margin stayed at 1.0. Both arms received 200 request reward and 100 report settlement, with no reduced-search fallback. Kimi observed 8,429 targets versus 8,413 and increased science score by 24.544896. The first 103 executable actions matched. The reused model-OFF control has the same numerical executor; only model-only preview code differs.
+
+The preceding, uncorrected-preview Kimi run scored 6981.341587 (+38.922822), with one margin change to 1.05. These are different configurations and model responses, not repeated evidence of stable improvement or a causal estimate of the preview fix. Neither is an official alpha result.
 
 ## Previous numerical result
 
@@ -20,7 +31,7 @@ Ordinary science targets now use nominal predicted throughput. Missing required 
 
 Exact threshold memoization preserved all 1,124 executable actions and the score while reducing measured runtime from 593.375 to 550.797 seconds (42.578 seconds, 7.2%). Both runs used full search throughout. The cache distinguishes altered throughput, quality curves, thresholds, and time bounds. This is one timing comparison, not a science-score gain.
 
-The Kimi-enabled score for this revision has not yet been measured. The following matched comparison belongs to the preceding numerical version.
+No separate Kimi run was made for the 6933.406651 numerical revision. The older matched comparison below belongs to the 6912.396163 version.
 
 ## Previous matched model comparison
 
