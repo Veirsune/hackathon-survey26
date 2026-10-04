@@ -161,7 +161,7 @@ class SearchPlanner:
             item = {
                 "i": i, "alt": alt, "az": az, "quality_coefficients": (q0, b, c),
                 "max_duration": maximum,
-                "factor_scale": (state.flux[i] * state.scale * 0.90 * direction / scoring.f0t0
+                "factor_scale": (state.flux[i] * state.scale * (0.90 if missing or requests.get(i) else 1.0) * direction / scoring.f0t0
                                  / getattr(self, "exposure_margin", 1.0)),
                 "band_scale": state.scale / 0.95,
                 "weight": state.weight[i], "best_score": state.best_score[i],
