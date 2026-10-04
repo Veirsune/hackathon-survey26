@@ -5,11 +5,13 @@ from .geometry import altaz_to_radec, shift_altaz, tangent_offsets
 from .optimizer import optimise_field
 
 
-def refine(planner, candidates, best, information, visible, lst, seconds_left):
+def refine(planner, candidates, best, information, visible, lst, seconds_left, fractions=None):
     state, grid = planner.state, planner.grid
     if state.fast_level >= 2:
         return best
-    for fraction in ((0.25, 0.125, 0.0625) if state.fast_level == 0 else (0.25, 0.125)):
+    if fractions is None:
+        fractions = (0.25, 0.125, 0.0625) if state.fast_level == 0 else (0.25, 0.125)
+    for fraction in fractions:
         original_alt, original_az = best[4:]
         ra, dec = altaz_to_radec(original_alt, original_az, lst, state.lat)
         radius = grid.fov / math.sqrt(2.0) + 0.5 * grid.pitch
@@ -47,4 +49,32 @@ def refine(planner, candidates, best, information, visible, lst, seconds_left):
             candidates.append(candidate)
             if rate > best[0]:
                 best = candidate
+    return best
+
+
+def refine_multistart(planner, candidates, best, information, visible, lst, seconds_left):
+    """Preserve the usual result, then test two spatially distinct coarse seeds."""
+    seeds = [best]
+    if planner.state.fast_level == 0:
+        separation = .5 * planner.grid.fov
+        for candidate in sorted(candidates, key=lambda row: row[0], reverse=True):
+            distinct = True
+            for seed in seeds:
+                offsets = tangent_offsets(candidate[4], candidate[5], seed[4], seed[5])
+                if offsets is not None and sum(x*x for x in offsets) < separation*separation:
+                    distinct = False
+                    break
+            if distinct:
+                seeds.append(candidate)
+            if len(seeds) == 3:
+                break
+    best = refine(planner, candidates, best, information, visible, lst, seconds_left)
+    for seed in seeds[1:]:
+        alternative = refine(planner, candidates, seed, information, visible, lst,
+                             seconds_left, fractions=(.25, .125, .0625))
+        if alternative[0] > best[0]:
+            best = alternative
+            log = getattr(planner, 'log', None)
+            if log:
+                log('search: alternate refinement neighborhood selected')
     return best

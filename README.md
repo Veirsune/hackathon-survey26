@@ -20,6 +20,8 @@ AGENT_LLM_REASONING_EFFORT=low
 
 See `.env.example`. Keep credentials local; direct execution reads environment variables, while the competition platform supplies them at runtime.
 
+The settings above are for direct local Kimi calls. The cloud manifest omits `reasoning_effort`, which the competition proxy rejects.
+
 ```sh
 python -u agent.py
 ```
@@ -28,7 +30,7 @@ Fault diagnosis uses public weather warnings and allows at most one report beyon
 
 Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
 
-Latest numerical L4 reference: **6882.57**, with all required targets completed; this diagnostic update has not had a fresh Kimi run. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
+Local L4: **6844.51** with Kimi and **6912.40** with model calls disabled. See [benchmark details](BENCHMARK.md). These are local measurements, not official leaderboard scores.
 
 ```sh
 python -m unittest discover -s tests -v
