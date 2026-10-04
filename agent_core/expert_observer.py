@@ -265,7 +265,7 @@ class ExpertObserver(RuntimeAdvisor):
                 entry.pop("sector_medians", None)
             compact.append(entry)
         hours = (now - state.survey_start).total_seconds() / 3600.
-        previews = evaluate_policies(self, payload) if self._wall_left() > 200 else []
+        previews = evaluate_policies(self, payload) if self._cpu_left() > 200 and self._wall_left() > 30 else []
         available = [p for p in previews if p.get("available")]
         comparison = {"assumed_exposure_margin": 1.0, "scope": "At most three successive projected exposures; not an entire night; throughput held fixed."}
         if available:

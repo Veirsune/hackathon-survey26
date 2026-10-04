@@ -57,13 +57,18 @@ class SearchPlanner:
         """Exact one-target change to the public Jain-index penalty."""
         state = self.state
         scoring = state.scoring
-        totals = {}
-        done = {}
-        for i, ra in enumerate(state.ra):
-            band = int(ra // scoring.uniformity_band_width_deg)
-            totals[band] = totals.get(band, 0) + 1
-            if state.factor[i] >= scoring.uniformity_threshold:
-                done[band] = done.get(band, 0) + 1
+        from .compute_fastpath import uniformity_counts
+        accelerated = uniformity_counts(state)
+        if accelerated is None:
+            totals = {}
+            done = {}
+            for i, ra in enumerate(state.ra):
+                band = int(ra // scoring.uniformity_band_width_deg)
+                totals[band] = totals.get(band, 0) + 1
+                if state.factor[i] >= scoring.uniformity_threshold:
+                    done[band] = done.get(band, 0) + 1
+        else:
+            totals, done = accelerated
         ratios = {band: done.get(band, 0) / count for band, count in totals.items()}
         count = max(1, len(ratios))
         total = sum(ratios.values())
@@ -89,29 +94,34 @@ class SearchPlanner:
         requests, request_caps = self._request_values(now)
         uniformity = self._uniformity_values()
         top_multiplier = max(scoring.program_multipliers.values())
-        visible = set()
-        preliminary = []
-        for i in range(len(state.ids)):
-            best_score = state.best_score[i]
-            missing = state.required[i] and state.factor[i] < scoring.required_threshold
-            science = max(0.0, state.weight[i] * top_multiplier - best_score)
-            science *= self._science_preference(state.flux[i], state.scale)
-            request_value = sum(row[2] for row in requests.get(i, ()))
-            value = science + (scoring.required_penalty if missing else 0.0) + request_value
-            if value <= 0.01:
-                continue
-            ha = wrap180(lst - state.ra[i])
-            hmax = state.hmax[i]
-            if not (-hmax <= ha <= hmax):
-                continue
-            up = (hmax - ha) / SIDEREAL_DEG_PER_SECOND if hmax < 180 else 1e9
-            if up < state.min_exposure:
-                continue
-            visible.add(i)
-            nights_left = max(1, state.last_night[i] - night_index + 1)
-            urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
-            # Public flux is a cheap initial estimate of completion speed.
-            preliminary.append((value * math.sqrt(max(0.001, state.flux[i])) * urgency, i))
+        from .compute_fastpath import preliminary as fast_preliminary
+        accelerated = fast_preliminary(self, now, night_index, lst, requests, top_multiplier)
+        if accelerated is None:
+            visible = set()
+            preliminary = []
+            for i in range(len(state.ids)):
+                best_score = state.best_score[i]
+                missing = state.required[i] and state.factor[i] < scoring.required_threshold
+                science = max(0.0, state.weight[i] * top_multiplier - best_score)
+                science *= self._science_preference(state.flux[i], state.scale)
+                request_value = sum(row[2] for row in requests.get(i, ()))
+                value = science + (scoring.required_penalty if missing else 0.0) + request_value
+                if value <= 0.01:
+                    continue
+                ha = wrap180(lst - state.ra[i])
+                hmax = state.hmax[i]
+                if not (-hmax <= ha <= hmax):
+                    continue
+                up = (hmax - ha) / SIDEREAL_DEG_PER_SECOND if hmax < 180 else 1e9
+                if up < state.min_exposure:
+                    continue
+                visible.add(i)
+                nights_left = max(1, state.last_night[i] - night_index + 1)
+                urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
+                # Public flux is a cheap initial estimate of completion speed.
+                preliminary.append((value * math.sqrt(max(0.001, state.flux[i])) * urgency, i))
+        else:
+            visible, preliminary = accelerated
         if not preliminary:
             return None
         pool_count = 400 if state.fast_level == 0 else 160

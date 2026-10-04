@@ -7,7 +7,7 @@ optimizer.py. RuntimeAdvisor integrates a bounded, configurable Kimi-compatible 
 from __future__ import annotations
 
 from datetime import timedelta
-from time import perf_counter
+from time import process_time
 
 from .geometry import format_utc, parse_utc, wrap180
 from .llm_client import LLMClient
@@ -69,6 +69,21 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     # -- top-level decision ----------------------------------------------------
 
     def decide(self, payload: dict) -> dict:
+        """Account all preprocessing, feedback, report and search CPU per turn."""
+        started = process_time()
+        action = self._decide(payload)
+        speed = max(1e-9, float((payload.get("wallclock") or {}).get("speed_factor", 1.)))
+        elapsed = max(0., process_time() - started) / speed
+        costs = getattr(self, "_turn_costs", [None, None, None])
+        counts = getattr(self, "_turn_counts", [0, 0, 0])
+        tier = self.state.fast_level
+        previous = costs[tier]
+        costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
+        counts[tier] += 1
+        self._turn_costs, self._turn_counts = costs, counts
+        return action
+
+    def _decide(self, payload: dict) -> dict:
         self._begin_advice_decision(payload)
         state = self.state
         now = parse_utc(payload["now_utc"])
@@ -117,13 +132,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         if report is not None:
             return report
 
-        started = perf_counter()
-        model_before = self.llm.seconds_spent
+        started = process_time()
         action = self.plan(now, night_end, night_index, hours)
-        # Model selection waits occur inside plan(), but do not recur on every
-        # search. Charge them to real wall time, not the search-cost estimate.
-        model_wait = max(0., self.llm.seconds_spent - model_before)
-        elapsed = max(0., perf_counter() - started - model_wait)
+        # Platform charges CPU across threads, normalized by measured speed.
+        elapsed = max(0., process_time() - started) / self._decision_speed
         tier = state.fast_level
         previous = self._plan_costs[tier]
         self._plan_costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
@@ -139,6 +151,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return action
 
     def on_finish(self, payload: dict) -> None:
+        self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
         self.trace.close()
@@ -158,7 +171,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     def _pace(self, payload: dict, now) -> None:
         """Use full search until the actual runtime reserve requires fallback."""
-        remaining = float((payload.get("wallclock") or {}).get("remaining_seconds", 1e9))
+        remaining = self._cpu_left()
         level = 0 if remaining > 180. else 2
         if level != self.state.fast_level:
             self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)}")

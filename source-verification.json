@@ -1,0 +1,50 @@
+{
+  "revision": "cf6e82c0-a40b-47cd-8fc8-d5c7435b5338",
+  "verified_files": 32,
+  "manifest_normalization": {
+    "protocol": [
+      "jsonl-v4",
+      "jsonl-v2"
+    ],
+    "image": [
+      "python:3.12-slim",
+      "python@sha256:02108f5d322dd89f1c9e552442c25acb0543dfdbc455693a5599624f20d9155d"
+    ]
+  },
+  "extra_files": [],
+  "public_numpy_activated": true,
+  "hashes": {
+    "observer.project.json": "5b13ca78f3b0b8c33c8f1fb25dda1860f5ee174393f255a2e22e5372f5d8c0ad",
+    "pack_agent.py": "11fc600b3519042e022b92fad21c367c181c24e368792a2e457798139ef82311",
+    ".gitignore": "d739bacd5285b30d8503bec83496c6d46e53b8e49ef664324fd51d2cbff44745",
+    "README.md": "94c78b25c33425b46e763b48b71adb78e9862f324c58fb94719a1c99269cabd3",
+    "requirements.txt": "a23aaf94250a9f53031a592980142245a848e2372b6c6c3093e8260b129265b8",
+    "LICENSE.md": "9cfbe205a36f525938f748d31e24e8526069f63dc6f8f45868e438abd5e52e47",
+    "BENCHMARK.md": "a6a41cabec7ce6759eb8766c6162fd446bf50dea04378a7410a93d2fb8b55399",
+    "agent.py": "ddd808f937a2afbd69ebd5266d05e87b1d366392c36c03605c2af7a80cb52fa9",
+    "agent_core/protocol.py": "7f9e0a3b614009c06c918a68376f3804cc5e103b27778944a9fc49c523a37235",
+    "agent_core/geometry.py": "b74bf06524123dfda2157f03f2459766d232e811de9328a26e0eedd30627a1fd",
+    "agent_core/bonus_certificate.py": "a18c8a334d95335ab3be8549fc7535b7e9ca97833dcda8c8ffee316bfec126b2",
+    "agent_core/optimizer.py": "f5e497250c668e87f8f6d312916ed1546ab940a11f42afb7fdfd3ea92ed944ca",
+    "agent_core/expert_observer.py": "6ef847b905deb84a238c2addba8603d92d91ac26d1881b1a1231af14b396f574",
+    "agent_core/pointing_calibration.py": "93ca7994c26e00a08b5840b2bdb609121553bf3e855b54f19ee789e659952520",
+    "agent_core/pointing_refinement.py": "32797bf922f1916c72aee359159a16abc8166f4c4e2759cf0e3b58b95e82b832",
+    "agent_core/llm_client.py": "369e2c6388e80f3607725993a07a013b4ac00e48107a81ca2f5a37d59554157e",
+    "agent_core/planner.py": "53184a1852a7132255ceb10efce6f751e071bc7df44ecfecb8ac3ed5974823a4",
+    "agent_core/latent_declaration.py": "e9c13e486f395520aa8dac28f8e8a50de04c3fe91ed6a442029278f25323f628",
+    "agent_core/__init__.py": "86f2aa3636a25e64fde75376458dbe0fa1efcbee58d18ee5cfc93322ccc45330",
+    "agent_core/validation.py": "688e2b67fda2e16cb80e04005b69808ae2df82d21822edb8385da48a788f017c",
+    "agent_core/planning_tools.py": "07f3e4ee8659738b03ec07212faceecfc7db0b8eeafc46a5f7388fbef70f8b04",
+    "agent_core/scoring.py": "61ba99f7a074e46a427be2350b47c1daaa5619398bee881b25a5940d02092d78",
+    "agent_core/runtime_advisor.py": "2352f4e00631eaf375d0aae7487643e017249b7d93fa042a552204fb5d250db9",
+    "agent_core/compute_fastpath.py": "f7f860b056715dfde1d8472196001e99421659dc88ce161be3f2277c970db64d",
+    "agent_core/state.py": "e40c548e636f281d999d52a3b8f074e8ae9b48b18f82e145dc531e0293f36e80",
+    "agent_core/report_budget.py": "5a583928555b589fa5c44e8d8c2fdf09e6793ba820cec3e17de1d3de08bb277d",
+    "agent_core/search.py": "f5433607a755ff52ff52e1658029de272375bae6f5b2d2752bef575184c373ea",
+    "agent_core/latent_band.py": "dc9d81f69f11c06b06f9d1022cd7751c6d0d8b22b4cdf0942fce1355d0984f2d",
+    "agent_core/memory.py": "50b85b4a71e0450b54eb9487d40da11fddc8c41199612fba3810ddddf0e8bbfa",
+    "tests/test_llm_client.py": "ebe4ccb090b96bf1d913b67f5bcb01c46679d3efcd7f36b21a8928c69db27b0c",
+    "tests/test_reporting.py": "07d10f07673bf83b2ee563d23225f025bbcbf46bff99ad3e2423cba24d55f769",
+    "tests/test_compute_fastpath.py": "2ff3665b1390e206758454689351c9816f37d6e9866ba9f9c307c1161b279d33"
+  }
+}

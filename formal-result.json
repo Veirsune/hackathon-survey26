@@ -1,0 +1,314 @@
+{
+  "batch": "2f6fbb72-2f70-42c7-a53a-82e056bd7ced",
+  "revision": "cf6e82c0-a40b-47cd-8fc8-d5c7435b5338",
+  "mean": 29598.41700475,
+  "baseline_mean": 17955.43845075,
+  "mean_delta": 11642.978554000001,
+  "comparison_limit": "Combined compute acceleration + Kimi controls + fair-clock changes; not an isolated Kimi effect. One official batch.",
+  "runs": [
+    {
+      "card": "A",
+      "score": 22929.376421,
+      "delta_off": -22.751297999999224,
+      "components": {
+        "observation_request_reward": 600.0,
+        "report_settlement": 100.0,
+        "required_penalty": -50.0,
+        "sum_best_scores": 22285.783465,
+        "uniformity_penalty": -6.407044
+      },
+      "component_delta": {
+        "observation_request_reward": 0.0,
+        "report_settlement": 0.0,
+        "required_penalty": 0.0,
+        "sum_best_scores": -22.843236000000616,
+        "uniformity_penalty": 0.09193899999999999
+      },
+      "counts": {
+        "decisions": 5631,
+        "invalidated_observations": 0,
+        "observation_requests_completed": 6,
+        "observation_requests_issued": 6,
+        "observations": 44396,
+        "observe_actions": 3584,
+        "required_missing": 1,
+        "targets_observed": 27506
+      },
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
+      },
+      "clock": {
+        "budget_seconds": 900.0,
+        "charged_seconds": 784.188,
+        "cpu_meter": "cpu",
+        "cpu_seconds": 870.829,
+        "hard_cap_reached": false,
+        "hard_cap_seconds": 1800.0,
+        "mode": "cpu",
+        "run_wall_seconds": 1172.962,
+        "schema_version": "fair-clock-v1",
+        "speed_factor": 1.1346,
+        "speed_factor_max": 1.15,
+        "speed_factor_min": 1.0815,
+        "speed_samples": 19,
+        "wait_seconds": 121.533,
+        "window_seconds": 992.362
+      },
+      "last_calendar_time": "2027-02-01T08:45:00Z",
+      "nights_started": 123,
+      "nights_finished": 123,
+      "nights_total": 123,
+      "model_summary": {
+        "event": "model_summary",
+        "calls": 6,
+        "responses": 5,
+        "seconds": 117.796,
+        "accepted_by_stage": {
+          "expert_review": 5
+        },
+        "changed_selections": 0
+      },
+      "accepted_reviews": 5,
+      "policy_changes": 4,
+      "planner_errors": 0,
+      "sha256_verified": true,
+      "runtime_summaries": [
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "planner: steady pace level 2 (179.9s remaining) at 2026-11-20T08:02:31Z",
+        "compute_turn_summary: normalized_cpu_ema=[0.3359664031574551, None, 0.027833255864399952] counts=[2101, 0, 1608]"
+      ]
+    },
+    {
+      "card": "B",
+      "score": 38613.262861,
+      "delta_off": 39540.997818,
+      "components": {
+        "observation_request_reward": 500.0,
+        "report_settlement": 100.0,
+        "required_penalty": -0.0,
+        "sum_best_scores": 38019.25858,
+        "uniformity_penalty": -5.995719
+      },
+      "component_delta": {
+        "observation_request_reward": 400.0,
+        "report_settlement": 100.0,
+        "required_penalty": 25000.0,
+        "sum_best_scores": 14009.231600000003,
+        "uniformity_penalty": 31.766218000000002
+      },
+      "counts": {
+        "decisions": 10602,
+        "invalidated_observations": 0,
+        "observation_requests_completed": 5,
+        "observation_requests_issued": 6,
+        "observations": 66735,
+        "observe_actions": 6778,
+        "required_missing": 0,
+        "targets_observed": 44673
+      },
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
+      },
+      "clock": {
+        "budget_seconds": 900.0,
+        "charged_seconds": 818.096,
+        "cpu_meter": "cpu",
+        "cpu_seconds": 656.748,
+        "hard_cap_reached": false,
+        "hard_cap_seconds": 1800.0,
+        "mode": "cpu",
+        "run_wall_seconds": 1190.67,
+        "schema_version": "fair-clock-v1",
+        "speed_factor": 0.8419,
+        "speed_factor_max": 0.9679,
+        "speed_factor_min": 0.7175,
+        "speed_samples": 20,
+        "wait_seconds": 126.794,
+        "window_seconds": 783.542
+      },
+      "last_calendar_time": "2027-12-01T01:45:00Z",
+      "nights_started": 183,
+      "nights_finished": 183,
+      "nights_total": 183,
+      "model_summary": {
+        "event": "model_summary",
+        "calls": 6,
+        "responses": 4,
+        "seconds": 120.0,
+        "accepted_by_stage": {
+          "expert_review": 4
+        },
+        "changed_selections": 0
+      },
+      "accepted_reviews": 4,
+      "policy_changes": 2,
+      "planner_errors": 0,
+      "sha256_verified": true,
+      "runtime_summaries": [
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "planner: steady pace level 2 (180.0s remaining) at 2027-08-21T03:36:22Z",
+        "compute_turn_summary: normalized_cpu_ema=[0.10446770796912466, None, 0.037385364937015664] counts=[4953, 0, 3051]"
+      ]
+    },
+    {
+      "card": "C",
+      "score": 24184.982919,
+      "delta_off": 6039.676416999999,
+      "components": {
+        "observation_request_reward": 600.0,
+        "report_settlement": 100.0,
+        "required_penalty": -0.0,
+        "sum_best_scores": 23488.772243,
+        "uniformity_penalty": -3.789325
+      },
+      "component_delta": {
+        "observation_request_reward": 200.0,
+        "report_settlement": 0.0,
+        "required_penalty": 50.0,
+        "sum_best_scores": 5792.607547,
+        "uniformity_penalty": -2.9311309999999997
+      },
+      "counts": {
+        "decisions": 7430,
+        "invalidated_observations": 0,
+        "observation_requests_completed": 6,
+        "observation_requests_issued": 6,
+        "observations": 41267,
+        "observe_actions": 4891,
+        "required_missing": 0,
+        "targets_observed": 27584
+      },
+      "termination": {
+        "detail": "",
+        "reason": "agent_finished"
+      },
+      "clock": {
+        "budget_seconds": 900.0,
+        "charged_seconds": 877.285,
+        "cpu_meter": "cpu",
+        "cpu_seconds": 872.304,
+        "hard_cap_reached": false,
+        "hard_cap_seconds": 1800.0,
+        "mode": "cpu",
+        "run_wall_seconds": 1168.542,
+        "schema_version": "fair-clock-v1",
+        "speed_factor": 1.067,
+        "speed_factor_max": 1.067,
+        "speed_factor_min": 0.951,
+        "speed_samples": 19,
+        "wait_seconds": 81.516,
+        "window_seconds": 953.82
+      },
+      "last_calendar_time": "2027-04-01T14:59:36Z",
+      "nights_started": 121,
+      "nights_finished": 120,
+      "nights_total": 121,
+      "model_summary": {
+        "event": "model_summary",
+        "calls": 6,
+        "responses": 6,
+        "seconds": 77.06,
+        "accepted_by_stage": {
+          "expert_review": 6
+        },
+        "changed_selections": 0
+      },
+      "accepted_reviews": 6,
+      "policy_changes": 6,
+      "planner_errors": 0,
+      "sha256_verified": true,
+      "runtime_summaries": [
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "planner: steady pace level 2 (179.7s remaining) at 2027-01-10T10:27:08Z",
+        "compute_turn_summary: normalized_cpu_ema=[0.4524394138231521, None, 0.024266515189584913] counts=[2228, 0, 3565]"
+      ]
+    },
+    {
+      "card": "D",
+      "score": 32666.045818,
+      "delta_off": 1013.991278999998,
+      "components": {
+        "observation_request_reward": 500.0,
+        "report_settlement": 200.0,
+        "required_penalty": -50.0,
+        "sum_best_scores": 32016.048718,
+        "uniformity_penalty": -0.0029
+      },
+      "component_delta": {
+        "observation_request_reward": 300.0,
+        "report_settlement": 0.0,
+        "required_penalty": 50.0,
+        "sum_best_scores": 663.9528569999966,
+        "uniformity_penalty": 0.038422
+      },
+      "counts": {
+        "decisions": 13796,
+        "invalidated_observations": 2030,
+        "observation_requests_completed": 5,
+        "observation_requests_issued": 6,
+        "observations": 72828,
+        "observe_actions": 5039,
+        "required_missing": 1,
+        "targets_observed": 30000
+      },
+      "termination": {
+        "detail": "",
+        "reason": "survey_complete"
+      },
+      "clock": {
+        "budget_seconds": 900.0,
+        "charged_seconds": 815.9,
+        "cpu_meter": "cpu",
+        "cpu_seconds": 796.61,
+        "hard_cap_reached": false,
+        "hard_cap_seconds": 1800.0,
+        "mode": "cpu",
+        "run_wall_seconds": 1456.314,
+        "schema_version": "fair-clock-v1",
+        "speed_factor": 1.1291,
+        "speed_factor_max": 1.1291,
+        "speed_factor_min": 0.9337,
+        "speed_samples": 24,
+        "wait_seconds": 72.518,
+        "window_seconds": 869.128
+      },
+      "last_calendar_time": "2028-01-01T10:45:00Z",
+      "nights_started": 365,
+      "nights_finished": 365,
+      "nights_total": 365,
+      "model_summary": {
+        "event": "model_summary",
+        "calls": 6,
+        "responses": 6,
+        "seconds": 65.333,
+        "accepted_by_stage": {
+          "expert_review": 6
+        },
+        "changed_selections": 0
+      },
+      "accepted_reviews": 6,
+      "policy_changes": 2,
+      "planner_errors": 0,
+      "sha256_verified": true,
+      "runtime_summaries": [
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "compute_fastpath: activated=True numpy=2.2.6 scalar_fallback=False",
+        "planner: steady pace level 2 (180.0s remaining) at 2027-04-09T13:44:43Z",
+        "compute_turn_summary: normalized_cpu_ema=[0.1908407986854408, None, 0.010454700777104057] counts=[2282, 0, 5870]"
+      ]
+    }
+  ]
+}

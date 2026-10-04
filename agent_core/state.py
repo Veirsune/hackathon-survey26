@@ -325,12 +325,8 @@ class SurveyState:
         Public current time prevents frozen clean history from becoming fresh
         confirmation during a long stretch of weather notices.
         """
-        grouped: dict[tuple[float, int], list[float]] = {}
-        for hours, night, ratio in self.clean_history:
-            if night >= 0 and math.isfinite(hours) and math.isfinite(ratio) and ratio > 0:
-                grouped.setdefault((hours, night), []).append(ratio)
-        history = sorted((hours, night, median(ratios))
-                         for (hours, night), ratios in grouped.items())
+        from .compute_fastpath import clean_exposure_history
+        history = clean_exposure_history(self)
         nights = sorted({night for _, night, _ in history})
         if len(nights) < 4:
             return None
