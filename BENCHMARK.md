@@ -29,6 +29,6 @@ At initial margin 1.0, corrected-preview Kimi scored 6967.144527 versus numerica
 
 ## Submission
 
-Import this GitHub repository and choose `main` for Kimi or `no-llm` for the offline agent. The offline model client is disabled unconditionally. Neither branch contains credentials.
+The platform imports the repository default branch (`main`). To evaluate `no-llm`, upload an archive of that committed branch; branch URLs are currently unsupported. The offline model client is disabled unconditionally. Neither branch contains credentials.
 
 The user-provided older cloud alpha artifact scored 6808.269150 and accepted no model advice (HTTP 400). Its source commit was not recorded. The official proxy rejects `reasoning_effort`; the cloud manifest omits it. Current cloud results must be measured independently.
