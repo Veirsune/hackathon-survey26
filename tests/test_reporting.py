@@ -58,5 +58,33 @@ class ReportingTests(unittest.TestCase):
         self.assertEqual(budgeted_report(p, 250., {})['action'], 'report')
 
 
+    def paid_planner(self):
+        p = self.planner(ratio=.35)
+        p._false_since_correct = 2
+        p._last_false_ratio = .242
+        p.state._earthquake_seen_hours = 0.
+        p.state.notices = set()
+        return p
+
+    def test_old_deep_false_report_expires_without_removing_paid_cap(self):
+        p = self.paid_planner()
+        self.assertEqual(budgeted_report(p, 250., {})['action'], 'report')
+        self.assertEqual(p._paid_diagnostic_attempts, 1)
+        p = self.paid_planner()
+        p._paid_diagnostic_attempts = 1
+        self.assertIsNone(budgeted_report(p, 250., {}))
+
+    def test_paid_recovery_keeps_weather_cooldown_and_future_time_gates(self):
+        p = self.paid_planner()
+        p._last_false_hours = 100.
+        self.assertIsNone(budgeted_report(p, 250., {}))
+        p = self.paid_planner()
+        p.state.notices = {'haze|ALL'}
+        self.assertIsNone(budgeted_report(p, 250., {}))
+        p = self.paid_planner()
+        p.state.nights = p.state.nights[:2]
+        self.assertIsNone(budgeted_report(p, 250., {}))
+
+
 if __name__ == '__main__':
     unittest.main()

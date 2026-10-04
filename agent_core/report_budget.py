@@ -129,7 +129,7 @@ def budgeted_report(planner, hours, payload):
     if ratio >= (.55 if paid or early else .70):
         return None
     since_false = hours - getattr(planner, "_last_false_hours", float("-inf"))
-    if (paid or since_false < 7 * 24) and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):
+    if since_false < 7 * 24 and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):
         return None
     if paid:
         planner._paid_diagnostic_attempts = getattr(planner, "_paid_diagnostic_attempts", 0) + 1

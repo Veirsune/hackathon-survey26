@@ -52,3 +52,11 @@ During days 4-7 after a public earthquake notice, the free-report fallback can d
 - Matched synthetic no-fault control: both scored 6964.742795, with identical actions and two free false reports, zero paid reports and no report cost. No reports were injected. This one weather trajectory does not establish a general false-positive rate; its scores are not official-card results.
 
 The normal trial used the pre-cache numerical optimizer. The published branches retain the separately validated equivalent gain cache. No new combined-season timing or model-on score is claimed for this extension. Both branches include portable diagnostic tests; model transport settings are unchanged.
+
+## Expiring stale diagnostic comparisons
+
+The comparison against the last false report now expires after seven days, including when the free allowance is exhausted. A very low reading from an old false report no longer permanently prevents a later repair. The successful four-day free-report guard, weather evidence, seven-day paid cooldown, remaining-time requirement and one-paid-attempt seasonal cap remain in place.
+
+A recovery experiment on a deliberately more aggressive free-report policy improved from 5270.229289 to 6809.415585 after a correct paid-channel repair. Its synthetic no-fault repeat completed in 442.515 seconds with two free false reports, zero paid reports and zero report cost. The first no-fault attempt was interrupted by confirmed Windows sleep and excluded. These tests establish recovery in the measured cases, not a new best score or a general false-positive rate.
+
+Only the comparison-expiry condition is integrated here; the failed aggressive free-report policy is excluded. Targeted tests cover the composed policy and its retained limits. The normal 6882.569532 reference did not exhaust the free allowance, so this paid-path change was not exercised in that run. No new full-season composition timing or model-on result is claimed.
