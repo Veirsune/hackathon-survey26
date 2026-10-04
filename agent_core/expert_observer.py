@@ -76,6 +76,7 @@ review budget; an event can trigger review before the planned review night.
 class ExpertObserver(RuntimeAdvisor):
     def _init_advisor(self):
         super()._init_advisor()
+        self.exposure_margin = 1.05
         self._stage_successes = {"expert_review": 0}
         self.required_priority = 1.0
         self.request_priority = 1.0
@@ -122,7 +123,8 @@ class ExpertObserver(RuntimeAdvisor):
         self.llm.begin_night(self.night_index_seen)
         # Expired plans return to the calibrated baseline even after an API error.
         if self.night_index_seen >= self._observer_next_night:
-            self.required_priority = self.request_priority = self.exposure_margin = 1.0
+            self.required_priority = self.request_priority = 1.0
+            self.exposure_margin = 1.05
             self._observer_policy = "balanced"
             self.science_scarcity_enabled = False
 
