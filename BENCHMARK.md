@@ -2,7 +2,22 @@
 
 Official local L4: 8,800 targets, 440 required targets, 900-second budget. These are development measurements, not official alpha leaderboard scores.
 
-## Current results
+## Catalogue tile search (current numerical release)
+
+The numerical agent now also evaluates one fibre-aware catalogue tiling proposal every fourth full-search decision. It preserves the original candidate unless the new proposal has strictly greater predicted utility; reduced search and model previews do not advance this cadence. Only this search module and its planner wiring changed. The unconditional offline client, fixed margin 1.05, and existing request/required controls are unchanged.
+
+Local L4 improved from **7057.062358 to 7071.982599**, with zero required misses. One official practice batch then improved all four cards against the preserved no-model `d3ffc0d` baseline:
+
+| Card | Baseline `d3ffc0d` | Catalogue tile | Difference | Required misses |
+| --- | ---: | ---: | ---: | ---: |
+| Alpha | 7130.666267 | 7141.042844 | +10.376577 | 6 |
+| Beta | 6692.600743 | 6697.439132 | +4.838389 | 11 |
+| Gamma | 6848.184090 | 6888.853810 | +40.669720 | 4 |
+| Delta | 6786.172782 | 6804.088778 | +17.915996 | 7 |
+
+Official revision `97eefe25-d28d-43ca-a9b5-889a13fd8801`, batch `7ff3700a-2485-42cb-a8af-75e1e0ea251c`, evaluated the frozen `catalogue_tile_probe4` source with the unconditional offline client. All four runs completed with zero model calls and no reduced-search fallback; accounted time was 333–443 seconds. Gamma gained mainly by avoiding one required miss despite slightly lower science score. These are single deterministic-scenario comparisons, not evidence of improvement on every unseen scenario. The earlier Kimi alpha result 7302.987962 remains higher.
+
+## Previous fixed-margin results
 
 | Configuration | Score | Required misses | Observed targets |
 | --- | ---: | ---: | ---: |
