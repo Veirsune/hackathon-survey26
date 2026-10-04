@@ -11,7 +11,7 @@ from .geometry import (Moon, SIDEREAL_DEG_PER_SECOND, local_sidereal_deg,
 from .optimizer import completion, duration_to_factor, marginal_gain, optimise_field
 from .state import PendingPrediction
 from .report_budget import all_sky_weather
-from .pointing_refinement import refine
+from .pointing_refinement import refine_multistart as refine
 
 
 class SearchPlanner:
