@@ -159,7 +159,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         remaining = float((payload.get("wallclock") or {}).get("remaining_seconds", 1e9))
         level = 0 if remaining > 180. else 2
         if level != self.state.fast_level:
-            self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining)")
+            self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)}")
             self.state.fast_level = level
 
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----

@@ -17,6 +17,18 @@ def completion(item: dict, duration: float) -> float:
 
 
 def duration_to_factor(item: dict, threshold: float, low: int, high: int):
+    """Reuse exact results across geometry copies, isolating altered physics."""
+    memo = item.get("_exposure_cache")
+    key = ("threshold-v2", item["factor_scale"], tuple(item["quality_coefficients"]), threshold, low, high)
+    if memo is not None and key in memo:
+        return memo[key]
+    value = _duration_to_factor(item, threshold, low, high)
+    if memo is not None:
+        memo[key] = value
+    return value
+
+
+def _duration_to_factor(item: dict, threshold: float, low: int, high: int):
     """First integral second attaining a threshold, under our predictive model."""
     if high < low or completion(item, high) + 1e-12 < threshold:
         return None

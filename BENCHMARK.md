@@ -6,9 +6,11 @@ Official local L4 runner: 8,800 targets, 440 required targets, 900-second budget
 
 ## Current numerical result
 
-L4 model-off score: **6933.406651**, +21.010488 over the previous 6912.396163 control; runtime 593.375 seconds. Required misses: 0, request reward: 200, report settlement: 100. No reduced-search fallback or planner errors. Observed targets increased from 8,360 to 8,451.
+L4 model-off score: **6933.406651**, +21.010488 over the previous 6912.396163 control; runtime 550.797 seconds. Required misses: 0, request reward: 200, report settlement: 100. No reduced-search fallback or planner errors. Observed targets increased from 8,360 to 8,451.
 
 Ordinary science targets now use nominal predicted throughput. Missing required targets and unfinished request targets retain the 0.90 completion discount. Geometry, direction attenuation, confidence, and the expert exposure margin remain in effect. Six search behavior tests and a mixed-obligation prediction check passed. This is one L4 development run, not a held-out result or an official alpha score.
+
+Exact threshold memoization preserved all 1,124 executable actions and the score while reducing measured runtime from 593.375 to 550.797 seconds (42.578 seconds, 7.2%). Both runs used full search throughout. The cache distinguishes altered throughput, quality curves, thresholds, and time bounds. This is one timing comparison, not a science-score gain.
 
 The Kimi-enabled score for this revision has not yet been measured. The following matched comparison belongs to the preceding numerical version.
 
