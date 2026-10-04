@@ -40,6 +40,26 @@ def collect_exposure(state, hours):
     state._weather_clear_diagnostic_exposures = [r for r in paid_rows[-128:] if hours - r[0] <= 96.]
 
 
+def early_free_diagnostic(planner, hours, paid):
+    """Public membership consistency is evidence of pointing recovery, not fault proof."""
+    if paid:
+        return False
+    state = planner.state
+    age = hours - getattr(state, "_earthquake_seen_hours", float("-inf"))
+    if not 4 * 24 <= age < 7 * 24:
+        return False
+    # Stronger than the normal paid ALL-sky gate: no current sky warning anywhere.
+    for notice in state.notices:
+        kind = notice.partition("|")[0] if isinstance(notice, str) else notice.get("event_kind")
+        if kind not in ("earthquake", "terrain_obstruction"):
+            return False
+    mount = getattr(planner, "mount", None)
+    if mount is None or len(mount.history) < 3:
+        return False
+    count = sum(len(points) for _, _, points in mount.history)
+    return count >= 24 and mount.errors(mount.offset) <= .02 * count
+
+
 def budgeted_report(planner, hours, payload):
     state = planner.state
     state.force_program = None
@@ -83,15 +103,17 @@ def budgeted_report(planner, hours, payload):
     if hours - planner.last_report_hours < 48.:
         return None
     quake = getattr(state, "_earthquake_seen_hours", float("-inf"))
-    if hours - quake < 7 * 24:
+    early = early_free_diagnostic(planner, hours, paid)
+    quake_guard = 4 * 24 if early else 7 * 24
+    if hours - quake < quake_guard:
         return None
     older = [ratio for when, _, ratio in state.clean_history if when < hours - 72.]
     if len(older) < 32:
         return None
     reference = median(older)
-    history_key = "_weather_clear_diagnostic_exposures" if paid else "_diagnostic_exposures"
+    history_key = "_weather_clear_diagnostic_exposures" if paid or early else "_diagnostic_exposures"
     rows = [r for r in getattr(state, history_key, ())
-            if hours - r[0] <= 48. and r[0] - quake >= 7 * 24]
+            if hours - r[0] <= 48. and r[0] - quake >= quake_guard]
     nights = {}
     for when, night, ratio in rows:
         nights.setdefault(night, []).append((when, ratio))
@@ -104,7 +126,7 @@ def budgeted_report(planner, hours, payload):
     if min(map(len, groups)) < 3 or hours - max(t for t, _ in groups[-1]) > 2.:
         return None
     ratio = max(median(v for _, v in group) for group in groups) / max(reference, 1e-9)
-    if ratio >= (.55 if paid else .70):
+    if ratio >= (.55 if paid or early else .70):
         return None
     since_false = hours - getattr(planner, "_last_false_hours", float("-inf"))
     if (paid or since_false < 7 * 24) and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):

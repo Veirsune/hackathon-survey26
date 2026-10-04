@@ -28,7 +28,7 @@ Fault diagnosis uses public weather warnings and allows at most one report beyon
 
 Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
 
-Best tested local L4 result: **6809.42**, with all required targets completed. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
+Latest numerical L4 reference: **6882.57**, with all required targets completed; this diagnostic update has not had a fresh Kimi run. See [benchmark details](BENCHMARK.md). This is a local project best, not an official leaderboard SOTA claim.
 
 ```sh
 python -m unittest discover -s tests -v

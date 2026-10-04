@@ -1,5 +1,7 @@
 # Local comparison
 
+Latest numerical L4 reference: **6882.569532**, up **73.153947**. The latest diagnostic change has no fresh Kimi API run; the matched model comparison below remains the earlier reference.
+
 The matched model comparison below measures the numerical baseline before the diagnostic extension described below.
 
 Both branches use public-feedback pointing calibration, good-sky target preference, and exposure candidates at predicted program-band boundaries. Kimi can retain or revise the persistent observing policy; `no-llm` disables model transport unconditionally.
@@ -40,3 +42,13 @@ The stress tests used the preceding numerical baseline and are diagnostic experi
 ## Reused exposure gains
 
 The numerical optimizer now reuses matched/mismatched gains across overlapping pointings while applying each pointing's confidence separately. An algorithm-only L4 run retained all 1,079 reference actions and 6809.415585 points, taking 395.141 seconds versus 428.859 seconds for the reference (33.718 seconds saved). These are single timing measurements; no additional model API timing was measured. Weather-aware diagnostic behavior is unchanged.
+
+## Earlier diagnosis after pointing recovery
+
+During days 4-7 after a public earthquake notice, the free-report fallback can diagnose earlier if recent fiber membership supports stable pointing, current sky warnings are absent, and two nights of weather-filtered evidence show a strong throughput drop. Paid-report limits and behavior outside this window are unchanged.
+
+- Normal L4: **6882.569532**, versus 6809.415585; science increased by 73.050834 points. Required misses remained 0, request reward 200 and report settlement 100. Runtime was 429.562 seconds versus 429.969 for the control, with no search fallback.
+- Correct repair moved from December 13 at 01:17:02 UTC to December 10 at 01:26:25 UTC. The earlier free false report was unchanged.
+- Matched synthetic no-fault control: both scored 6964.742795, with identical actions and two free false reports, zero paid reports and no report cost. No reports were injected. This one weather trajectory does not establish a general false-positive rate; its scores are not official-card results.
+
+The normal trial used the pre-cache numerical optimizer. The published branches retain the separately validated equivalent gain cache. No new combined-season timing or model-on score is claimed for this extension. Both branches include portable diagnostic tests; model transport settings are unchanged.
