@@ -4,6 +4,16 @@ Both branches use feedback pointing calibration, shared-exposure optimization, p
 
 Official local L4 runner: 8,800 targets, 440 required targets, 900-second budget. These are single local measurements, not official alpha leaderboard scores.
 
+## Current numerical result
+
+L4 model-off score: **6933.406651**, +21.010488 over the previous 6912.396163 control; runtime 593.375 seconds. Required misses: 0, request reward: 200, report settlement: 100. No reduced-search fallback or planner errors. Observed targets increased from 8,360 to 8,451.
+
+Ordinary science targets now use nominal predicted throughput. Missing required targets and unfinished request targets retain the 0.90 completion discount. Geometry, direction attenuation, confidence, and the expert exposure margin remain in effect. Six search behavior tests and a mixed-obligation prediction check passed. This is one L4 development run, not a held-out result or an official alpha score.
+
+The Kimi-enabled score for this revision has not yet been measured. The following matched comparison belongs to the preceding numerical version.
+
+## Previous matched model comparison
+
 | L4 run | Score | Wall time (s) | Model calls | Required misses |
 | --- | ---: | ---: | ---: | ---: |
 | Model disabled | 6912.396163 | 555.391 | 0 | 0 |
