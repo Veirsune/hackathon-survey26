@@ -17,7 +17,8 @@ from .latent_declaration import choose_program
 
 class SearchPlanner:
     def _science_preference(self, flux, quality):
-        # Static control: apply the public-quality opportunity rule every night.
+        if not getattr(self, "science_scarcity_enabled", False):
+            return 1.0
         scoring = self.state.scoring
         poorer_quality = scoring.program_bands["BRIGHT"] * .95
         if quality <= poorer_quality or poorer_quality <= 0:
@@ -298,6 +299,7 @@ class SearchPlanner:
                 best = selected
         _rate, duration, program, chosen, ca, cz = best
         program = choose_program(state, chosen, duration, program, hours)
+        state._certificate_pending_notices = tuple(state.notices)
         state.pending.clear()
         state._latent_direction_clear = {state.ids[item["i"]] for item in chosen.values()
             if self._direction_factor(item["alt"], item["az"]) >= 1.0}

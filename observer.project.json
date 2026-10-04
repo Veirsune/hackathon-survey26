@@ -11,6 +11,8 @@
   "working_directory": ".",
   "environment": {
     "PYTHONDONTWRITEBYTECODE": "1",
+    "OPENAI_MODEL": "kimi-for-coding",
+    "AGENT_LLM_REASONING_EFFORT": "low",
     "AGENT_LLM_ENABLED": "0"
   }
 }

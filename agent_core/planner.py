@@ -80,6 +80,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.mount.consume(payload.get("last_result"))
         self.mount.notice(payload.get("latest_bulletin"))
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
+        from .bonus_certificate import collect as collect_certificate
+        collect_certificate(self, payload, hours)
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
         self.active_requests = payload.get("active_requests") or []
@@ -168,6 +170,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         fallback = budgeted_report(self, hours, payload)
         if fallback is not None:
             return fallback
+        from .bonus_certificate import report as certificate_report
+        certificate = certificate_report(self, hours, payload)
+        if certificate is not None:
+            return certificate
         self._expert_review(hours, payload)
         return self._expert_report(hours, payload)
 
