@@ -64,6 +64,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self._init_advisor()
         from .calendar_governor import CalendarGovernor
         self.calendar_governor = CalendarGovernor(state.nights, state.min_exposure)
+        from .deadline_governor import DeadlineGovernor
+        self.deadline_governor = DeadlineGovernor(state.nights, state.min_exposure)
 
         log(f"planner: {len(state.ids)} targets ({sum(state.required)} required), "
             f"{len(state.nights)} nights, model_configured={self.llm.configured}")
@@ -73,6 +75,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     def decide(self, payload: dict) -> dict:
         """Account all preprocessing, feedback, report and search CPU per turn."""
         started = process_time()
+        self.deadline_governor.consume(payload)
         self._did_search = False
         self._review_cpu_this_turn = 0.
         action = self._decide(payload)
@@ -90,6 +93,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
             advance = max(0., (parse_utc(action["until_utc"]) - parse_utc(payload["now_utc"])).total_seconds())
         recurring_cpu = max(0., elapsed - self._review_cpu_this_turn)
         self.calendar_governor.record(recurring_cpu, tier, self._did_search, advance)
+        self.deadline_governor.remember(payload, tier, self._did_search)
         return action
 
     def _decide(self, payload: dict) -> dict:
@@ -164,6 +168,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return action
 
     def on_finish(self, payload: dict) -> None:
+        governor = self.deadline_governor
+        self.log(f"deadline_summary: intervals={governor.measured_intervals} wall={governor.measured_wall:.6f} interventions={governor.interventions} costs={governor.credit.costs}")
         self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
@@ -187,6 +193,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         remaining = self._cpu_left()
         reviews_left = max(0, self.llm.max_calls - self.llm.calls_made) if self.llm.retry_available else 0
         level = self.calendar_governor.choose(now, remaining, self.state.fast_level, reviews_left)
+        cpu_level = level
+        level = self.deadline_governor.choose(now, self._wall_left(), cpu_level, self.state.fast_level)
+        if level != self.state.fast_level and level > cpu_level:
+            self.log(f"deadline_pace: level={level} forecast={self.deadline_governor.last_forecast}")
         if level != self.state.fast_level:
             self.log(f"planner: calendar pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)} forecast={self.calendar_governor.last_forecast}")
             self.state.fast_level = level

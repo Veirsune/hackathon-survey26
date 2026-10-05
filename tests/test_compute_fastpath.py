@@ -21,6 +21,7 @@ class ComputeTests(unittest.TestCase):
  def test_full_turn_units(self):
   p=pm.Planner.__new__(pm.Planner);p.state=S(fast_level=2);p._decide=lambda payload:{'action':'wait','duration_seconds':60}
   p.calendar_governor=Mock()
+  p.deadline_governor=Mock()
   with patch.object(pm,'process_time',side_effect=[100.,115.]):action=p.decide({'wallclock':{'speed_factor':1.5,'remaining_seconds':700.,'wall_remaining_seconds':1000.}})
   self.assertEqual(p._turn_costs[2],10.);self.assertEqual(p._turn_counts[2],1);self.assertEqual(action['action'],'wait')
   p.calendar_governor.record.assert_called_once_with(10.,2,False,60.)
