@@ -1,6 +1,6 @@
 import copy,heapq,math,unittest
 from types import SimpleNamespace as S
-from unittest.mock import patch
+from unittest.mock import Mock,patch
 from agent_core import compute_fastpath as fast,planner as pm
 from agent_core.geometry import SIDEREAL_DEG_PER_SECOND as sidereal
 class ComputeTests(unittest.TestCase):
@@ -20,8 +20,10 @@ class ComputeTests(unittest.TestCase):
   s=S(clean_history=[(1.,0,.4),(1.,0,.8),(2.,1,.7)]);self.assertEqual(fast.clean_exposure_history(s),[(1.,0,(.4+.8)/2),(2.,1,.7)]);s.clean_history.append((2.,1,.9));self.assertEqual(fast.clean_exposure_history(s),[(1.,0,(.4+.8)/2),(2.,1,(.7+.9)/2)]);q=copy.deepcopy(s);q.clean_history.append((3.,2,.2));fast.clean_exposure_history(q);self.assertEqual(len(fast.clean_exposure_history(s)),2);s.clean_history=[];self.assertEqual(fast.clean_exposure_history(s),[])
  def test_full_turn_units(self):
   p=pm.Planner.__new__(pm.Planner);p.state=S(fast_level=2);p._decide=lambda payload:{'action':'wait','duration_seconds':60}
+  p.calendar_governor=Mock()
   with patch.object(pm,'process_time',side_effect=[100.,115.]):action=p.decide({'wallclock':{'speed_factor':1.5,'remaining_seconds':700.,'wall_remaining_seconds':1000.}})
   self.assertEqual(p._turn_costs[2],10.);self.assertEqual(p._turn_counts[2],1);self.assertEqual(action['action'],'wait')
+  p.calendar_governor.record.assert_called_once_with(10.,2,False,60.)
  def test_optional_fallback(self):
   with patch.object(fast,'np',None):self.assertIsNone(fast.uniformity_counts(self.state()));self.assertIsNone(fast.preliminary(S(log=lambda _:None),None,0,0.,{},1.2))
 if __name__=='__main__':unittest.main()

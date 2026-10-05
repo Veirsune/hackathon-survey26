@@ -1,18 +1,20 @@
 # Official formal evaluation
 
-Mean **30540.082335**, compared with **30500.0685825** for the matched Kimi configuration: +40.0137525 (+0.13%). Every card finished the full season with zero model calls, no planner errors, and no hard time cap.
+Mean **30654.85824175**, +114.77590675 against the frozen OFF parent (30540.082335). This is the highest observed mean so far, from one evaluation per configuration.
 
-| Card | Score | Difference from Kimi ON | Required missing |
+| Card | Score | Difference from OFF parent | Required missing |
 |---|---:|---:|---:|
-| A | 23993.165504 | +120.938984 | 1 |
-| B | 39747.722886 | +138.067389 | 0 |
-| C | 25530.185234 | -81.146344 | 0 |
-| D | 32889.255716 | -17.805019 | 1 |
+| A | 23991.891346 | -1.274158 | 1 |
+| B | 39969.708011 | +221.985125 | 0 |
+| C | 25761.718338 | +231.533104 | 0 |
+| D | 32896.115272 | +6.859556 | 2 |
 
-This configuration differs from the frozen Kimi parent only in the manifest's model-enable switch; runtime Python source is byte-identical. Disabling the expert also changes its control settings and CPU use. One evaluation per configuration does not establish a statistically reliable model effect; machine calibration differed as well.
+All cards used the available season, with zero model calls and no hard time cap. A/B ended with 15/52 seconds remaining, below the minimum 60-second exposure. Download hashes and official scores were verified.
 
-Revision: `1041d358-48c4-4af3-a547-d8a057f6afe8`  
-Batch: `4fce4103-8579-42a9-bb6c-855b494a9d26`  
+The change adds bounded short measurements when ordinary planning stalls under low inferred throughput. Measurements retain the existing report criteria and use real returned observations to update beliefs. The retained D log contains 39 measurements, including several nights with three; its report settlement improved by 100, but an additional required miss and lower science gain left only +6.86 net. A/B/C retained logs contain no measurements. These results do not establish a causal or repeatable gain from diagnostic measurements.
+
+The previous OFF result is preserved at tag `formal-feedback-off-mean-30540`; the Kimi branch remains separately available.
+
+Revision: `b0ad4a85-6337-43b6-b6a1-d231f828f576`
+Batch: `4d2f3e8d-ac8c-49c1-8fae-ec179fa279b6`
 Phase: official online A/B/C/D, 2026-10-05.
-
-Source/result hashes were verified against the downloaded platform artifacts. The manifest disables models for platform execution; the optional client remains in the shared code and can be enabled by an explicit environment override during a manual run.

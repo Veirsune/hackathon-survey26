@@ -11,6 +11,6 @@ AGENT_LLM_ENABLED=0 python -u agent.py
 
 Input/output use JSONL; logs go to stderr. No API key is needed.
 
-Official A/B/C/D mean: **30,540.08**, with zero model calls. The matched [Kimi version](https://github.com/Veirsune/hackathon-survey26/tree/formal-feedback-pacing-kimi-30500) scored 30,500.07. These are single evaluations; see [results](FORMAL_RESULT.md).
+Official A/B/C/D mean: **30,654.86**, with zero model calls. The retained [Kimi version](https://github.com/Veirsune/hackathon-survey26/tree/formal-feedback-pacing-kimi-30500) scored 30,500.07. These are single evaluations; see [results](FORMAL_RESULT.md).
 
 Based on the official Python example. See [LICENSE.md](LICENSE.md).

@@ -151,6 +151,9 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self._plan_costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
         self._plan_counts[tier] += 1
         if action is None:
+            from .information_probe import propose
+            action = propose(self, now, night_end, night_index, hours)
+        if action is None:
             return {"action": "wait", "duration_seconds": self._to_next_slot(now, night_start),
                     "reason": "nothing useful is up"}
         action = self.mount.correct(action)
