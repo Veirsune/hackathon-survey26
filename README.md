@@ -1,22 +1,16 @@
-# Agent Observer - No LLM
+# Agent Observer — No LLM
 
-Offline numerical agent for the [GOSIM 2026 Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26).
+Numerical agent for the [GOSIM Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26). It jointly chooses telescope pointings, fibre assignments and exposures, with calendar-based CPU allocation.
 
-This branch uses joint pointing, fiber assignment and exposure optimization, fixed request priority, fault diagnosis, and pointing calibration learned from public hit feedback. The model client is replaced with a disabled stub: API keys and model-enable environment variables cannot activate model calls.
-
-Python 3.9+; no third-party dependencies or API configuration.
+Model calls are disabled by `observer.project.json`. For a manual run:
 
 ```sh
-python -u agent.py
-python -m unittest discover -s tests -v
+python -m pip install -r requirements.txt
+AGENT_LLM_ENABLED=0 python -u agent.py
 ```
 
-Fault diagnosis uses public weather warnings and allows at most one report beyond the free allowance per survey.
+Input/output use JSONL; logs go to stderr. No API key is needed.
 
-Input/output: JSONL, `participant-agent-protocol-v4`. Logs go to stderr.
-
-Best tested numerical L4 score: **7057.06**, with 0 required targets missing. See [benchmark details](BENCHMARK.md).
-
-Use [`main`](https://github.com/Veirsune/hackathon-survey26/tree/main) for the Kimi agent, or this `no-llm` branch for the offline agent. The platform imports only the default branch; upload an archive of this branch to evaluate the offline version.
+Official A/B/C/D mean: **30,540.08**, with zero model calls. The matched [Kimi version](https://github.com/Veirsune/hackathon-survey26/tree/formal-feedback-pacing-kimi-30500) scored 30,500.07. These are single evaluations; see [results](FORMAL_RESULT.md).
 
 Based on the official Python example. See [LICENSE.md](LICENSE.md).

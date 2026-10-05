@@ -42,14 +42,19 @@ away, NOT within eight nights. A request with one remaining observing night
 expires before such distant required deadlines.
 The balanced policy ALREADY includes the full required-target penalty; a large
 backlog alone is not a reason to double it.
-Choose a meaningful night-level policy: balanced preserves the calibrated
-executor; required doubles required-target priority; requests doubles request
-reward priority. good_sky favours targets that would be difficult to complete
-in poorer conditions, and should be used only if predicted science tradeoffs
-and weather/opportunity evidence justify reserving easier targets for later.
-These are planning weights, not changes to official scoring.
-Prefer balanced unless deadline inventory supports the opportunity cost. An
-exposure margin above 1 requests longer exposures; below 1 accepts more risk.
+Choose a meaningful night-level policy:
+- balanced preserves the calibrated numerical baseline: 2x request priority,
+  and a good-sky preference for targets difficult to complete in poorer conditions.
+- required doubles required-target priority, retaining the good-sky preference.
+- requests doubles request priority again to 4x, retaining the good-sky preference.
+- immediate DISABLES the good-sky preference and instead pursues immediate
+  best-score improvement with the same request and required baseline priorities.
+These are planning weights, not changes to official scoring. A request's
+completion_reward is paid ONCE for the whole request, not per target.
+Use the preview rates, public weather opportunities and deadlines to decide
+whether to retain the baseline or change it; explain the tradeoff. A short
+preview cannot establish that a policy wins over the whole season.
+An exposure margin above 1 requests longer exposures; below 1 accepts more risk.
 Do not confuse a bad exposure with a fault. Throughput estimates can be biased
 by program-band inference, changing target samples, weather and moon geometry.
 Absence of a weather notice does NOT prove clear or stable throughput: ordinary
@@ -61,7 +66,7 @@ Report only with evidence of a persistent fault and report_diagnostic.allowed=tr
 Evaluate your previous hypothesis against new evidence. Retain a short working
 memory (at most 400 characters) stating the hypothesis and what would refute it.
 Reply JSON only with exactly these fields:
-{"policy":"balanced|required|requests|good_sky", "exposure_margin":1.0,
+{"policy":"balanced|required|requests|immediate", "exposure_margin":1.0,
  "review_after_nights":4, "diagnosis":"monitor|report",
  "hypothesis":"weather|instrument|geometry|uncertain",
  "evidence_ids":["history", "required", "requests", "bulletin", "forecast"],
@@ -70,18 +75,25 @@ exposure_margin must be 0.95-1.10, review_after_nights integer 1-7. Every
 non-baseline policy or report must cite relevant evidence. Do not invent future
 events or infer a fault merely because this is a benchmark. You have a bounded
 review budget; an event can trigger review before the planned review night.
+review_after_nights is the earliest requested review, NOT a policy expiry.
+Quota or API failures may delay review: your accepted policy and exposure margin
+remain active until another valid review replaces them. Choose balanced with
+margin 1.0 to cancel an earlier plan. The numerical executor re-evaluates current
+weather estimates and unfinished targets on every action; the baseline good-sky
+preference changes weights only above its reference quality, and immediate turns it off. Reports are one-shot
+proposals and are never repeated merely because a plan remains active.
 """
 
 
 class ExpertObserver(RuntimeAdvisor):
     def _init_advisor(self):
         super()._init_advisor()
-        self.exposure_margin = 1.05
+        self.exposure_margin = 1.05  # Fixed model-OFF experiment, from initialization.
         self._stage_successes = {"expert_review": 0}
         self.required_priority = 1.0
         self.request_priority = 1.0
         self._observer_policy = "balanced"
-        self.science_scarcity_enabled = False
+        self.science_scarcity_enabled = True
         self._observer_memory = "No previous judgment."
         self._observer_reviews = []
         self._observer_nights = {}
@@ -121,12 +133,9 @@ class ExpertObserver(RuntimeAdvisor):
 
     def _night_advice(self, night_start, payload):
         self.llm.begin_night(self.night_index_seen)
-        # Expired plans return to the calibrated baseline even after an API error.
-        if self.night_index_seen >= self._observer_next_night:
-            self.required_priority = self.request_priority = 1.0
-            self.exposure_margin = 1.05
-            self._observer_policy = "balanced"
-            self.science_scarcity_enabled = False
+        # A review date requests reconsideration; it does not cancel a plan.
+        # Keep accepted controls through quota gaps or API failures. Each action
+        # still re-evaluates current geometry, quality, and unfinished requests.
 
     def _select_candidate(self, candidates, best, now, night_end, night_index):
         if getattr(self, "_policy_preview", False):
@@ -256,7 +265,7 @@ class ExpertObserver(RuntimeAdvisor):
                 entry.pop("sector_medians", None)
             compact.append(entry)
         hours = (now - state.survey_start).total_seconds() / 3600.
-        previews = evaluate_policies(self, payload) if self._wall_left() > 200 else []
+        previews = evaluate_policies(self, payload) if self._cpu_left() > 200 and self._wall_left() > 30 else []
         available = [p for p in previews if p.get("available")]
         comparison = {"assumed_exposure_margin": 1.0, "scope": "At most three successive projected exposures; not an entire night; throughput held fixed."}
         if available:
@@ -271,6 +280,17 @@ class ExpertObserver(RuntimeAdvisor):
                 "request_completions_change": leader["predicted_request_target_completions"] - baseline["predicted_request_target_completions"]})
         return {"now_utc": payload["now_utc"], "night_index": self.night_index_seen,
                 "nights_total": len(state.nights), "trigger": trigger,
+                "pointing_calibration": {
+                    "offset_alt_deg": round(self.mount.offset[0], 4),
+                    "offset_az_deg": round(self.mount.offset[1], 4),
+                    "accepted_fits": self.mount.fits,
+                    "ambiguous_fits_deferred": self.mount.ambiguous_fits,
+                    "source": "Own commands and public hit membership; uncertain estimate, not instrument telemetry.",
+                    "executor": "Compensates pointing automatically; extra exposure cannot repair a geometric miss."},
+                "current_plan": {"policy": self._observer_policy,
+                                 "exposure_margin": self.exposure_margin,
+                                 "review_due_night": self._observer_next_night,
+                                 "persists_until_replaced": True},
                 "policy_previews": previews, "policy_comparison": comparison,
                 "history": {"recent_nights": compact,
                             "older_night_median": median(older) if older else None,
@@ -309,7 +329,7 @@ class ExpertObserver(RuntimeAdvisor):
         due = self.night_index_seen >= self._observer_next_night
         # Spread reviews over the entire public calendar; a material event can
         # borrow one future call. Repeated early weather changes cannot exhaust
-        # the full season's budget. Expired plans still revert to baseline.
+        # the full season's budget. Accepted plans persist until replaced.
         if not event and not due:
             return
         quota = min(self.llm.max_calls, max(1, ceil(self.llm.max_calls *
@@ -331,7 +351,7 @@ class ExpertObserver(RuntimeAdvisor):
             self.required_priority = 2.0 if answer["policy"] == "required" else 1.0
             self.request_priority = 2.0 if answer["policy"] == "requests" else 1.0
             self.exposure_margin = float(answer["exposure_margin"])
-            self.science_scarcity_enabled = answer["policy"] == "good_sky"
+            self.science_scarcity_enabled = answer["policy"] != "immediate"
             changed = old != (self.required_priority, self.request_priority, self.exposure_margin, self.science_scarcity_enabled)
             self._observer_changes += int(changed)
             self._observer_report_due = answer["diagnosis"] == "report"
@@ -360,7 +380,7 @@ class ExpertObserver(RuntimeAdvisor):
         margin = answer.get("exposure_margin")
         horizon = answer.get("review_after_nights")
         evidence = answer.get("evidence_ids")
-        return (answer.get("policy") in ("balanced", "required", "requests", "good_sky") and
+        return (answer.get("policy") in ("balanced", "required", "requests", "immediate") and
                 type(margin) in (int, float) and .95 <= margin <= 1.10 and
                 type(horizon) is int and 1 <= horizon <= 7 and
                 answer.get("diagnosis") in ("monitor", "report") and
@@ -394,7 +414,7 @@ class ExpertObserver(RuntimeAdvisor):
 
     def _request_values(self, now):
         requests, caps = super()._request_values(now)
-        multiplier = 2.0  # Static control, independent of review dates.
+        multiplier = 2.0 * self.request_priority
         if multiplier == 1.0:
             return requests, caps
         return ({i: [(threshold, deadline, value * multiplier, key)
