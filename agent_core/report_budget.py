@@ -68,12 +68,14 @@ def budgeted_report(planner, hours, payload):
             and isinstance(result.get("correct"), bool)):
         if result["correct"]:
             planner._false_since_correct = 0
+            planner._last_false_was_paid = False
             planner._last_false_hours = float("-inf")
             planner._last_false_ratio = 1.
             state._diagnostic_exposures = []
             state._weather_clear_diagnostic_exposures = []
             state.forget_quality_history()
         else:
+            planner._last_false_was_paid = getattr(planner, "_false_since_correct", 0) >= state.false_report_free_allowance
             planner._false_since_correct = getattr(planner, "_false_since_correct", 0) + 1
             planner._last_false_hours = hours
             planner._last_false_ratio = getattr(planner, "_pending_report_ratio", 1.)
@@ -85,8 +87,17 @@ def budgeted_report(planner, hours, payload):
     if paid:
         if all_sky_weather(getattr(state, "notices", ())):
             return None
-        if getattr(planner, "_paid_diagnostic_attempts", 0) >= 1:
+        attempts = getattr(planner, "_paid_diagnostic_attempts", 0)
+        if attempts >= 3:
             return None
+        if attempts:
+            # An inconclusive paid probe need not exclude a later new fault.
+            # At most two more probes, separated by 14 then 28 days.
+            if not getattr(planner, "_last_false_was_paid", False):
+                return None
+            since_paid_false = hours - getattr(planner, "_last_false_hours", hours)
+            if since_paid_false < 14 * 24 * (2 ** (attempts - 1)):
+                return None
         now = state.survey_start + timedelta(hours=hours)
         remaining_hours = sum(max(0., (end - max(start, now)).total_seconds()) / 3600
                               for start, end in state.nights)
@@ -131,6 +142,8 @@ def budgeted_report(planner, hours, payload):
         return None
     if paid:
         planner._paid_diagnostic_attempts = getattr(planner, "_paid_diagnostic_attempts", 0) + 1
+    if paid and planner._paid_diagnostic_attempts > 1:
+        planner.log(f"paid_backoff_retry: attempt={planner._paid_diagnostic_attempts} now={payload.get('now_utc')} ratio={ratio:.3f}")
     planner.reports += 1
     planner.last_report_hours = hours
     planner._await_report_result = True
