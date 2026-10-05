@@ -45,6 +45,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.state = state
         self.log = log
         self.grid = state.fiber_grid
+        from .station_notes import StationNotes
+        self.station_notes = StationNotes()
         self.mount = PointingCalibration(state, log)
         self.llm = LLMClient(log=log)
         self.trace = TraceLog(log=log)
@@ -104,6 +106,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.mount.consume(payload.get("last_result"))
         self.mount.notice(payload.get("latest_bulletin"))
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
+        self.station_notes.collect(payload)
         from .bonus_certificate import collect as collect_certificate
         collect_certificate(self, payload, hours)
         state.on_result(payload.get("last_result"), hours)
@@ -164,6 +167,9 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return action
 
     def on_finish(self, payload: dict) -> None:
+        import json
+        self.log('station_note_memory: '+json.dumps(self.station_notes.claims, ensure_ascii=False))
+        self.log(f"station_note_summary: accepted={self.station_notes.accepted} changed={self.station_notes.changed} directions={sorted(self.station_notes.claims)}")
         self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
@@ -192,6 +198,14 @@ class Planner(RuntimeAdvisor, SearchPlanner):
             self.state.fast_level = level
 
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----
+
+    def _expert_review(self, hours, payload):
+        # This experiment gives the model station knowledge interpretation;
+        # numerical priorities/margins and deterministic diagnostics stay fixed.
+        result = payload.get('last_result') or {}
+        if result.get('action') == 'report':
+            self._observer_report_result = {'time': payload['now_utc'], 'correct': result.get('correct')}
+        self.station_notes.review(self, payload)
 
     def _maybe_report(self, hours: float, payload: dict):
         fallback = budgeted_report(self, hours, payload)
@@ -260,7 +274,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     def _direction_factor(self, alt: float, az: float) -> float:
         state = self.state
         for direction in state.terrain:
-            if direction in DIRECTION_AZ and alt < 50.0 and _az_distance(az, DIRECTION_AZ[direction]) <= 60.0:
+            if direction in DIRECTION_AZ and alt < self.station_notes.limit(direction) and _az_distance(az, DIRECTION_AZ[direction]) <= 60.0:
                 return 0.0
         factor = 1.0
         for key in state.notices:
