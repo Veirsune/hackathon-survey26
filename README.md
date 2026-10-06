@@ -6,4 +6,4 @@ It uses two independent exposures to revise conservative terrain estimates. Lowe
 
 Configure `KIMI_API_KEY`, `KIMI_BASE_URL`, and `KIMI_MODEL` through the platform model settings. Kimi Coding Plan requests omit `temperature`. The manifest installs dependencies and starts `agent.py` using the JSONL protocol.
 
-This is an experimental branch. See [BENCHMARK.md](BENCHMARK.md) for measured improvements and regressions.
+Verified official eight-card sum: **226508.545246**; A–D mean: **30436.344214**. D1 reached the wall deadline. See [FORMAL_RESULT.md](FORMAL_RESULT.md) and [BENCHMARK.md](BENCHMARK.md) for results and limitations.
