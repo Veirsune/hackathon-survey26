@@ -9,6 +9,7 @@ so both examples solve the same problem the same way and can be compared directl
 """
 from __future__ import annotations
 
+from .zero_patch import remember_zero_patch, active_zero_patches
 from .latent_band import record_exposure, band_scale, feedback_matched
 
 import bisect
@@ -252,6 +253,7 @@ class SurveyState:
         hits = {h.get("target_id"): float(h.get("score", 0.0)) for h in last_result.get("hits", [])}
         record_exposure(self, hits, hours)
         any_positive = any(score > 0 for score in hits.values())
+        remember_zero_patch(self, hits, hours)
         scoring = self.scoring
         multipliers = scoring.program_multipliers
         mismatch = scoring.mismatch_multiplier
@@ -306,6 +308,7 @@ class SurveyState:
     def update_scale(self, hours: float) -> None:
         self.blocked = [(az, alt) for when, az, alt in self._blocked_samples
                         if when >= hours - SKY_MEMORY_HOURS]
+        self.blocked.extend(active_zero_patches(self, hours))
         if len(self._all_ratios) >= 8:
             ordered = sorted(self._all_ratios)
             self.prior_scale = ordered[len(ordered) // 2]

@@ -1,15 +1,12 @@
-# Local integration evidence
+# Local evidence
 
-Only `agent_core/station_notes.py` changes relative to runtime commit `001140c`. Each claim must pass the existing exact-quote, schema, and numerical checks. Duplicate directions retain uncertainty when present; otherwise the most conservative existing execution bound is selected. No averaged or invented altitude is introduced. Invalid individual evidence still rejects the response.
+Only state feedback handling and the new `zero_patch.py` module change relative to commit `2080e72`. At least three real assigned hits, all exactly zero and with positive target flux/weight, activate a temporary spatial penalty. Missing hits do not count. Up to 80 positions are retained for ten minutes, using the existing 12-degree azimuth / 3-degree altitude neighborhood and 0.2 soft priority factor. This does not infer a permanent terrain boundary or instrument fault.
 
-Three sequential, real-Kimi runs used the same frozen public-A-derived 12-night world with an already delivered official D1 opening note:
+| Frozen 12-night synthetic world | Parent | Candidate | Difference | Required missing |
+|---|---:|---:|---:|---|
+| Terrain with conflicting station note, real Kimi | -14069.735930 | -16245.575938 | -2175.840008 | 385 → 436 |
+| Transient weather closure/recovery, model disabled | -20661.736114 | -15640.405155 | +5021.330959 | 494 → 408 |
 
-| Variant | Score | Missing required targets | Model wait |
-|---|---:|---:|---:|
-| Strict parent | -17830.779994 | 451 | 58.760 s |
-| Claim reconciliation (this branch) | -14069.735930 | 385 | 51.639 s |
-| Reconciliation, reasoning disabled | -16539.357505 | 427 | 6.190 s |
+All four runs completed with zero planner errors. In the first comparison, the parent received one valid model reply while all four candidate calls timed out. This is a real system regression, but it does not isolate the feedback code. The second pair explicitly disabled models, used identical world files and the official CPU-clock runner, and gained 720.466848 science points plus 4300 required-target penalty points.
 
-All completed with zero planner errors. This branch improved by 3761.044064 in that single comparison. Model interpretations and trajectories varied, so the difference cannot be attributed entirely to reconciliation. The faster alternative regressed by 2469.621575 and is not included.
-
-The note need not match the synthetic terrain; these are stress-test scores, not official D1 or hidden-card results. Fifteen mechanism checks cover actual duplicate responses, unchanged valid responses, unsupported evidence, uncertainty precedence, and bounded response size. Existing unit tests also pass. The shared merger passed a fresh multilingual correction/future/withdrawal check with the fast model, but that does not establish general model accuracy.
+Six mechanism checks cover real-hit eligibility, positive feedback, expiry and bounded memory. Existing unit tests pass. These are synthetic local results, not official or hidden-card scores; no universal improvement is claimed.
