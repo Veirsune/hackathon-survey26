@@ -303,6 +303,29 @@ class SurveyState:
     def has_recent_sample(self, hours: float) -> bool:
         return any(when >= hours - SKY_MEMORY_HOURS for when, _ in self._samples)
 
+    def sky_scenarios(self, hours: float):
+        """Deterministic pessimistic/median/optimistic sky-efficiency scenarios
+        for robust planning, from quartiles of the agent's own public ratio
+        samples (recent 2-hour window first, season history as fallback).
+        Returns parallel (values, weights) lists; a single entry means the
+        point estimate is all the evidence supports."""
+        recent = sorted(ratio for when, ratio in self._samples if when >= hours - SKY_MEMORY_HOURS)
+        source = recent if len(recent) >= 6 else None
+        if source is None and len(self._all_ratios) >= 8:
+            source = sorted(self._all_ratios)
+        if source is None:
+            return [max(0.05, self.scale)], [1.0]
+        n = len(source)
+        values = [max(0.05, source[n // 4]),
+                  max(0.05, source[n // 2]),
+                  max(0.05, source[(3 * n) // 4])]
+        weights = (0.25, 0.5, 0.25)
+        merged: dict[float, float] = {}
+        for value, weight in zip(values, weights):
+            merged[value] = merged.get(value, 0.0) + weight
+        values = sorted(merged)
+        return values, [merged[value] for value in values]
+
     def update_scale(self, hours: float) -> None:
         self.blocked = [(az, alt) for when, az, alt in self._blocked_samples
                         if when >= hours - SKY_MEMORY_HOURS]
@@ -325,12 +348,8 @@ class SurveyState:
         Public current time prevents frozen clean history from becoming fresh
         confirmation during a long stretch of weather notices.
         """
-        grouped: dict[tuple[float, int], list[float]] = {}
-        for hours, night, ratio in self.clean_history:
-            if night >= 0 and math.isfinite(hours) and math.isfinite(ratio) and ratio > 0:
-                grouped.setdefault((hours, night), []).append(ratio)
-        history = sorted((hours, night, median(ratios))
-                         for (hours, night), ratios in grouped.items())
+        from .compute_fastpath import clean_exposure_history
+        history = clean_exposure_history(self)
         nights = sorted({night for _, night, _ in history})
         if len(nights) < 4:
             return None

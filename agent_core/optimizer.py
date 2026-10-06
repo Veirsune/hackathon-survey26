@@ -44,6 +44,27 @@ def _duration_to_factor(item: dict, threshold: float, low: int, high: int):
     return left
 
 
+def required_factor_scale(item: dict, scoring) -> float:
+    """Undo only .90 protection when the current legal cap straddles the threshold.
+
+    Exposure margin, nominal science, request and uniformity factors are unchanged.
+    Eligibility is local to this decision, not a completion claim or probability.
+    """
+    scale = item["factor_scale"]
+    if item["required_missing"]:
+        protected = completion(item, item["max_duration"])
+        if protected < scoring.required_threshold <= protected / .90:
+            return scale / .90
+    return scale
+
+
+def duration_to_required_factor(item: dict, scoring, low: int, high: int):
+    """Use the identical required-only scale in admission and field boundaries."""
+    scale = required_factor_scale(item, scoring)
+    required_item = item if scale == item["factor_scale"] else dict(item, factor_scale=scale)
+    return duration_to_factor(required_item, scoring.required_threshold, low, high)
+
+
 def request_gain(item: dict, factor: float, duration: int) -> float:
     """Reward shares for unfinished request targets in wholly valid windows."""
     return sum(value for threshold, deadline_seconds, value, _request_id in item.get("requests", ())
@@ -59,7 +80,8 @@ def marginal_gain(item: dict, duration: int, program: str, scoring) -> float:
     band = scoring.program_band(model * item["band_scale"])
     score = item["weight"] * factor * scoring.program_multiplier(program, band)
     gain = max(0.0, score - item["best_score"])
-    if item["required_missing"] and factor >= scoring.required_threshold:
+    required_factor = min(1.0, max(0.0, required_factor_scale(item, scoring) * duration * model))
+    if item["required_missing"] and required_factor >= scoring.required_threshold:
         gain += scoring.required_penalty * item["urgency"]
     gain += request_gain(item, factor, duration)
     if item.get("uniformity_gain", 0.0) and factor >= scoring.uniformity_threshold:
@@ -111,7 +133,9 @@ def candidate_durations(cells: dict, scoring, low: int, high: int) -> list[int]:
             times.update(t for t in band_boundaries(item, scoring) if low <= t <= maximum)
             thresholds = [1.0]
             if item["required_missing"]:
-                thresholds.append(scoring.required_threshold)
+                point = duration_to_required_factor(item, scoring, low, maximum)
+                if point is not None:
+                    times.add(point)
             if item.get("uniformity_gain", 0.0):
                 thresholds.append(scoring.uniformity_threshold)
             for threshold, deadline_seconds, _value, _request_id in item.get("requests", ()):
@@ -140,7 +164,7 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
         rows = []
         for item in options:
             rows.append((item, *item["quality_coefficients"], item["max_duration"],
-                         item["factor_scale"], item["band_scale"], item["weight"],
+                         item["factor_scale"], required_factor_scale(item, scoring), item["band_scale"], item["weight"],
                          item["best_score"], item.get("confidence", 1.0),
                          scoring.required_penalty * item["urgency"] if item["required_missing"] else 0.0,
                          item.get("uniformity_gain", 0.0), item.get("requests", ())))
@@ -155,14 +179,17 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
             local_gains = [0.0] * len(programs)
             local_items = [None] * len(programs)
             local_factors = [0.0] * len(programs)
-            for item, a, b, c, maximum, scale, band_scale, weight, previous, confidence, required, uniformity, requests in options:
+            for item, a, b, c, maximum, scale, required_scale, band_scale, weight, previous, confidence, required, uniformity, requests in options:
                 if duration > maximum:
                     continue
                 # Search creates one cache per target per decision. Geometry
                 # copies share it; pointing confidence is applied below and
                 # deliberately excluded from the cached values.
                 memo = item.get("_exposure_cache")
-                values = memo.get(duration) if memo is not None else None
+                # Geometry copies may share a cache. A changed legal cap can
+                # switch rescue eligibility, so required physics is in the key.
+                cache_key = ("required-rescue-v1", duration, required_scale)
+                values = memo.get(cache_key) if memo is not None else None
                 if values is None:
                     model = max(0.0, a + b * duration / 2.0 + c * duration * duration / 3.0)
                     factor = min(1.0, max(0.0, scale * duration * model))
@@ -170,7 +197,8 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
                     band = "DARK" if band_quality >= dark else "BRIGHT" if band_quality >= bright else "BACKUP"
                     reward = sum(share for threshold, deadline, share, _ in requests
                                  if duration <= deadline and factor >= threshold)
-                    if required and factor >= required_threshold:
+                    required_factor = min(1.0, max(0.0, required_scale * duration * model))
+                    if required and required_factor >= required_threshold:
                         reward += required
                     if uniformity and factor >= uniformity_threshold:
                         reward += uniformity
@@ -178,7 +206,7 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
                     match_gain = max(0.0, science * scoring.program_multipliers.get(band, 1.0) - previous) + reward
                     other_gain = max(0.0, science * mismatch - previous) + reward
                     if memo is not None:
-                        memo[duration] = (factor, band, match_gain, other_gain)
+                        memo[cache_key] = (factor, band, match_gain, other_gain)
                 else:
                     factor, band, match_gain, other_gain = values
                 for k in positions:
@@ -207,5 +235,112 @@ def optimise_field(cells: dict, scoring, low: int, high: int, force_program=None
             if best is None or (rate, duration) > (best[0], best[1]):
                 best = candidate
     return best
+
+
+def optimise_field_scenarios(cells: dict, scoring, low: int, high: int, force_program,
+                             ratios: list, weights: list, downside_lambda: float):
+    """Scenario-robust variant of optimise_field. Each candidate (duration,
+    program, assignment) is evaluated under every sky-efficiency scenario (a
+    multiplier on the central learned scale, applied to both the completion
+    scale and the program-band scale) and valued as the weighted mean gain
+    minus downside_lambda times the shortfall of the worst scenario below
+    that mean. With a single ratio of 1.0 it reduces to optimise_field."""
+    programs = (force_program,) if force_program else ("DARK", "BRIGHT", "BACKUP")
+    mismatch = scoring.mismatch_multiplier
+    dark, bright = scoring.program_bands["DARK"], scoring.program_bands["BRIGHT"]
+    required_threshold = scoring.required_threshold
+    uniformity_threshold = scoring.uniformity_threshold
+    positions = range(len(programs))
+    ratios_key = tuple(ratios)
+    cached = []
+    for fiber, options in cells.items():
+        rows = []
+        for item in options:
+            rows.append((item, *item["quality_coefficients"], item["max_duration"],
+                         item["factor_scale"], required_factor_scale(item, scoring), item["band_scale"], item["weight"],
+                         item["best_score"], item.get("confidence", 1.0),
+                         scoring.required_penalty * item["urgency"] if item["required_missing"] else 0.0,
+                         item.get("uniformity_gain", 0.0), item.get("requests", ())))
+        cached.append((fiber, rows))
+
+    def robust(values):
+        mean = sum(weight * value for weight, value in zip(weights, values))
+        return mean - downside_lambda * (mean - min(values))
+
+    best = None
+    for duration in candidate_durations(cells, scoring, low, high):
+        totals = [0.0] * len(programs)
+        chosen = [{} for _ in programs]
+        contributions = [{} for _ in programs]
+        caps = [{} for _ in programs]
+        for fiber, options in cached:
+            local_gains = [0.0] * len(programs)
+            local_items = [None] * len(programs)
+            local_factors = [None] * len(programs)
+            for item, a, b, c, maximum, scale, required_scale, band_scale, weight, previous, confidence, required, uniformity, requests in options:
+                if duration > maximum:
+                    continue
+                # Geometry copies share this cache, so the scenario ratios are
+                # part of the key alongside the required-rescue physics.
+                memo = item.get("_exposure_cache")
+                cache_key = ("scenario-robust-v1", duration, required_scale, ratios_key)
+                values = memo.get(cache_key) if memo is not None else None
+                if values is None:
+                    model = max(0.0, a + b * duration / 2.0 + c * duration * duration / 3.0)
+                    factors = []
+                    bands = []
+                    match_gains = []
+                    other_gains = []
+                    for ratio in ratios:
+                        factor = min(1.0, max(0.0, scale * ratio * duration * model))
+                        band_quality = model * band_scale * ratio
+                        band = "DARK" if band_quality >= dark else "BRIGHT" if band_quality >= bright else "BACKUP"
+                        reward = sum(share for threshold, deadline, share, _ in requests
+                                     if duration <= deadline and factor >= threshold)
+                        required_factor = min(1.0, max(0.0, required_scale * ratio * duration * model))
+                        if required and required_factor >= required_threshold:
+                            reward += required
+                        if uniformity and factor >= uniformity_threshold:
+                            reward += uniformity
+                        science = weight * factor
+                        factors.append(factor)
+                        bands.append(band)
+                        match_gains.append(max(0.0, science * scoring.program_multipliers.get(band, 1.0) - previous) + reward)
+                        other_gains.append(max(0.0, science * mismatch - previous) + reward)
+                    values = (tuple(factors), tuple(bands), tuple(match_gains), tuple(other_gains))
+                    if memo is not None:
+                        memo[cache_key] = values
+                factors, bands, match_gains, other_gains = values
+                for k in positions:
+                    scenario_gains = [match_gains[s] if programs[k] == bands[s] else other_gains[s]
+                                      for s in range(len(ratios))]
+                    gain = robust(scenario_gains) * confidence
+                    if gain > local_gains[k]:
+                        local_gains[k], local_items[k], local_factors[k] = gain, item, factors
+            for k in positions:
+                selected = local_items[k]
+                if selected is None:
+                    continue
+                chosen[k][fiber] = selected
+                totals[k] += local_gains[k]
+                for threshold, deadline, share, request_id in selected.get("requests", ()):
+                    if duration <= deadline:
+                        outcomes = [share * selected.get("confidence", 1.0) if factor >= threshold else 0.0
+                                    for factor in local_factors[k]]
+                        contribution = robust(outcomes)
+                        contributions[k][request_id] = contributions[k].get(request_id, 0.0) + contribution
+                        caps[k][request_id] = selected["request_caps"][request_id]
+        for k in positions:
+            if not chosen[k]:
+                continue
+            gain = totals[k]
+            for request_id, value in contributions[k].items():
+                gain -= max(0.0, value - caps[k][request_id])
+            rate = gain / (duration + 40.0)
+            candidate = (rate, duration, programs[k], chosen[k])
+            if best is None or (rate, duration) > (best[0], best[1]):
+                best = candidate
+    return best
+
 
 
