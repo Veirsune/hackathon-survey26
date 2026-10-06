@@ -1,14 +1,14 @@
-# Local evidence
+# Engineering forecast experiment
 
-Two completed 12-night synthetic worlds derived from public formal A. Both arms use real Kimi calls; the frozen control is the previous boundary-probe strategy. This change only updates terrain evidence aggregation.
+Frozen parent: `154c88c23f07c1a10e5f7e2a1c4c0520367f992a`. Sequential tests use the public A catalogue and two synthetic 24-night worlds, not official weather or full-season scores.
 
-| Station note | Control | Candidate | Difference | Missing required targets |
-|---|---:|---:|---:|---|
-| Overestimates horizon | -18123.717393 | -16209.835592 | +1913.881801 | 473 → 435 |
-| Correct horizon | -12813.240769 | -12954.054259 | -140.813490 | 370 → 372 |
+| World | Parent | Candidate | Difference |
+|---|---:|---:|---:|
+| Announced instrument faults | 3892.635489 | 4525.312317 | +632.676828 |
+| False announcements with weather loss | -3015.184559 | -2752.337352 | +262.847207 |
 
-Both runs completed with no planner errors and one successful model response. Actual non-probe observations below the prior reached 394 distinct targets in the overstated world and 3 in the correct world. These observations demonstrate revision of the prior, not an attribution of every score change.
+All four runs completed with no planner errors. The candidate made two successful Kimi calls in each world. In the fault case it repaired both faults roughly 23 hours earlier and missed four fewer required targets. In the weather case it made three false reports versus two, including one paid false report (-150); a higher total score does not validate its diagnoses.
 
-31 existing unit checks and 9 evidence-independence/consistency checks pass. One inherited test fixture needed its missing calendar governor initialized; runtime was unchanged.
+Engineering interpretation has a separate limit of 8 calls/120 seconds, in addition to the existing 8/120 budget. The new diagnostic path permits at most two paid attempts per season. Longer model waits may aggravate the parent's observed D1 wall-clock truncation. Corrections depend on grounded model interpretation; hidden-card generalization remains unproven.
 
-The correct-note case regressed. Weather, changing terrain, narrow angular obstructions, and hidden-card generalization remain unproven. These scores are not official leaderboard scores; formal eight-card evaluation is required. This branch does not select the platform final version.
+Validation: 15 focused runtime checks and 31 existing unit tests. The first parent run completed successfully but its wrapper rejected truncated model-startup logs with zero calls; the result was retained without a rerun. Later wrappers record a non-secret configuration-presence boolean.

@@ -52,6 +52,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.horizon.prior_limit = self._terrain_prior_limit
         self.mount = PointingCalibration(state, log)
         self.llm = LLMClient(log=log)
+        from .engineering_notes import EngineeringNotes
+        self.engineering = EngineeringNotes(log)
         self.trace = TraceLog(log=log)
 
         self.observe_count = 0
@@ -112,6 +114,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         from .bonus_certificate import collect as collect_certificate
         collect_certificate(self, payload, hours)
         self.station_notes.collect(payload)
+        self.engineering.collect(payload)
         self.horizon.consume(payload)
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
@@ -217,12 +220,16 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         if certificate is not None:
             return certificate
         review_started = process_time()
-        calls_before = self.llm.calls_made
+        calls_before = self.llm.calls_made + self.engineering.client.calls_made
+        self.engineering.review(self, payload)
         self._expert_review(hours, payload)
         review_cpu = max(0., process_time() - review_started) / self._decision_speed
         self._review_cpu_this_turn += review_cpu
-        if self.llm.calls_made > calls_before:
+        if self.llm.calls_made + self.engineering.client.calls_made > calls_before:
             self.calendar_governor.record_review(review_cpu)
+        engineering_report = self.engineering.report(self, hours, payload)
+        if engineering_report is not None:
+            return engineering_report
         return self._expert_report(hours, payload)
 
     def _baseline_report(self, hours: float, payload: dict):

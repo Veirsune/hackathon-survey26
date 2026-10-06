@@ -61,6 +61,7 @@ class SurveyState:
         instrument = init_payload["instrument"]
         limits = init_payload.get("limits", {})
 
+        self.utc_offset_hours = site.get("utc_offset_hours")
         self.lat = float(site["latitude_deg"])
         self.lon = float(site["longitude_deg"])
         self.min_alt = float(site.get("minimum_altitude_deg", 30.0))

@@ -1,9 +1,7 @@
 # Survey Observer
 
-A survey26 agent combining Kimi station-note interpretation, numerical scheduling, and observation-based terrain learning.
+A survey scheduling agent with Kimi interpretation of station notes and engineering announcements. Geometry, exposure allocation, and bounded fault diagnostics run locally.
 
-It uses two independent exposures to revise conservative terrain estimates. Lower blocked and higher successful targets can establish a local horizon interval. Model calls and exploration have fixed budgets.
+Run with `python agent.py`. Configure an OpenAI-compatible service using `KIMI_API_KEY`, `KIMI_BASE_URL`, and `KIMI_MODEL` (or the corresponding `OPENAI_*` variables). Kimi Coding Plan requests omit temperature. Set `AGENT_LLM_ENABLED=0` to disable model calls.
 
-Configure `KIMI_API_KEY`, `KIMI_BASE_URL`, and `KIMI_MODEL` through the platform model settings. Kimi Coding Plan requests omit `temperature`. The manifest installs dependencies and starts `agent.py` using the JSONL protocol.
-
-This is an experimental branch. See [BENCHMARK.md](BENCHMARK.md) for measured improvements and regressions.
+The platform builds and runs the project through `observer.project.json`. This research branch adds grounded engineering forecasts and checks subsequent exposure feedback before reporting a fault. It is not the selected final version. See [BENCHMARK.md](BENCHMARK.md) for results and limitations.

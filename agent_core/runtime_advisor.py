@@ -208,5 +208,14 @@ class RuntimeAdvisor:
                    "responses": self.llm.successes, "seconds": round(self.llm.seconds_spent, 3),
                    "accepted_by_stage": self._stage_successes,
                    "changed_selections": self._changed_selections}
+        extra = self.engineering.client
+        summary['engineering'] = dict(calls=extra.calls_made, responses=extra.successes,
+                                      seconds=round(extra.seconds_spent, 3),
+                                      forecasts=len(self.engineering.events),
+                                      reports=self.engineering.reports,
+                                      paid_attempts=self.engineering.paid_attempts)
+        summary['calls'] += extra.calls_made
+        summary['responses'] += extra.successes
+        summary['seconds'] = round(summary['seconds'] + extra.seconds_spent, 3)
         self.trace.write(summary)
         self.log("model_summary: " + json.dumps(summary, ensure_ascii=True))

@@ -1,3 +1,5 @@
-# Official evaluation
+# Formal evaluation
 
-No official result has yet been obtained for this experimental version. The local comparison and its regression are recorded in BENCHMARK.md. Results from the parent branch do not apply to this implementation.
+This engineering-forecast candidate has not yet completed an official evaluation. Local results and risks are in [BENCHMARK.md](BENCHMARK.md).
+
+The frozen parent previously achieved a raw eight-card sum of 226508.545246, with D1 truncated by the wall-clock cap. That result belongs to the parent, not this candidate. Main, no-llm, and the platform final-version selection are not changed by this research branch.
