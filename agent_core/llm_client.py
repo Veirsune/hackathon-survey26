@@ -61,7 +61,10 @@ def _strict_json(text):
 
 class LLMClient:
     def __init__(self, log=None, call_timeout_seconds=None,
-                 total_budget_seconds=None, max_calls=None):
+                 total_budget_seconds=None, max_calls=None, budget_profile="standard"):
+        if budget_profile not in ("standard", "engineering"):
+            raise ValueError("Unknown model budget profile")
+        total_cap, calls_cap = (240., 16) if budget_profile == "engineering" else (120., 8)
         self.log = log or (lambda _text: None)
         self._api_key = _configured("OPENAI_API_KEY", "KIMI_API_KEY")
         self.base_url = _configured("OPENAI_BASE_URL", "KIMI_BASE_URL").rstrip("/") or "unconfigured"
@@ -78,9 +81,9 @@ class LLMClient:
         self.call_timeout_seconds = _number(
             os.environ.get("AGENT_LLM_CALL_SECONDS", 30) if call_timeout_seconds is None else call_timeout_seconds, 30.0, 30.0)
         self.total_budget_seconds = _number(
-            os.environ.get("AGENT_LLM_TOTAL_SECONDS", 120) if total_budget_seconds is None else total_budget_seconds, 120.0, 120.0)
+            os.environ.get("AGENT_LLM_TOTAL_SECONDS", 120) if total_budget_seconds is None else total_budget_seconds, 120.0, total_cap)
         self.max_calls = int(_number(
-            os.environ.get("AGENT_LLM_MAX_CALLS", 6) if max_calls is None else max_calls, 6, 8))
+            os.environ.get("AGENT_LLM_MAX_CALLS", 6) if max_calls is None else max_calls, 6, calls_cap))
         self.max_tokens = max(64, int(_number(os.environ.get("AGENT_LLM_MAX_TOKENS", os.environ.get("AGENT_LLM_OUTPUT_LIMIT", 2000)), 2000, 4096)))
         effort = os.environ.get("AGENT_LLM_REASONING_EFFORT", "").strip().lower()
         self.reasoning_effort = effort if effort in {"low", "medium", "high"} else None

@@ -1,14 +1,17 @@
-# Engineering forecast experiment
+# Engineering interpretation capacity
 
-Frozen parent: `154c88c23f07c1a10e5f7e2a1c4c0520367f992a`. Sequential tests use the public A catalogue and two synthetic 24-night worlds, not official weather or full-season scores.
+Parent: `20d6f20794aba1154f12c49d5855cb4d71699341`. Only the engineering interpreter budget changes: 8 calls/120 seconds to 16 calls/240 seconds. The existing station interpreter remains at 8/120; single calls remain limited to 30 seconds. Scheduling and diagnostic rules are unchanged.
 
-| World | Parent | Candidate | Difference |
-|---|---:|---:|---:|
-| Announced instrument faults | 3892.635489 | 4525.312317 | +632.676828 |
-| False announcements with weather loss | -3015.184559 | -2752.337352 | +262.847207 |
+| Sequential real-Kimi experiment | Parent | Candidate |
+|---|---:|---:|
+| Synthetic 24-night total score | 3627.472652 | 4474.523984 |
+| Correct repairs / six injected faults | 5 | 6 |
+| Missing required targets | 132 | 121 |
+| False reports | 0 | 0 |
+| Model calls / responses | 8 / 8 | 12 / 12 |
 
-All four runs completed with no planner errors. The candidate made two successful Kimi calls in each world. In the fault case it repaired both faults roughly 23 hours earlier and missed four fewer required targets. In the weather case it made three false reports versus two, including one paid false report (-150); a higher total score does not validate its diagnoses.
+Both runs completed without errors. The +847.051332 difference includes +196.855802 science, +550 required-target penalty recovery, +100 reporting, and +0.195530 uniformity. This targeted public-A synthetic case uses twelve simple engineering announcements and is not an official or independent generalization score.
 
-Engineering interpretation has a separate limit of 8 calls/120 seconds, in addition to the existing 8/120 budget. The new diagnostic path permits at most two paid attempts per season. Longer model waits may aggravate the parent's observed D1 wall-clock truncation. Corrections depend on grounded model interpretation; hidden-card generalization remains unproven.
+A separate chronological replay of actual A1 notices increased pre-event interpretation coverage from 2/6 to 4/6. The candidate still missed two notices and incurred five timeouts. More interpretation capacity does not guarantee score gains; false announcements and weather can still produce false reports. Longer waits can affect wall-clock limits.
 
-Validation: 15 focused runtime checks and 31 existing unit tests. The first parent run completed successfully but its wrapper rejected truncated model-startup logs with zero calls; the result was retained without a rerun. Later wrappers record a non-secret configuration-presence boolean.
+Validation: four budget-boundary checks and the existing 20 client tests; complete local artifacts are retained in the research workspace.

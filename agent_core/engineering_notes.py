@@ -10,7 +10,7 @@ from .report_budget import all_sky_weather
 class EngineeringNotes:
     def __init__(self, log):
         self.client = LLMClient(log=log, call_timeout_seconds=30,
-                                total_budget_seconds=120, max_calls=8)
+                                total_budget_seconds=240, max_calls=16, budget_profile="engineering")
         self.seen = set()
         self.pending = []
         self.codebook = ''
