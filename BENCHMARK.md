@@ -1,34 +1,14 @@
-# Official evaluation
+# Local evidence
 
-Same-version batch `e1d7816c-5857-4fa0-9f8e-d0265b2ff470`, source commit `025b5c1254e36b83a9e1cb46e99c4ed4c818664e`.
+Two completed 12-night synthetic worlds derived from public formal A. Both arms use real Kimi calls; the frozen control is the previous boundary-probe strategy. This change only updates terrain evidence aggregation.
 
-**Eight-card sum: 224107.476323. A–D mean: 30562.541178.**
+| Station note | Control | Candidate | Difference | Missing required targets |
+|---|---:|---:|---:|---|
+| Overestimates horizon | -18123.717393 | -16209.835592 | +1913.881801 | 473 → 435 |
+| Correct horizon | -12813.240769 | -12954.054259 | -140.813490 | 370 → 372 |
 
-| Card | Score | Required missing | Termination |
-|---|---:|---:|---|
-| A | 24002.383531 | 1 | survey_complete |
-| B | 39911.142914 | 0 | survey_complete |
-| C | 25619.463671 | 0 | survey_complete |
-| D | 32717.174595 | 2 | survey_complete |
-| A1 | 17192.919096 | 38 | survey_complete |
-| B1 | 38338.405992 | 0 | survey_complete |
-| C1 | 16437.793859 | 0 | survey_complete |
-| D1 | 29888.192665 | 16 | global_wallclock_expired |
+Both runs completed with no planner errors and one successful model response. Actual non-probe observations below the prior reached 394 distinct targets in the overstated world and 3 in the correct world. These observations demonstrate revision of the prior, not an attribution of every score change.
 
-All eight downloaded scores and CSV hashes were verified. D1 reached the 3600-second wall limit after using only 514.694 normalized CPU seconds. Seven cards completed the season.
+31 existing unit checks and 9 evidence-independence/consistency checks pass. One inherited test fixture needed its missing calendar governor initialized; runtime was unchanged.
 
-Earlier batches had different wall limits and operator-message versions, so cross-batch score differences are not controlled causal effects. This single batch does not establish hidden-card generalization. The platform final-version selection was not changed.
-
-# Local experiment
-
-Frozen public A catalogue, 12-night synthetic terrain scenario, official CPU-clock runner, sequential runs. This is not an official A1 score or a generalization claim.
-
-| Metric | Rules baseline | Kimi station notes |
-|---|---:|---:|
-| Total | -19031.433906 | -12741.579803 |
-| Required missing | 490 | 367 |
-| Science score | 5516.319483 | 5653.283175 |
-| Model calls | 0 | 1 |
-
-Both completed with no agent errors. One 10.432-second Kimi call extracted the delivered terrain correction; numerical scheduling weights were unchanged. Improvement: 6289.854103. Earlier zero-call test results are retained separately as a test-harness configuration failure.
-
+The correct-note case regressed. Weather, changing terrain, narrow angular obstructions, and hidden-card generalization remain unproven. These scores are not official leaderboard scores; formal eight-card evaluation is required. This branch does not select the platform final version.
