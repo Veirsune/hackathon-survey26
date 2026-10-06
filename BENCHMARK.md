@@ -1,15 +1,12 @@
 # Local integration evidence
 
-All runs below completed on frozen public-A-derived 12-night worlds, with real Kimi calls and no planner errors.
+This branch adds bounded reporting retries to commit `001140c8fdfdb11f3fde1a24db518f05f96d03c4`. Only `agent_core/report_budget.py` changes at runtime. After an inconclusive paid report, up to two additional paid reports may occur, with 14- then 28-day backoff, sustained degradation checks, weather exclusions, and sufficient remaining observing time.
 
-| Check | Frozen control | Control score | Integrated score | Difference |
-|---|---|---:|---:|---:|
-| Zenith note | Bracket learning without unit interpretation | -16081.633304 | -12704.001848 | +3377.631456 |
-| Zenith note | Unit interpretation without bracket learning | -12559.902643 | -12704.001848 | -144.099205 |
-| Falsely low literal altitude | Bracket learning without unit interpretation | -15126.975753 | -15126.975753 | 0 |
+| Frozen 48-night synthetic world | Control | Candidate | Difference | Paid reports |
+|---|---:|---:|---:|---|
+| Terrain and late instrument fault | 3362.950676 | 8650.378864 | +5287.428188 | 1 → 2; second repaired the fault |
+| Terrain and weather attenuation only | 2871.598903 | 2106.540943 | -765.057960 | 1 → 2; second was false |
 
-The direct unit-module comparison reduced missing required targets 433 → 367. Both arms made one successful model call; the integrated agent accepted a 49.5-degree zenith limit as a 40.5-degree altitude lower bound. The literal-altitude regression had byte-identical decisions and observations.
+Both pairs used the official CPU-clock runner, identical world files within each pair, and sequential execution. All four runs completed with zero planner errors. Model calls were disabled to isolate reporting/terrain interactions, so this is not evidence of a model contribution. Required targets missed changed 197 → 136 in the fault case and 202 → 214 in the weather case. The weather regression includes an additional 150-point false-report penalty and trajectory differences; the entire regression cannot be attributed to that penalty.
 
-The second row records the exploration cost; combining mechanisms is not universally better. The controls differ between rows, so their deltas must not be pooled. Historical controls, model responses, and machine timing may vary. These are synthetic results, not official or hidden-card scores.
-
-31 existing unit tests pass. Terrain and angle mechanisms also retain their separately documented evidence checks. The deployed runtime matches the frozen integration candidate; only the inherited unit-test fixture differs.
+The candidate runtime matches the frozen local candidate. The 31 existing unit tests passed during packaging. These are synthetic checks, not official or hidden-card scores; neither case is a claim of universal improvement. The prior angle/terrain integration evidence remains in repository history.
