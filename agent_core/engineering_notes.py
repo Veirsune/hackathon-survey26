@@ -113,8 +113,13 @@ class EngineeringNotes:
             ratio = max(r for _, r in recent) / reference
             if ratio >= .75 or hours - planner.last_report_hours < 24:
                 continue
-            if all_sky_weather(state.notices) or hours - getattr(state, '_earthquake_seen_hours', float('-inf')) < 7 * 24:
+            if all_sky_weather(state.notices):
                 continue
+            if hours - getattr(state, '_earthquake_seen_hours', float('-inf')) < 7 * 24:
+                # Membership recovery rules out continuing mispointing only.
+                # It does not identify the cause of photometric degradation.
+                if not pointing_recovered(planner):
+                    continue
             paid = getattr(planner, '_false_since_correct', 0) >= state.false_report_free_allowance
             if paid and self.paid_attempts >= 2:
                 continue
@@ -131,3 +136,16 @@ class EngineeringNotes:
             planner.log('engineering_diagnostic: ' + json.dumps(dict(onset_utc=key, now_utc=payload['now_utc'], ratio=ratio, paid=paid)))
             return dict(action='report', reason='Delivered engineering forecast followed by sustained measured throughput loss', decision_source='llm-engineering-evidence')
         return None
+
+
+def pointing_recovered(planner):
+    mount = getattr(planner, 'mount', None)
+    if mount is None or len(mount.history) < 3:
+        return False
+    # PointingCalibration clears its history when a new quake is announced.
+    recent = list(mount.history)[-3:]
+    points = [row for _, _, exposure in recent for row in exposure]
+    if len(points) < 24 or sum(bool(row[2]) for row in points) < .9 * len(points):
+        return False
+    count = sum(len(exposure) for _, _, exposure in mount.history)
+    return mount.errors(mount.offset) <= .02 * count

@@ -1,17 +1,14 @@
-# Engineering interpretation capacity
+# Forecast-backed diagnosis after pointing recovery
 
-Parent: `20d6f20794aba1154f12c49d5855cb4d71699341`. Only the engineering interpreter budget changes: 8 calls/120 seconds to 16 calls/240 seconds. The existing station interpreter remains at 8/120; single calls remain limited to 30 seconds. Scheduling and diagnostic rules are unchanged.
+Parent: `04de4fcbe3963827ff54457854864de28242023a`. Within seven days of a public earthquake, this research candidate permits existing engineering diagnostics after public fibre membership indicates recovered pointing: at least three feedback exposures, at least 24 eligible assignments in the last three with 90% hits, and at most 2% calibration conflicts. New quake notices clear calibration history. Forecast, throughput, weather, report-budget, and model-budget conditions are unchanged.
 
-| Sequential real-Kimi experiment | Parent | Candidate |
-|---|---:|---:|
-| Synthetic 24-night total score | 3627.472652 | 4474.523984 |
-| Correct repairs / six injected faults | 5 | 6 |
-| Missing required targets | 132 | 121 |
-| False reports | 0 | 0 |
-| Model calls / responses | 8 / 8 | 12 / 12 |
+| Sequential real-Kimi synthetic 24-night experiment | Parent | Candidate | Difference |
+|---|---:|---:|---:|
+| Quake and repairable instrument faults | -3312.361662 | 3828.283609 | +7140.645271 |
+| Quake and unrepairable weather attenuation | -3394.851226 | -3662.164219 | -267.312993 |
 
-Both runs completed without errors. The +847.051332 difference includes +196.855802 science, +550 required-target penalty recovery, +100 reporting, and +0.195530 uniformity. This targeted public-A synthetic case uses twelve simple engineering announcements and is not an official or independent generalization score.
+All four runs completed without errors. Both arms received the same two engineering forecasts and quake notices. The fault candidate repaired both faults versus none; required misses fell from 219 to 126. The weather candidate made two paid false reports (-300), demonstrating that pointing recovery does not establish a repairable fault. Each run used two successful Kimi responses.
 
-A separate chronological replay of actual A1 notices increased pre-event interpretation coverage from 2/6 to 4/6. The candidate still missed two notices and incurred five timeouts. More interpretation capacity does not guarantee score gains; false announcements and weather can still produce false reports. Longer waits can affect wall-clock limits.
+These public-A synthetic worlds use no injected pointing offset, zero free false reports, and an additional three-night seeing loss. They test the reporting tradeoff, not official or hidden-card performance. No equal-probability assumption or expected score is inferred from the pair.
 
-Validation: four budget-boundary checks and the existing 20 client tests; complete local artifacts are retained in the research workspace.
+Public C1 membership replay independently found 27/27 eligible hits across three exposures in the relevant engineering-message window, with no calibration conflicts; that is pointing evidence only. Validation: 23 focused forecast/accounting/recovery checks and full local paired runs. Raw artifacts remain in the research workspace.
