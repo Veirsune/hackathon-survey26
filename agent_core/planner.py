@@ -45,6 +45,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.state = state
         self.log = log
         self.grid = state.fiber_grid
+        from .terrain_learning import Horizon
+        self.horizon = Horizon()
         self.mount = PointingCalibration(state, log)
         self.llm = LLMClient(log=log)
         self.trace = TraceLog(log=log)
@@ -106,6 +108,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
         from .bonus_certificate import collect as collect_certificate
         collect_certificate(self, payload, hours)
+        self.horizon.consume(payload)
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
         self.active_requests = payload.get("active_requests") or []
@@ -143,7 +146,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
         started = process_time()
         self._did_search = True
-        action = self.plan(now, night_end, night_index, hours)
+        from .terrain_learning import propose as terrain_probe
+        action = terrain_probe(self, now, night_end, night_index, hours)
+        if action is None:
+            action = self.plan(now, night_end, night_index, hours)
         # Platform charges CPU across threads, normalized by measured speed.
         elapsed = max(0., process_time() - started) / self._decision_speed
         tier = state.fast_level
@@ -165,6 +171,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     def on_finish(self, payload: dict) -> None:
         self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
+        self.log(f"terrain_summary: probes={self.horizon.probes} cpu={self.horizon.cpu:.6f} positive_bins={len(self.horizon.clear)} blocked_bins={len(self.horizon.blocked)}")
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
         self.trace.close()
@@ -176,6 +183,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         counter (enforced by validation.py) stays correct even when a fallback replaced it."""
         self.consecutive_reports = self.consecutive_reports + 1 if action.get("action") == "report" else 0
         self.mount.remember(action, self._current_payload.get("now_utc"))
+        self.horizon.remember(self, action, parse_utc(self._current_payload["now_utc"]))
 
     def _to_next_slot(self, now, night_start) -> int:
         slot = self.state.slot_seconds
@@ -259,9 +267,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     def _direction_factor(self, alt: float, az: float) -> float:
         state = self.state
-        for direction in state.terrain:
-            if direction in DIRECTION_AZ and alt < 50.0 and _az_distance(az, DIRECTION_AZ[direction]) <= 60.0:
-                return 0.0
+        if self.horizon.factor(alt, az, state.terrain) <= 0.:
+            return 0.0
         factor = 1.0
         for key in state.notices:
             kind, _, direction = key.partition("|")
