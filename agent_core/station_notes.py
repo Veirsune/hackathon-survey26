@@ -53,6 +53,33 @@ def validate(answer, note):
     return True
 
 
+def reconcile_claims(answer, note):
+    """Retain strict evidence checks; fold duplicate claims conservatively.
+
+    A ridge height and a clear-above bound may both be quoted for a direction.
+    Choose an existing supported claim, never an invented averaged height.
+    Uncertainty takes precedence over optimistic duplicates.
+    """
+    if (not isinstance(answer, dict) or set(answer) != {'terrain'}
+            or not isinstance(answer['terrain'], list) or len(answer['terrain']) > 32):
+        return None
+    groups = {}
+    for claim in answer['terrain']:
+        if not validate({'terrain': [claim]}, note):
+            return None
+        groups.setdefault(claim['direction'], []).append(claim)
+    resolved = []
+    for claims in groups.values():
+        uncertain = [c for c in claims if c['status'] == 'uncertain']
+        if uncertain:
+            resolved.append(uncertain[-1])
+        else:
+            resolved.append(max(claims, key=lambda c: c['altitude_deg'] +
+                                (0.5 if c['kind'] == 'clear_above' else 2.0)))
+    result = {'terrain': resolved}
+    return result if validate(result, note) else None
+
+
 PROMPT += "\nReturn only updates supported by the current note. Previous claims provide context but must not be repeated unless the current note supports them.\n"
 PROMPT += "\nAngles labelled 天顶距, 天頂距, or zenith distance are zenith angles z, not altitudes. Convert degrees using altitude = 90 - z. For example, a zenith-angle upper bound describing clear sky is a lower altitude bound: use kind=clear_above. Quote the exact source including the zenith term, degree value, and bound wording. Never copy z directly into altitude_deg. Do not convert zenith-angle lower bounds into clear_above claims. This explicit geometric conversion is allowed even when its result is not a literal number in the note.\n"
 
@@ -125,7 +152,8 @@ class StationNotes:
         note = '\n\n'.join(row['reason'] for row in batch)
         answer = client.ask_json(PROMPT, dict(now_utc=payload['now_utc'], note=note,
                                  previous_claims=self.claims), planner._wall_left(), stage='station_notes')
-        valid = validate(answer, note)
+        answer = reconcile_claims(answer, note)
+        valid = answer is not None
         # No quote can gain authority by spanning unrelated messages.
         if valid:
             valid = all(any(c['quote'] in row['reason'] for row in batch) for c in answer['terrain'])

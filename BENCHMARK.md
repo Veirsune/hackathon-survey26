@@ -1,15 +1,15 @@
 # Local integration evidence
 
-All runs below completed on frozen public-A-derived 12-night worlds, with real Kimi calls and no planner errors.
+Only `agent_core/station_notes.py` changes relative to runtime commit `001140c`. Each claim must pass the existing exact-quote, schema, and numerical checks. Duplicate directions retain uncertainty when present; otherwise the most conservative existing execution bound is selected. No averaged or invented altitude is introduced. Invalid individual evidence still rejects the response.
 
-| Check | Frozen control | Control score | Integrated score | Difference |
-|---|---|---:|---:|---:|
-| Zenith note | Bracket learning without unit interpretation | -16081.633304 | -12704.001848 | +3377.631456 |
-| Zenith note | Unit interpretation without bracket learning | -12559.902643 | -12704.001848 | -144.099205 |
-| Falsely low literal altitude | Bracket learning without unit interpretation | -15126.975753 | -15126.975753 | 0 |
+Three sequential, real-Kimi runs used the same frozen public-A-derived 12-night world with an already delivered official D1 opening note:
 
-The direct unit-module comparison reduced missing required targets 433 → 367. Both arms made one successful model call; the integrated agent accepted a 49.5-degree zenith limit as a 40.5-degree altitude lower bound. The literal-altitude regression had byte-identical decisions and observations.
+| Variant | Score | Missing required targets | Model wait |
+|---|---:|---:|---:|
+| Strict parent | -17830.779994 | 451 | 58.760 s |
+| Claim reconciliation (this branch) | -14069.735930 | 385 | 51.639 s |
+| Reconciliation, reasoning disabled | -16539.357505 | 427 | 6.190 s |
 
-The second row records the exploration cost; combining mechanisms is not universally better. The controls differ between rows, so their deltas must not be pooled. Historical controls, model responses, and machine timing may vary. These are synthetic results, not official or hidden-card scores.
+All completed with zero planner errors. This branch improved by 3761.044064 in that single comparison. Model interpretations and trajectories varied, so the difference cannot be attributed entirely to reconciliation. The faster alternative regressed by 2469.621575 and is not included.
 
-31 existing unit tests pass. Terrain and angle mechanisms also retain their separately documented evidence checks. The deployed runtime matches the frozen integration candidate; only the inherited unit-test fixture differs.
+The note need not match the synthetic terrain; these are stress-test scores, not official D1 or hidden-card results. Fifteen mechanism checks cover actual duplicate responses, unchanged valid responses, unsupported evidence, uncertainty precedence, and bounded response size. Existing unit tests also pass. The shared merger passed a fresh multilingual correction/future/withdrawal check with the fast model, but that does not establish general model accuracy.
