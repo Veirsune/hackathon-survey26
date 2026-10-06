@@ -1,9 +1,7 @@
 # Survey Observer
 
-A survey26 agent combining Kimi station-note interpretation, numerical scheduling, and observation-based terrain learning.
+A survey26 agent combining Kimi station-note interpretation, numerical scheduling, and observation-based terrain feedback. Explicit zenith angles are converted into verified altitude bounds. Independent observations can revise uncertain terrain estimates.
 
-It uses two independent exposures to revise conservative terrain estimates. Lower blocked and higher successful targets can establish a local horizon interval. Model calls and exploration have fixed budgets.
+Configure model credentials in the platform settings. Kimi Coding Plan requests omit `temperature`; the manifest installs dependencies and runs the JSONL agent.
 
-Configure `KIMI_API_KEY`, `KIMI_BASE_URL`, and `KIMI_MODEL` through the platform model settings. Kimi Coding Plan requests omit `temperature`. The manifest installs dependencies and starts `agent.py` using the JSONL protocol.
-
-This is an experimental branch. See [BENCHMARK.md](BENCHMARK.md) for measured improvements and regressions.
+This is an experimental integration. See [BENCHMARK.md](BENCHMARK.md) for measured benefits, regressions, and the different controls used.

@@ -1,20 +1,15 @@
-# Local evidence
+# Local integration evidence
 
-Two completed 12-night synthetic worlds derived from public formal A. Both arms use real Kimi calls; the frozen control is the previous boundary-probe strategy. This change only updates terrain evidence aggregation.
+All runs below completed on frozen public-A-derived 12-night worlds, with real Kimi calls and no planner errors.
 
-| Station note | Control | Candidate | Difference | Missing required targets |
-|---|---:|---:|---:|---|
-| Overestimates horizon | -18123.717393 | -16209.835592 | +1913.881801 | 473 → 435 |
-| Correct horizon | -12813.240769 | -12954.054259 | -140.813490 | 370 → 372 |
+| Check | Frozen control | Control score | Integrated score | Difference |
+|---|---|---:|---:|---:|
+| Zenith note | Bracket learning without unit interpretation | -16081.633304 | -12704.001848 | +3377.631456 |
+| Zenith note | Unit interpretation without bracket learning | -12559.902643 | -12704.001848 | -144.099205 |
+| Falsely low literal altitude | Bracket learning without unit interpretation | -15126.975753 | -15126.975753 | 0 |
 
-Both runs completed with no planner errors and one successful model response. Actual non-probe observations below the prior reached 394 distinct targets in the overstated world and 3 in the correct world. These observations demonstrate revision of the prior, not an attribution of every score change.
+The direct unit-module comparison reduced missing required targets 433 → 367. Both arms made one successful model call; the integrated agent accepted a 49.5-degree zenith limit as a 40.5-degree altitude lower bound. The literal-altitude regression had byte-identical decisions and observations.
 
-31 existing unit checks and 9 evidence-independence/consistency checks pass. One inherited test fixture needed its missing calendar governor initialized; runtime was unchanged.
+The second row records the exploration cost; combining mechanisms is not universally better. The controls differ between rows, so their deltas must not be pooled. Historical controls, model responses, and machine timing may vary. These are synthetic results, not official or hidden-card scores.
 
-The correct-note case regressed. Weather, changing terrain, narrow angular obstructions, and hidden-card generalization remain unproven. These scores are not official leaderboard scores; formal eight-card evaluation is required. This branch does not select the platform final version.
-
-## Optimistic-note stress case
-
-A separate completed 12-night comparison used a falsely low 34-degree station claim with a fixed 39.5-degree true horizon. The pure station-note baseline scored -23654.803519; this feedback agent scored -15126.975753 (+8527.827766), with missing required targets 551 → 404 and all-zero exposures 612 → 274. Both models accepted the same 34-degree claim; both runs completed without planner errors.
-
-This comparison covers the full feedback architecture against pure station notes, unlike the aggregation-only comparison above. It does not erase the correct-note regression or establish official eight-card performance. The official batch uses the immutable runtime commit 154c88c23f07c1a10e5f7e2a1c4c0520367f992a.
+31 existing unit tests pass. Terrain and angle mechanisms also retain their separately documented evidence checks. The deployed runtime matches the frozen integration candidate; only the inherited unit-test fixture differs.

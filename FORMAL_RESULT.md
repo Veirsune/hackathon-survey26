@@ -1,3 +1,3 @@
 # Official evaluation
 
-No official result has yet been obtained for this experimental version. The local comparison and its regression are recorded in BENCHMARK.md. Results from the parent branch do not apply to this implementation.
+No official eight-card result has yet been obtained for this integrated version. Parent-branch scores do not apply to this runtime. Local comparisons and regressions are recorded in BENCHMARK.md. The platform final version has not been changed.
