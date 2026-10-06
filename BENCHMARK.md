@@ -1,15 +1,12 @@
-# Local integration evidence
+# Benchmark
 
-Only `agent_core/station_notes.py` changes relative to runtime commit `001140c`. Each claim must pass the existing exact-quote, schema, and numerical checks. Duplicate directions retain uncertainty when present; otherwise the most conservative existing execution bound is selected. No averaged or invented altitude is introduced. Invalid individual evidence still rejects the response.
+A frozen 12-night synthetic world built from public A inputs and delivered D1 notes, with independent real Kimi calls:
 
-Three sequential, real-Kimi runs used the same frozen public-A-derived 12-night world with an already delivered official D1 opening note:
+| Strategy | Score | Required missing | Calls / replies | Model seconds | Blocking wait seconds |
+|---|---:|---:|---|---:|---:|
+| Synchronous parent | -14069.735930 | 385 | 2 / 1 | 51.639 | 53.712 |
+| Background interpreter | -13986.443617 | 383 | 1 / 1 | 20.483 | 2.079 |
 
-| Variant | Score | Missing required targets | Model wait |
-|---|---:|---:|---:|
-| Strict parent | -17830.779994 | 451 | 58.760 s |
-| Claim reconciliation (this branch) | -14069.735930 | 385 | 51.639 s |
-| Reconciliation, reasoning disabled | -16539.357505 | 427 | 6.190 s |
+Both completed without planner errors. The +83.292313 difference includes model-delivery variability; it does not establish a stable score improvement. Normalized CPU increased from 231.209 to 243.524 seconds. The background answer was adopted almost six simulated hours after its request, so overlap can sacrifice early decisions. A separate direction-validation candidate scored -12792.643315 in this world; these are not identical-response comparisons.
 
-All completed with zero planner errors. This branch improved by 3761.044064 in that single comparison. Model interpretations and trajectories varied, so the difference cannot be attributed entirely to reconciliation. The faster alternative regressed by 2469.621575 and is not included.
-
-The note need not match the synthetic terrain; these are stress-test scores, not official D1 or hidden-card results. Fifteen mechanism checks cover actual duplicate responses, unchanged valid responses, unsupported evidence, uncertainty precedence, and bounded response size. Existing unit tests also pass. The shared merger passed a fresh multilingual correction/future/withdrawal check with the fast model, but that does not establish general model accuracy.
+Ten lifecycle checks cover one in-flight job, memory snapshots, main-thread updates, message provenance and worker failures. Model budgets remain 30 seconds per call, 120 total, 8 calls and 2200 output tokens. Formal eight-card results are pending.

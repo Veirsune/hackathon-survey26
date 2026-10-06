@@ -175,6 +175,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     def on_finish(self, payload: dict) -> None:
         import json
+        self.log("station_note_async_summary: " + json.dumps(dict(in_flight=self.station_notes.inflight is not None)))
         self.log("station_note_memory: " + json.dumps(self.station_notes.claims, ensure_ascii=False))
         self.log(f"station_note_summary: accepted={self.station_notes.accepted} changed={self.station_notes.changed} directions={sorted(self.station_notes.claims)}")
         self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")

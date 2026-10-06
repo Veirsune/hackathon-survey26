@@ -1,5 +1,8 @@
 """Grounded station-note interpretation; no scoring-policy changes or hidden inputs."""
 import hashlib
+import copy
+import queue
+import threading
 import json
 import math
 import re
@@ -93,6 +96,7 @@ class StationNotes:
         self.attempt_night = -1
         self.accepted = 0
         self.changed = 0
+        self.inflight = None
 
     def collect(self, payload):
         now = parse_utc(payload['now_utc'])
@@ -126,6 +130,20 @@ class StationNotes:
         if self.claims:
             planner._decision_source = 'llm-station-notes'
         client, state = planner.llm, planner.state
+        if self.inflight is not None:
+            worker, completed, batch, requested_at = self.inflight
+            if worker.is_alive():
+                return
+            self.inflight = None
+            try:
+                answer = completed.get_nowait()
+            except queue.Empty:
+                planner.log('station_note_async: worker_ended_without_result')
+                return
+            planner.log('station_note_delivery: '+json.dumps(dict(
+                requested_at_utc=requested_at, delivered_at_utc=payload['now_utc'])))
+            self._apply_answer(planner, payload, answer, batch)
+            return
         night = planner.night_index_seen
         if (not self.pending or not state.terrain or night is None or not client.retry_available
                 or self.attempt_night == night or planner._wall_left() <= 100. or planner._cpu_left() <= 10.):
@@ -150,8 +168,30 @@ class StationNotes:
             return
         self.attempt_night = night
         note = '\n\n'.join(row['reason'] for row in batch)
-        answer = client.ask_json(PROMPT, dict(now_utc=payload['now_utc'], note=note,
-                                 previous_claims=self.claims), planner._wall_left(), stage='station_notes')
+        context = dict(now_utc=payload['now_utc'], note=note,
+                       previous_claims=copy.deepcopy(self.claims))
+        wall_left = planner._wall_left()
+        completed = queue.Queue(maxsize=1)
+        def work():
+            try:
+                answer = client.ask_json(PROMPT, context, wall_left, stage='station_notes')
+            except Exception:
+                answer = None
+            completed.put(answer)
+        worker = threading.Thread(target=work, name='station-note-interpreter', daemon=True)
+        self.inflight = (worker, completed, list(batch), payload['now_utc'])
+        try:
+            worker.start()
+        except Exception:
+            self.inflight = None
+            planner.log('station_note_async: worker_start_failed')
+            return
+        planner.log('station_note_async: '+json.dumps(dict(requested_at_utc=payload['now_utc'],
+                    source_request_ids=[row['request_id'] for row in batch])))
+
+    def _apply_answer(self, planner, payload, answer, batch):
+        client, state = planner.llm, planner.state
+        note = '\n\n'.join(row['reason'] for row in batch)
         answer = reconcile_claims(answer, note)
         valid = answer is not None
         # No quote can gain authority by spanning unrelated messages.
