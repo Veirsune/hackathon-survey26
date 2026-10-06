@@ -1,15 +1,12 @@
-# Local integration evidence
+# Benchmark
 
-Only `agent_core/station_notes.py` changes relative to runtime commit `001140c`. Each claim must pass the existing exact-quote, schema, and numerical checks. Duplicate directions retain uncertainty when present; otherwise the most conservative existing execution bound is selected. No averaged or invented altitude is introduced. Invalid individual evidence still rejects the response.
+A frozen 12-night synthetic world built from public A inputs and delivered D1 notes, with real Kimi calls:
 
-Three sequential, real-Kimi runs used the same frozen public-A-derived 12-night world with an already delivered official D1 opening note:
+| Strategy | Score | Required missing | Calls / JSON replies | Model seconds |
+|---|---:|---:|---|---:|
+| Parent claim reconciliation | -14069.735930 | 385 | 2 / 1 | 51.639 |
+| Direction-isolated validation | -12792.643315 | 364 | 1 / 1 | 23.941 |
 
-| Variant | Score | Missing required targets | Model wait |
-|---|---:|---:|---:|
-| Strict parent | -17830.779994 | 451 | 58.760 s |
-| Claim reconciliation (this branch) | -14069.735930 | 385 | 51.639 s |
-| Reconciliation, reasoning disabled | -16539.357505 | 427 | 6.190 s |
+Both completed without planner errors. The +1277.092615 difference is not an isolated algorithm effect: the candidate obtained the same applicable terrain limits one night earlier. No partial acceptance survives in the retained log tail. These are synthetic scores, not formal-card results.
 
-All completed with zero planner errors. This branch improved by 3761.044064 in that single comparison. Model interpretations and trajectories varied, so the difference cannot be attributed entirely to reconciliation. The faster alternative regressed by 2469.621575 and is not included.
-
-The note need not match the synthetic terrain; these are stress-test scores, not official D1 or hidden-card results. Fifteen mechanism checks cover actual duplicate responses, unchanged valid responses, unsupported evidence, uncertainty precedence, and bounded response size. Existing unit tests also pass. The shared merger passed a fresh multilingual correction/future/withdrawal check with the fast model, but that does not establish general model accuracy.
+Ten mechanism checks cover an actual rejected B1 reply, strict quote validation, whole-direction quarantine, and retention of pending evidence. Bad or ambiguous direction metadata still rejects the whole response. Formal eight-card validation is pending.

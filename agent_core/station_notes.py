@@ -80,6 +80,33 @@ def reconcile_claims(answer, note):
     return result if validate(result, note) else None
 
 
+def partition_claims(answer, note, individual_notes):
+    """Keep strict evidence checks atomic per direction, not per model response.
+
+    A malformed claim with no attributable direction invalidates the response.
+    Any bad claim in an attributable direction quarantines that entire group,
+    including otherwise valid duplicates; it cannot erase a retraction.
+    """
+    if (not isinstance(answer, dict) or set(answer) != {'terrain'}
+            or not isinstance(answer['terrain'], list) or len(answer['terrain']) > 32):
+        return None, []
+    groups = {}
+    for claim in answer['terrain']:
+        if not isinstance(claim, dict) or claim.get('direction') not in ('N','NE','E','SE','S','SW','W','NW'):
+            return None, []
+        groups.setdefault(claim['direction'], []).append(claim)
+    accepted, rejected = [], []
+    for direction, claims in groups.items():
+        merged = reconcile_claims({'terrain': claims}, note)
+        if merged is None or not all(any(c['quote'] in text for text in individual_notes) for c in claims):
+            rejected.append(direction)
+            continue
+        accepted.extend(merged['terrain'])
+    if groups and not accepted:
+        return None, rejected
+    return {'terrain': accepted}, rejected
+
+
 PROMPT += "\nReturn only updates supported by the current note. Previous claims provide context but must not be repeated unless the current note supports them.\n"
 PROMPT += "\nAngles labelled 天顶距, 天頂距, or zenith distance are zenith angles z, not altitudes. Convert degrees using altitude = 90 - z. For example, a zenith-angle upper bound describing clear sky is a lower altitude bound: use kind=clear_above. Quote the exact source including the zenith term, degree value, and bound wording. Never copy z directly into altitude_deg. Do not convert zenith-angle lower bounds into clear_above claims. This explicit geometric conversion is allowed even when its result is not a literal number in the note.\n"
 
@@ -152,7 +179,7 @@ class StationNotes:
         note = '\n\n'.join(row['reason'] for row in batch)
         answer = client.ask_json(PROMPT, dict(now_utc=payload['now_utc'], note=note,
                                  previous_claims=self.claims), planner._wall_left(), stage='station_notes')
-        answer = reconcile_claims(answer, note)
+        answer, rejected_directions = partition_claims(answer, note, [row['reason'] for row in batch])
         valid = answer is not None
         # No quote can gain authority by spanning unrelated messages.
         if valid:
@@ -180,13 +207,17 @@ class StationNotes:
             if old is None or (old['altitude_deg'],old['kind']) != (stored['altitude_deg'],stored['kind']):
                 updates.append(stored)
         consumed = {id(row) for row in batch}
-        self.pending = [row for row in self.pending if id(row) not in consumed]
+        # Partial success must not consume the evidence needed to retry the
+        # quarantined directions. Existing calendar and call budgets still apply.
+        if not rejected_directions:
+            self.pending = [row for row in self.pending if id(row) not in consumed]
         self.accepted += 1
         self.changed += bool(updates)
         if self.claims:
             planner._decision_source = 'llm-station-notes'
         planner.log('station_note_advice: '+json.dumps(dict(accepted=True,updates=updates,
-                    source_request_ids=[row['request_id'] for row in batch]),ensure_ascii=False))
+                    source_request_ids=[row['request_id'] for row in batch],
+                    rejected_directions=rejected_directions),ensure_ascii=False))
 
     def limit(self, direction):
         claim = self.claims.get(direction)
