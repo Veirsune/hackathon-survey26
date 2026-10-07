@@ -15,6 +15,7 @@ def collect(planner,payload,hours):
         if pending is not None:
             if r.get('correct') is False:
                 planner._collapse_locked=True
+                planner._collapse_false_hours=hours
                 planner._collapse_paid_false=getattr(planner,'_collapse_paid_false',0)+int(pending)
             elif r.get('correct') is True:
                 planner._collapse_locked=False
@@ -52,7 +53,11 @@ def collect(planner,payload,hours):
 
 def report(planner,hours,payload):
     s=planner.state
-    if getattr(planner,'_collapse_locked',False) or getattr(planner,'_collapse_pending',None) is not None:return None
+    # A false diagnosis does not establish that the instrument stays healthy.
+    # Permit a new bounded experiment after a full day of fresh evidence;
+    # the existing lifetime cap of two paid false reports still applies.
+    if getattr(planner,'_collapse_pending',None) is not None:return None
+    if getattr(planner,'_collapse_locked',False) and hours-getattr(planner,'_collapse_false_hours',hours)<24.:return None
     if getattr(planner,'_await_report_result',False) or all_sky_weather(s.notices):return None
     if hours-planner.last_report_hours<6.:return None
     rows=getattr(planner,'_collapse_rows',[])[-2:]
