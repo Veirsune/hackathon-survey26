@@ -2,8 +2,8 @@
 
 A Python survey agent with numerical pointing, fibre assignment and exposure planning, feedback calibration, and Kimi interpretation of station notices.
 
-This research branch adds a bounded diagnostic for persistent catastrophic throughput loss. Failed diagnostics lock until normal throughput returns; extra paid false diagnostics are capped. It does not identify faults with certainty.
+This research branch diagnoses persistent severe throughput loss using measurable positive signals. Zero signals alone do not establish instrument failure. False diagnostics lock until normal throughput returns, with a cap on additional paid false reports.
 
-Import this GitHub branch using the competition platform and configure your Kimi service there. Kimi Coding Plan requests omit `temperature`. The project manifest installs its dependencies and starts `agent.py`.
+Import the GitHub branch through the competition platform and configure your Kimi service there. Kimi Coding Plan requests omit `temperature`. The project manifest installs dependencies and starts `agent.py`.
 
-See `BENCHMARK.md` and `FORMAL_RESULT.md` for validation status. No API keys are included.
+Validation status: `BENCHMARK.md` and `FORMAL_RESULT.md`.

@@ -35,6 +35,9 @@ def collect(planner,payload,hours):
         dose=s.flux[i]*s.pending_duration*pred.model/s.scoring.f0t0
         if w<=0 or dose<=0:continue
         normalized=hits[tid]/w
+        # Zero signals are ambiguous (e.g. opaque sky or obstruction).
+        # Require a measurable signal for this throughput diagnostic.
+        if normalized<=0:continue
         # Saturated factors have no upper throughput bound.
         if normalized>=.97*multiplier:continue
         upper=normalized/(multiplier*dose)
