@@ -116,6 +116,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.station_notes.collect(payload)
         self.engineering.collect(payload)
         self.horizon.consume(payload)
+        from .collapse_recovery import collect as collect_collapse
+        collect_collapse(self, payload, hours)
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
         self.active_requests = payload.get("active_requests") or []
@@ -215,6 +217,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         fallback = budgeted_report(self, hours, payload)
         if fallback is not None:
             return fallback
+        from .collapse_recovery import report as collapse_report
+        collapse = collapse_report(self, hours, payload)
+        if collapse is not None:
+            return collapse
         from .bonus_certificate import report as certificate_report
         certificate = certificate_report(self, hours, payload)
         if certificate is not None:

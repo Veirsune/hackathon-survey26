@@ -1,7 +1,9 @@
-# Survey Observer
+# Survey observer
 
-A survey scheduling agent with Kimi interpretation of station and engineering notes. Geometry, exposure allocation, and fault diagnostics run locally.
+A Python survey agent with numerical pointing, fibre assignment and exposure planning, feedback calibration, and Kimi interpretation of station notices.
 
-Run `python agent.py`. Configure `KIMI_API_KEY`, `KIMI_BASE_URL`, and `KIMI_MODEL` (or corresponding `OPENAI_*` variables). Kimi Coding Plan requests omit temperature. Set `AGENT_LLM_ENABLED=0` to disable model calls.
+This research branch adds a bounded diagnostic for persistent catastrophic throughput loss. Failed diagnostics lock until normal throughput returns; extra paid false diagnostics are capped. It does not identify faults with certainty.
 
-The platform uses `observer.project.json`. See [BENCHMARK.md](BENCHMARK.md) for this research branch’s evaluation.
+Import this GitHub branch using the competition platform and configure your Kimi service there. Kimi Coding Plan requests omit `temperature`. The project manifest installs its dependencies and starts `agent.py`.
+
+See `BENCHMARK.md` and `FORMAL_RESULT.md` for validation status. No API keys are included.

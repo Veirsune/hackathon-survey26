@@ -1,3 +1,3 @@
-# Formal evaluation
+# Formal validation
 
-This capacity candidate has no completed official evaluation yet. Local evidence is in [BENCHMARK.md](BENCHMARK.md). No selected final version or main/no-llm branch is changed by this research branch.
+Pending. This revision addresses catastrophic, persistent low throughput that relative historical-drop diagnostics can miss. The primary acceptance criterion is a complete, nonnegative eight-card evaluation with substantial recovery of required-target completion. Prior parent scores do not establish this candidate's performance or hidden-card generalization.
