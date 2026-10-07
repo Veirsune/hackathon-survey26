@@ -297,6 +297,9 @@ class SearchPlanner:
         if best is None:
             return None
         best = refine(self, candidates, best, information, visible, lst, seconds_left)
+        if not getattr(self, "_policy_preview", False):
+            from .online_outcome import select
+            best = select(self, candidates, best, hours)
         # An optional adviser may select one of the already optimised actions.
         # Keep the original strict-greater tie rule and build predictions only
         # after selection, so the no-adviser path is exactly deterministic.
@@ -343,6 +346,9 @@ class SearchPlanner:
                 model=model, band_model=model / 0.95, alt=item["alt"], az=item["az"],
                 clean=clean and self._direction_factor(item["alt"], item["az"]) >= 1.0,
             )
+        if not getattr(self, "_policy_preview", False):
+            from .online_outcome import remember
+            remember(self, chosen, duration, program, hours)
         state.pending_program = program
         state.pending_duration = duration
         state.pending_night = night_index

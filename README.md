@@ -1,9 +1,7 @@
-# Survey observer
+# Survey Observer
 
-A Python survey agent with numerical pointing, fibre assignment and exposure planning, feedback calibration, and Kimi interpretation of station notices.
+A Python survey agent that learns score-prediction errors from observation feedback and uses them to rank feasible observations. Fibre geometry, request handling, and fault recovery remain in the physical planner. Optional Kimi configuration uses the existing model-service environment variables.
 
-Persistent severe throughput loss can trigger a bounded diagnostic using measurable positive signals. After a false report, fresh evidence may support another diagnosis after 24 hours; the existing cap of two additional paid false reports remains.
+Run `python -u agent.py`. The platform supplies JSON Lines through standard input.
 
-Import the GitHub branch through the competition platform and configure your Kimi service there. Kimi Coding Plan requests omit `temperature`. The project manifest installs dependencies and starts `agent.py`.
-
-Validation: `BENCHMARK.md` and `FORMAL_RESULT.md`.
+See [evaluation notes](FORMAL_RESULT.md) for tested results and limitations.

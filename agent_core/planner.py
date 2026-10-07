@@ -101,6 +101,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     def _decide(self, payload: dict) -> dict:
         self._begin_advice_decision(payload)
+        from .online_outcome import collect
+        collect(self, payload.get("last_result"))
         state = self.state
         now = parse_utc(payload["now_utc"])
         hours = (now - state.survey_start).total_seconds() / 3600.0
@@ -184,6 +186,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.log(f"station_note_summary: accepted={self.station_notes.accepted} changed={self.station_notes.changed} directions={sorted(self.station_notes.claims)}")
         self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
         self.log(f"terrain_summary: probes={self.horizon.probes} cpu={self.horizon.cpu:.6f} positive_bins={len(self.horizon.clear)} blocked_bins={len(self.horizon.blocked)}")
+        from .online_outcome import summary
+        summary(self)
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
         self.trace.close()
