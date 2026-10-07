@@ -87,8 +87,6 @@ def budgeted_report(planner, hours, payload):
             return None
         if getattr(planner, "_paid_diagnostic_attempts", 0) >= 1:
             return None
-        if hours - getattr(planner, "_last_false_hours", float("-inf")) < 7 * 24:
-            return None
         now = state.survey_start + timedelta(hours=hours)
         remaining_hours = sum(max(0., (end - max(start, now)).total_seconds()) / 3600
                               for start, end in state.nights)
@@ -128,6 +126,9 @@ def budgeted_report(planner, hours, payload):
     ratio = max(median(v for _, v in group) for group in groups) / max(reference, 1e-9)
     if ratio >= (.55 if paid or early else .70):
         return None
+    bayes_p = planner._bayes_support(hours)
+    if bayes_p is None or bayes_p < 0.35:
+        return None  # evidence gate: rule triggers alone no longer suffice
     since_false = hours - getattr(planner, "_last_false_hours", float("-inf"))
     if since_false < 7 * 24 and ratio >= .8 * getattr(planner, "_last_false_ratio", 1.):
         return None

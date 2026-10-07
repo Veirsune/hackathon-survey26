@@ -2,7 +2,18 @@
   "schema_version": "observer-project-v1",
   "protocol": "jsonl-v4",
   "image": "python:3.12-slim",
-  "build": [],
+  "build": [
+    [
+      "python3",
+      "-m",
+      "pip",
+      "install",
+      "--target",
+      ".vendor",
+      "-r",
+      "requirements.txt"
+    ]
+  ],
   "run": [
     "python3",
     "-u",
@@ -11,6 +22,10 @@
   "working_directory": ".",
   "environment": {
     "PYTHONDONTWRITEBYTECODE": "1",
-    "OPENAI_MODEL": "kimi-for-coding"
+    "OPENAI_MODEL": "kimi-for-coding",
+    "AGENT_LLM_REASONING_EFFORT": "low",
+    "AGENT_LLM_ENABLED": "0",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": ".vendor"
   }
 }

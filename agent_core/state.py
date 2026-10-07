@@ -325,12 +325,8 @@ class SurveyState:
         Public current time prevents frozen clean history from becoming fresh
         confirmation during a long stretch of weather notices.
         """
-        grouped: dict[tuple[float, int], list[float]] = {}
-        for hours, night, ratio in self.clean_history:
-            if night >= 0 and math.isfinite(hours) and math.isfinite(ratio) and ratio > 0:
-                grouped.setdefault((hours, night), []).append(ratio)
-        history = sorted((hours, night, median(ratios))
-                         for (hours, night), ratios in grouped.items())
+        from .compute_fastpath import clean_exposure_history
+        history = clean_exposure_history(self)
         nights = sorted({night for _, night, _ in history})
         if len(nights) < 4:
             return None
@@ -378,6 +374,43 @@ class SurveyState:
         self._samples.clear()
         self._all_ratios.clear()
         self.prior_scale = 1.0
+
+    def fault_probe(self, hours: float) -> dict:
+        """Read-only evidence snapshot for the report gate: fibre-level
+        clean-sample drop (recent 60 vs all earlier) and the run of nights
+        whose median is depressed against strictly earlier nights."""
+        probe: dict = {}
+        history = self.clean_history
+        if len(history) >= 120:
+            recent = history[-60:]
+            earlier = history[:-60]
+            recent_sorted = sorted(r for _, _, r in recent)
+            earlier_sorted = sorted(r for _, _, r in earlier)
+            recent_median = recent_sorted[len(recent_sorted) // 2]
+            earlier_median = earlier_sorted[len(earlier_sorted) // 2]
+            probe["clean_drop"] = round(recent_median / max(1e-9, earlier_median), 4)
+        by_night: dict[int, list[float]] = {}
+        for _when, night, ratio in history:
+            by_night.setdefault(night, []).append(ratio)
+        nights_seen = sorted(by_night)
+        series = []
+        for night in nights_seen[-3:]:
+            current = sorted(by_night[night])
+            earlier = sorted(r for other in nights_seen if other < night for r in by_night[other])
+            if len(current) >= 4 and len(earlier) >= 8:
+                med = current[len(current) // 2]
+                base = earlier[len(earlier) // 2]
+                series.append({"night": night, "n": len(current),
+                               "drop": round(med / max(1e-9, base), 4)})
+        probe["night_series"] = series
+        depressed = 0
+        for entry in reversed(series):
+            if entry["drop"] < 0.8:
+                depressed += 1
+            else:
+                break
+        probe["depressed_nights"] = depressed
+        return probe
 
     # -- night lookup -------------------------------------------------------------
 

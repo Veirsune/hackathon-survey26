@@ -35,7 +35,11 @@ class RuntimeAdvisor:
 
     def _begin_advice_decision(self, payload):
         self._decision_started = time.monotonic()
-        self._decision_wall = float((payload.get("wallclock") or {}).get("remaining_seconds", 0))
+        clock = payload.get("wallclock") or {}
+        self._decision_wall = float(clock.get("wall_remaining_seconds", clock.get("remaining_seconds", 0)))
+        self._decision_cpu_started = time.process_time()
+        self._decision_cpu = float(clock.get("remaining_seconds", 0))
+        self._decision_speed = max(1e-9, float(clock.get("speed_factor", 1.)))
         self._current_payload = payload
         self._decision_source = "deterministic"
         if self._advice_expires is not None and parse_utc(payload["now_utc"]) >= self._advice_expires:
@@ -47,6 +51,11 @@ class RuntimeAdvisor:
 
     def _wall_left(self):
         return max(0.0, self._decision_wall - (time.monotonic() - self._decision_started))
+
+    def _cpu_left(self):
+        """Normalized CPU remaining; model/network wait is not CPU consumption."""
+        used = (time.process_time() - self._decision_cpu_started) / self._decision_speed
+        return max(0., self._decision_cpu - used)
 
     def _audit_advice(self, stage, accepted, **details):
         if accepted:

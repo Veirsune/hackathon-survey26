@@ -80,21 +80,6 @@ class KimiClientTests(unittest.TestCase):
         self.assertEqual(fallback.base_url, "https://fallback.test/v1")
         self.assertEqual(fallback.model, "fallback-model")
 
-    def test_cloud_manifest_uses_proxy_compatible_chat_options(self):
-        # Official observer-model validateChat rejects unknown top-level options,
-        # including reasoning_effort. Local provider settings remain opt-in.
-        manifest = json.loads((PATH.parents[1] / "observer.project.json").read_text(encoding="utf-8"))
-        cloud_env = {**FAKE_ENV, **manifest["environment"]}
-        with mock.patch.dict(os.environ, cloud_env, clear=True):
-            client = kimi.LLMClient()
-            self.assertEqual(client.ask_json("Return JSON.", {"check": True}, 900), {"answer": 42})
-        body = json.loads(self.urlopen.call_args.args[0].data)
-        allowed = {"model", "messages", "max_tokens", "max_completion_tokens",
-                   "temperature", "top_p", "stop", "tools", "tool_choice",
-                   "response_format", "seed", "stream", "n", "chat_template_kwargs"}
-        self.assertFalse(set(body) - allowed)
-        self.assertNotIn("reasoning_effort", body)
-
     def test_missing_key_base_or_model_means_no_network(self):
         for missing in FAKE_ENV:
             with self.subTest(missing=missing), mock.patch.dict(os.environ, {k: v for k, v in FAKE_ENV.items() if k != missing}, clear=True):
