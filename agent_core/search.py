@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import heapq
+import json
 import math
 from datetime import timedelta
 
 from .geometry import (Moon, SIDEREAL_DEG_PER_SECOND, local_sidereal_deg,
                        lunar_factor, parse_utc, radec_to_altaz, shift_altaz,
                        tangent_offsets, wrap180)
-from .optimizer import completion, duration_to_factor, marginal_gain, optimise_field
+from .optimizer import completion, duration_to_factor, duration_to_required_factor, required_factor_scale, marginal_gain, optimise_field
 from .state import PendingPrediction
 from .report_budget import all_sky_weather
 from .pointing_refinement import refine_multistart as refine
@@ -56,13 +57,18 @@ class SearchPlanner:
         """Exact one-target change to the public Jain-index penalty."""
         state = self.state
         scoring = state.scoring
-        totals = {}
-        done = {}
-        for i, ra in enumerate(state.ra):
-            band = int(ra // scoring.uniformity_band_width_deg)
-            totals[band] = totals.get(band, 0) + 1
-            if state.factor[i] >= scoring.uniformity_threshold:
-                done[band] = done.get(band, 0) + 1
+        from .compute_fastpath import uniformity_counts
+        accelerated = uniformity_counts(state)
+        if accelerated is None:
+            totals = {}
+            done = {}
+            for i, ra in enumerate(state.ra):
+                band = int(ra // scoring.uniformity_band_width_deg)
+                totals[band] = totals.get(band, 0) + 1
+                if state.factor[i] >= scoring.uniformity_threshold:
+                    done[band] = done.get(band, 0) + 1
+        else:
+            totals, done = accelerated
         ratios = {band: done.get(band, 0) / count for band, count in totals.items()}
         count = max(1, len(ratios))
         total = sum(ratios.values())
@@ -88,29 +94,34 @@ class SearchPlanner:
         requests, request_caps = self._request_values(now)
         uniformity = self._uniformity_values()
         top_multiplier = max(scoring.program_multipliers.values())
-        visible = set()
-        preliminary = []
-        for i in range(len(state.ids)):
-            best_score = state.best_score[i]
-            missing = state.required[i] and state.factor[i] < scoring.required_threshold
-            science = max(0.0, state.weight[i] * top_multiplier - best_score)
-            science *= self._science_preference(state.flux[i], state.scale)
-            request_value = sum(row[2] for row in requests.get(i, ()))
-            value = science + (scoring.required_penalty if missing else 0.0) + request_value
-            if value <= 0.01:
-                continue
-            ha = wrap180(lst - state.ra[i])
-            hmax = state.hmax[i]
-            if not (-hmax <= ha <= hmax):
-                continue
-            up = (hmax - ha) / SIDEREAL_DEG_PER_SECOND if hmax < 180 else 1e9
-            if up < state.min_exposure:
-                continue
-            visible.add(i)
-            nights_left = max(1, state.last_night[i] - night_index + 1)
-            urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
-            # Public flux is a cheap initial estimate of completion speed.
-            preliminary.append((value * math.sqrt(max(0.001, state.flux[i])) * urgency, i))
+        from .compute_fastpath import preliminary as fast_preliminary
+        accelerated = fast_preliminary(self, now, night_index, lst, requests, top_multiplier)
+        if accelerated is None:
+            visible = set()
+            preliminary = []
+            for i in range(len(state.ids)):
+                best_score = state.best_score[i]
+                missing = state.required[i] and state.factor[i] < scoring.required_threshold
+                science = max(0.0, state.weight[i] * top_multiplier - best_score)
+                science *= self._science_preference(state.flux[i], state.scale)
+                request_value = sum(row[2] for row in requests.get(i, ()))
+                value = science + (scoring.required_penalty if missing else 0.0) + request_value
+                if value <= 0.01:
+                    continue
+                ha = wrap180(lst - state.ra[i])
+                hmax = state.hmax[i]
+                if not (-hmax <= ha <= hmax):
+                    continue
+                up = (hmax - ha) / SIDEREAL_DEG_PER_SECOND if hmax < 180 else 1e9
+                if up < state.min_exposure:
+                    continue
+                visible.add(i)
+                nights_left = max(1, state.last_night[i] - night_index + 1)
+                urgency = (1.0 + (2.0 / nights_left if missing else 0.0)) * getattr(self, "required_priority", 1.0)
+                # Public flux is a cheap initial estimate of completion speed.
+                preliminary.append((value * math.sqrt(max(0.001, state.flux[i])) * urgency, i))
+        else:
+            visible, preliminary = accelerated
         if not preliminary:
             return None
         pool_count = 400 if state.fast_level == 0 else 160
@@ -186,8 +197,12 @@ class SearchPlanner:
             confidence = max(0.45, 0.85 ** state.misses[i])
             item["confidence"] = confidence
             durations = {maximum}
-            for threshold in (1.0, scoring.required_threshold if missing else 1.0):
+            for threshold in (1.0,):
                 point = duration_to_factor(item, threshold, state.min_exposure, maximum)
+                if point is not None:
+                    durations.add(point)
+            if missing:
+                point = duration_to_required_factor(item, scoring, state.min_exposure, maximum)
                 if point is not None:
                     durations.add(point)
             for threshold, deadline, _value, _rid in item["requests"]:
@@ -299,6 +314,23 @@ class SearchPlanner:
                 best = selected
         _rate, duration, program, chosen, ca, cz = best
         program = choose_program(state, chosen, duration, program, hours)
+        # Read-only instrumentation of already-built information, not a scan or
+        # policy intervention. Preview copies never produce executed-run counts.
+        if not getattr(self, "_policy_preview", False):
+            eligible = [item for item in info_cache.values() if item is not None
+                        and required_factor_scale(item, scoring) != item["factor_scale"]]
+            log = getattr(self, "log", None)
+            if eligible and callable(log):
+                eligible_ids = {item["i"] for item in eligible}
+                selected = [{"target_id": state.ids[item["i"]],
+                             "protected_factor": completion(item, duration),
+                             "nominal_factor": min(1.0, completion(item, duration) / .90)}
+                            for item in chosen.values() if item["i"] in eligible_ids]
+                log("required_nominal_rescue: " + json.dumps({
+                    "now_utc": now.isoformat(), "duration_seconds": duration,
+                    "eligible_considered_ids": sorted(state.ids[i] for i in eligible_ids),
+                    "selected": selected}, separators=(",", ":")))
+        state._certificate_pending_notices = tuple(state.notices)
         state.pending.clear()
         state._latent_direction_clear = {state.ids[item["i"]] for item in chosen.values()
             if self._direction_factor(item["alt"], item["az"]) >= 1.0}

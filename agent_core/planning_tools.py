@@ -66,7 +66,7 @@ def evaluate_policies(planner, payload):
         probe.required_priority = 2. if policy == "required" else 1.
         probe.request_priority = 2. if policy == "requests" else 1.
         probe.science_scarcity_enabled = policy != "immediate"
-        probe.exposure_margin = planner.exposure_margin
+        probe.exposure_margin = 1.
         probe.state.update_scale(hours)
         # Freeze inferred throughput, while plan() advances astronomical geometry.
         probe.state.update_scale = lambda _hours: None

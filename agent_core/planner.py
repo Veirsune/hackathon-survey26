@@ -6,8 +6,9 @@ optimizer.py. RuntimeAdvisor integrates a bounded, configurable Kimi-compatible 
 """
 from __future__ import annotations
 
+import math
 from datetime import timedelta
-from time import perf_counter
+from time import process_time
 
 from .geometry import format_utc, parse_utc, wrap180
 from .llm_client import LLMClient
@@ -45,6 +46,11 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.state = state
         self.log = log
         self.grid = state.fiber_grid
+        from .terrain_learning import Horizon
+        self.horizon = Horizon()
+        from .station_notes import StationNotes
+        self.station_notes = StationNotes()
+        self.horizon.prior_limit = self._terrain_prior_limit
         self.mount = PointingCalibration(state, log)
         self.llm = LLMClient(log=log)
         self.trace = TraceLog(log=log)
@@ -62,6 +68,8 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self._plan_costs = [None, None, None]
         self._plan_counts = [0, 0, 0]
         self._init_advisor()
+        from .calendar_governor import CalendarGovernor
+        self.calendar_governor = CalendarGovernor(state.nights, state.min_exposure)
 
         log(f"planner: {len(state.ids)} targets ({sum(state.required)} required), "
             f"{len(state.nights)} nights, model_configured={self.llm.configured}")
@@ -69,6 +77,28 @@ class Planner(RuntimeAdvisor, SearchPlanner):
     # -- top-level decision ----------------------------------------------------
 
     def decide(self, payload: dict) -> dict:
+        """Account all preprocessing, feedback, report and search CPU per turn."""
+        started = process_time()
+        self._did_search = False
+        self._review_cpu_this_turn = 0.
+        action = self._decide(payload)
+        speed = max(1e-9, float((payload.get("wallclock") or {}).get("speed_factor", 1.)))
+        elapsed = max(0., process_time() - started) / speed
+        costs = getattr(self, "_turn_costs", [None, None, None])
+        counts = getattr(self, "_turn_counts", [0, 0, 0])
+        tier = self.state.fast_level
+        previous = costs[tier]
+        costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
+        counts[tier] += 1
+        self._turn_costs, self._turn_counts = costs, counts
+        advance = float(action.get("duration_seconds", 0.))
+        if action.get("until_utc"):
+            advance = max(0., (parse_utc(action["until_utc"]) - parse_utc(payload["now_utc"])).total_seconds())
+        recurring_cpu = max(0., elapsed - self._review_cpu_this_turn)
+        self.calendar_governor.record(recurring_cpu, tier, self._did_search, advance)
+        return action
+
+    def _decide(self, payload: dict) -> dict:
         self._begin_advice_decision(payload)
         state = self.state
         now = parse_utc(payload["now_utc"])
@@ -80,6 +110,10 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         self.mount.consume(payload.get("last_result"))
         self.mount.notice(payload.get("latest_bulletin"))
         state.on_messages(payload.get("new_messages", []), payload.get("latest_bulletin"))
+        from .bonus_certificate import collect as collect_certificate
+        collect_certificate(self, payload, hours)
+        self.station_notes.collect(payload)
+        self.horizon.consume(payload)
         state.on_result(payload.get("last_result"), hours)
         self._expert_after_result(payload, hours)
         self.active_requests = payload.get("active_requests") or []
@@ -115,17 +149,21 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         if report is not None:
             return report
 
-        started = perf_counter()
-        model_before = self.llm.seconds_spent
-        action = self.plan(now, night_end, night_index, hours)
-        # Model selection waits occur inside plan(), but do not recur on every
-        # search. Charge them to real wall time, not the search-cost estimate.
-        model_wait = max(0., self.llm.seconds_spent - model_before)
-        elapsed = max(0., perf_counter() - started - model_wait)
+        started = process_time()
+        self._did_search = True
+        from .terrain_learning import propose as terrain_probe
+        action = terrain_probe(self, now, night_end, night_index, hours)
+        if action is None:
+            action = self.plan(now, night_end, night_index, hours)
+        # Platform charges CPU across threads, normalized by measured speed.
+        elapsed = max(0., process_time() - started) / self._decision_speed
         tier = state.fast_level
         previous = self._plan_costs[tier]
         self._plan_costs[tier] = elapsed if previous is None else .8 * previous + .2 * elapsed
         self._plan_counts[tier] += 1
+        if action is None:
+            from .information_probe import propose
+            action = propose(self, now, night_end, night_index, hours)
         if action is None:
             return {"action": "wait", "duration_seconds": self._to_next_slot(now, night_start),
                     "reason": "nothing useful is up"}
@@ -137,6 +175,11 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return action
 
     def on_finish(self, payload: dict) -> None:
+        import json
+        self.log("station_note_memory: " + json.dumps(self.station_notes.claims, ensure_ascii=False))
+        self.log(f"station_note_summary: accepted={self.station_notes.accepted} changed={self.station_notes.changed} directions={sorted(self.station_notes.claims)}")
+        self.log(f"compute_turn_summary: normalized_cpu_ema={getattr(self, '_turn_costs', [])} counts={getattr(self, '_turn_counts', [])}")
+        self.log(f"terrain_summary: probes={self.horizon.probes} cpu={self.horizon.cpu:.6f} positive_bins={len(self.horizon.clear)} blocked_bins={len(self.horizon.blocked)}")
         self._advisor_summary()
         self.trace.write({"event": "finish", **payload})
         self.trace.close()
@@ -148,6 +191,7 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         counter (enforced by validation.py) stays correct even when a fallback replaced it."""
         self.consecutive_reports = self.consecutive_reports + 1 if action.get("action") == "report" else 0
         self.mount.remember(action, self._current_payload.get("now_utc"))
+        self.horizon.remember(self, action, parse_utc(self._current_payload["now_utc"]))
 
     def _to_next_slot(self, now, night_start) -> int:
         slot = self.state.slot_seconds
@@ -155,11 +199,12 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         return int(max(60, min(3600, slot - into if into else slot)))
 
     def _pace(self, payload: dict, now) -> None:
-        """Use full search until the actual runtime reserve requires fallback."""
-        remaining = float((payload.get("wallclock") or {}).get("remaining_seconds", 1e9))
-        level = 0 if remaining > 180. else 2
+        """Allocate compute to remaining public calendar, with measured costs."""
+        remaining = self._cpu_left()
+        reviews_left = max(0, self.llm.max_calls - self.llm.calls_made) if self.llm.retry_available else 0
+        level = self.calendar_governor.choose(now, remaining, self.state.fast_level, reviews_left)
         if level != self.state.fast_level:
-            self.log(f"planner: steady pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)}")
+            self.log(f"planner: calendar pace level {level} ({remaining:.1f}s remaining) at {format_utc(now)} forecast={self.calendar_governor.last_forecast}")
             self.state.fast_level = level
 
     # -- instrument fault reporting (deterministic rules + LLM confirmation) -----
@@ -168,8 +213,42 @@ class Planner(RuntimeAdvisor, SearchPlanner):
         fallback = budgeted_report(self, hours, payload)
         if fallback is not None:
             return fallback
+        from .bonus_certificate import report as certificate_report
+        certificate = certificate_report(self, hours, payload)
+        if certificate is not None:
+            return certificate
+        review_started = process_time()
+        calls_before = self.llm.calls_made
         self._expert_review(hours, payload)
+        review_cpu = max(0., process_time() - review_started) / self._decision_speed
+        self._review_cpu_this_turn += review_cpu
+        if self.llm.calls_made > calls_before:
+            self.calendar_governor.record_review(review_cpu)
         return self._expert_report(hours, payload)
+
+
+    def _fault_posterior(self, probe: dict):
+        """Naive-Bayes posterior over 'an unannounced instrument fault is
+        suppressing efficiency right now' (likelihood ratios calibrated on the
+        old-core L1/L2 truth, reports/v4-exp/c3-bayesian-diagnosis.md)."""
+        terms = []
+        drop = probe.get("clean_drop")
+        if drop is not None:
+            for edge, lr in ((0.55, 84.98), (0.70, 1.56), (0.85, 1.47), (1.00, 0.05), (9e9, 0.03)):
+                if drop < edge:
+                    terms.append(lr)
+                    break
+        if probe.get("night_series"):
+            terms.append((0.74, 0.69, 2.67, 19.10)[min(probe.get("depressed_nights", 0), 3)])
+        if not terms:
+            return None
+        log_odds = math.log(0.25 / 0.75) + sum(math.log(max(1e-6, lr)) for lr in terms) / len(terms)
+        return 1.0 / (1.0 + math.exp(-max(-30.0, min(30.0, log_odds))))
+
+    def _bayes_support(self, hours: float):
+        """Posterior p used to gate the non-rule-chain report paths, or None
+        when there is no evidence at all."""
+        return self._fault_posterior(self.state.fault_probe(hours))
 
     def _baseline_report(self, hours: float, payload: dict):
         state = self.state
@@ -218,11 +297,20 @@ class Planner(RuntimeAdvisor, SearchPlanner):
 
     # -- planning value / achievability -----------------------------------------
 
+    def _terrain_prior_limit(self, az, directions):
+        return max((self.station_notes.limit(d) for d in directions
+                    if d in DIRECTION_AZ and _az_distance(az, DIRECTION_AZ[d]) <= 60.), default=0.)
+
+    def _expert_review(self, hours, payload):
+        result = payload.get("last_result") or {}
+        if result.get("action") == "report":
+            self._observer_report_result = {"time": payload["now_utc"], "correct": result.get("correct")}
+        self.station_notes.review(self, payload)
+
     def _direction_factor(self, alt: float, az: float) -> float:
         state = self.state
-        for direction in state.terrain:
-            if direction in DIRECTION_AZ and alt < 50.0 and _az_distance(az, DIRECTION_AZ[direction]) <= 60.0:
-                return 0.0
+        if self.horizon.factor(alt, az, state.terrain) <= 0.:
+            return 0.0
         factor = 1.0
         for key in state.notices:
             kind, _, direction = key.partition("|")

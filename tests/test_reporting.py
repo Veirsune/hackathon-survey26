@@ -10,6 +10,14 @@ from agent_core.report_budget import budgeted_report, early_free_diagnostic
 
 
 class ReportingTests(unittest.TestCase):
+    def test_low_posterior_blocks_diagnostic_trigger(self):
+        p = self.planner()
+        p._bayes_support = lambda *_: 0.1
+        from agent_core.report_budget import budgeted_report
+        self.assertIsNone(budgeted_report(p, 250., {}))
+        p._bayes_support = lambda *_: None
+        self.assertIsNone(budgeted_report(p, 250., {}))
+
     def planner(self, ratio=.3):
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         rows = [(float(t), night, ratio) for night, times in
@@ -25,7 +33,7 @@ class ReportingTests(unittest.TestCase):
         return SimpleNamespace(state=state, mount=mount, _false_since_correct=0,
             _last_false_hours=0., _last_false_ratio=.65, last_report_hours=0., reports=0,
             _await_report_result=False, suspicion_hours=[], log=lambda *_: None,
-            _baseline_report=lambda *_: None)
+            _baseline_report=lambda *_: None, _bayes_support=lambda *_: 1.0)
 
     def test_evidence_allows_earlier_free_report_but_not_paid_report(self):
         p = self.planner()
