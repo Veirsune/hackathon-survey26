@@ -26,9 +26,7 @@ and earns the configured reward; a wrong report spends a free allowance, then
 costs points. Free allowance is reset only by a confirmed correct report.
 
 Use policy_previews and policy_comparison to compare up to three successive simulated exposures
-under different plans at the CURRENT exposure margin shown in policy_comparison.
-These previews compare policies, not alternative exposure margins.
-Do not claim previews tie when their science rates differ.
+under different plans. Do not claim previews tie when their science rates differ.
 In your notebook, explain the chosen policy relative to the numerical science
 leader; a lower rate needs a specific deadline or future-weather tradeoff.
 These are short nominal projections, NOT an entire observing night and NOT
@@ -68,7 +66,7 @@ Report only with evidence of a persistent fault and report_diagnostic.allowed=tr
 Evaluate your previous hypothesis against new evidence. Retain a short working
 memory (at most 400 characters) stating the hypothesis and what would refute it.
 Reply JSON only with exactly these fields:
-{"policy":"balanced|required|requests|immediate", "exposure_margin":1.05,
+{"policy":"balanced|required|requests|immediate", "exposure_margin":1.0,
  "review_after_nights":4, "diagnosis":"monitor|report",
  "hypothesis":"weather|instrument|geometry|uncertain",
  "evidence_ids":["history", "required", "requests", "bulletin", "forecast"],
@@ -79,9 +77,8 @@ events or infer a fault merely because this is a benchmark. You have a bounded
 review budget; an event can trigger review before the planned review night.
 review_after_nights is the earliest requested review, NOT a policy expiry.
 Quota or API failures may delay review: your accepted policy and exposure margin
-remain active until another valid review replaces them. The numerical baseline
-uses balanced with margin 1.05; choose those values to restore the baseline.
-Margin 1.0 is a change from that baseline, not a neutral reset. The numerical executor re-evaluates current
+remain active until another valid review replaces them. Choose balanced with
+margin 1.0 to cancel an earlier plan. The numerical executor re-evaluates current
 weather estimates and unfinished targets on every action; the baseline good-sky
 preference changes weights only above its reference quality, and immediate turns it off. Reports are one-shot
 proposals and are never repeated merely because a plan remains active.
@@ -91,7 +88,7 @@ proposals and are never repeated merely because a plan remains active.
 class ExpertObserver(RuntimeAdvisor):
     def _init_advisor(self):
         super()._init_advisor()
-        self.exposure_margin = 1.05
+        self.exposure_margin = 1.05  # Fixed model-OFF experiment, from initialization.
         self._stage_successes = {"expert_review": 0}
         self.required_priority = 1.0
         self.request_priority = 1.0
@@ -268,9 +265,9 @@ class ExpertObserver(RuntimeAdvisor):
                 entry.pop("sector_medians", None)
             compact.append(entry)
         hours = (now - state.survey_start).total_seconds() / 3600.
-        previews = evaluate_policies(self, payload) if self._wall_left() > 200 else []
+        previews = evaluate_policies(self, payload) if self._cpu_left() > 200 and self._wall_left() > 30 else []
         available = [p for p in previews if p.get("available")]
-        comparison = {"assumed_exposure_margin": self.exposure_margin, "scope": "At most three successive projected exposures; not an entire night; throughput held fixed."}
+        comparison = {"assumed_exposure_margin": 1.0, "scope": "At most three successive projected exposures; not an entire night; throughput held fixed."}
         if available:
             leader = max(available, key=lambda p: p["predicted_science_per_hour"])
             baseline = next((p for p in available if p["policy"] == "balanced"), leader)

@@ -2,7 +2,18 @@
   "schema_version": "observer-project-v1",
   "protocol": "jsonl-v4",
   "image": "python:3.12-slim",
-  "build": [],
+  "build": [
+    [
+      "python3",
+      "-m",
+      "pip",
+      "install",
+      "--target",
+      ".vendor",
+      "-r",
+      "requirements.txt"
+    ]
+  ],
   "run": [
     "python3",
     "-u",
@@ -11,6 +22,13 @@
   "working_directory": ".",
   "environment": {
     "PYTHONDONTWRITEBYTECODE": "1",
-    "OPENAI_MODEL": "kimi-for-coding"
+    "AGENT_LLM_REASONING_EFFORT": "low",
+    "AGENT_LLM_ENABLED": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": ".vendor",
+    "AGENT_LLM_MAX_CALLS": "8",
+    "AGENT_LLM_TOTAL_SECONDS": "120",
+    "AGENT_LLM_CALL_SECONDS": "30",
+    "AGENT_LLM_OUTPUT_LIMIT": "2200"
   }
 }

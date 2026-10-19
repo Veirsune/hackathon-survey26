@@ -61,6 +61,7 @@ class SurveyState:
         instrument = init_payload["instrument"]
         limits = init_payload.get("limits", {})
 
+        self.utc_offset_hours = site.get("utc_offset_hours")
         self.lat = float(site["latitude_deg"])
         self.lon = float(site["longitude_deg"])
         self.min_alt = float(site.get("minimum_altitude_deg", 30.0))
@@ -80,6 +81,7 @@ class SurveyState:
         self.scoring = ScoringModel(init_payload.get("scoring", {}), site)
 
         reporting = init_payload.get("scoring", {}).get("reporting", {})
+        self.reporting_config = reporting
         self.max_consecutive_reports = int(reporting.get("max_consecutive_reports", limits.get("max_consecutive_reports", 32)))
         self.false_report_free_allowance = int(reporting.get("false_report_free_allowance", 0))
         self.response_max_bytes = int(limits.get("response_max_bytes", 524288))
@@ -325,12 +327,8 @@ class SurveyState:
         Public current time prevents frozen clean history from becoming fresh
         confirmation during a long stretch of weather notices.
         """
-        grouped: dict[tuple[float, int], list[float]] = {}
-        for hours, night, ratio in self.clean_history:
-            if night >= 0 and math.isfinite(hours) and math.isfinite(ratio) and ratio > 0:
-                grouped.setdefault((hours, night), []).append(ratio)
-        history = sorted((hours, night, median(ratios))
-                         for (hours, night), ratios in grouped.items())
+        from .compute_fastpath import clean_exposure_history
+        history = clean_exposure_history(self)
         nights = sorted({night for _, night, _ in history})
         if len(nights) < 4:
             return None

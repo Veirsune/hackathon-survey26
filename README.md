@@ -1,41 +1,9 @@
-# Agent Observer
+# Event-driven neural observer
 
-A Python agent for the [GOSIM 2026 Agentic Observer Challenge](https://github.com/gosimfoundation/hackathon-survey26).
+Experimental survey agent combining an online neural observation planner, explicit instrument-work scheduling, and Kimi advice. Public work notices can trigger timely reports and shorten the planning horizon; unexplained losses use observation-based fault diagnostics.
 
-Kimi reviews observation history, weather, deadlines, and short planning previews to choose a persistent observing policy. A numerical scheduler selects pointings, fiber assignments, and exposure times, with pointing calibration learned from public hit feedback. Accepted plans survive failed model calls and can be revised on later nights.
+Kimi interprets weather and engineering notes and advises on computed plans. Configure `OPENAI_API_KEY`, `OPENAI_BASE_URL=https://api.kimi.com/coding/v1`, and `OPENAI_MODEL=kimi-for-coding` in the platform. Model calls are bounded; no credentials are stored here.
 
-## Run
+Submit this branch with `observer.project.json` to the **after-party** phase. This is an experimental evaluation, not a selected final version.
 
-Python 3.9+; no third-party dependencies. Set these environment variables:
-
-```dotenv
-OPENAI_BASE_URL=https://api.kimi.com/coding/v1
-OPENAI_MODEL=kimi-for-coding
-OPENAI_API_KEY=your-api-key
-AGENT_LLM_CALL_SECONDS=30
-AGENT_LLM_TOTAL_SECONDS=120
-AGENT_LLM_MAX_CALLS=6
-AGENT_LLM_REASONING_EFFORT=low
-```
-
-See `.env.example`. Keep credentials local; direct execution reads environment variables, while the competition platform supplies them at runtime.
-
-The settings above are for direct local Kimi calls. The cloud manifest omits `reasoning_effort`, which the competition proxy rejects.
-
-```sh
-python -u agent.py
-```
-
-Fault diagnosis uses public weather warnings and allows at most one report beyond the free allowance per survey.
-
-Input and output use JSONL with `participant-agent-protocol-v4`; logs go to stderr. Scheduling continues when model calls fail.
-
-Local L4: **7057.06** with model calls disabled, **7057.06** with Kimi. See [benchmark details](BENCHMARK.md). These are single local measurements, not official leaderboard scores.
-
-```sh
-python -m unittest discover -s tests -v
-```
-
-The offline agent is on the [`no-llm` branch](https://github.com/Veirsune/hackathon-survey26/tree/no-llm). The platform imports only the default branch. Use the repository URL for Kimi, or upload an archive of `no-llm` for the offline version.
-
-Based on the official Python example. See [LICENSE.md](LICENSE.md).
+The schedule parser is adapted through an integration layer from [Argelander](https://github.com/hou-physics/gosim2026-agentic-observer-argelander), pinned at `a98cb68324effbe11bc0d732ea519dafc4285edd`; its source is unchanged. See `LICENSE.argelander` and `PEER_RESEARCH.md`.

@@ -87,8 +87,6 @@ def budgeted_report(planner, hours, payload):
             return None
         if getattr(planner, "_paid_diagnostic_attempts", 0) >= 1:
             return None
-        if hours - getattr(planner, "_last_false_hours", float("-inf")) < 7 * 24:
-            return None
         now = state.survey_start + timedelta(hours=hours)
         remaining_hours = sum(max(0., (end - max(start, now)).total_seconds()) / 3600
                               for start, end in state.nights)
